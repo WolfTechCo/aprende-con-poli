@@ -21,14 +21,16 @@ Los ejercicios se generan al azar: cada vez que se entra a una sección son dist
 
 ## Perfiles
 - Cada niño o niña tiene su propio perfil (hasta 6 por dispositivo): al abrir la app, Poli pregunta **¿Quién va a jugar?**
-- En el panel de apoderado se elige de quién ver el avance, se cambia el nombre o se borra un perfil.
+- En **Ajustes** se cambia el nombre, se indica niña o niño o se borra un perfil.
 - El respaldo guarda a todos los perfiles juntos (y acepta respaldos antiguos de un solo perfil).
 
-## Repaso del día y panel de apoderado
-- **Repaso** (botón en el mapa): 5 preguntas mezcladas de los temas ya aprendidos, con más preguntas de los temas donde se equivoca.
-- **Panel de apoderado** (desde el álbum, se entra resolviendo una multiplicación): muestra el % de aciertos a la primera por tema
-  (últimas 20 respuestas), cuántas respuestas lleva y cuándo practicó; ahí se marcan los temas que entran al repaso,
-  se guarda o carga un **respaldo del progreso** y están las instrucciones para **instalar la app**.
+## Repaso, Mi avance y Ajustes
+- En el mapa, **Repaso, Álbum, Mi avance y Ajustes** son botones a la vista en tablet y notebook, y en celular van en el botón redondo de 4 puntitos de colores, al lado del título del mapa. El **Taller libre** es una isla del capítulo 1.
+- **Repaso**: 5 preguntas mezcladas de los temas ya aprendidos, con más preguntas de los temas donde se equivoca.
+- **📈 Mi avance** (sin clave): estrellas, temas aprendidos y, por tema, el % de aciertos a la primera
+  (últimas 20 respuestas), cuántas respuestas lleva y cuándo practicó; los temas bajo 70 % aparecen como ⭐ para reforzar.
+- **⚙️ Ajustes** (se entra resolviendo una multiplicación): perfiles, temas que entran al Repaso,
+  **respaldo del progreso** e instrucciones para **instalar la app**.
 
 ## Cómo usarla
 - **Desde el link:** se abre en cualquier navegador y se juega. El progreso queda guardado en ese navegador.

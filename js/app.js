@@ -118,7 +118,7 @@ const plural = F => F.pl || `${F.art === 'la' ? 'las' : 'los'} ${F.name}s`;
 
 /* capítulos: el 3 (números) se agrega desde js/numeros.js */
 const CH = {
-  1: { nodes: ['intro', 'tri', 'sq', 'rect', 'pent', 'hex', 'oct', 'challenge'], intro: 'intro', chal: 'challenge', figs: SHAPES, label: '1 · Polígonos',
+  1: { nodes: ['intro', 'tri', 'sq', 'rect', 'pent', 'hex', 'oct', 'challenge', 'taller'], intro: 'intro', chal: 'challenge', figs: SHAPES, label: '1 · Polígonos',
     introLabel: 'Inicio', sticker: () => [gx('Exploradora', 'Explorador'), 'Qué es un polígono'], chalTitle: 'Gran Desafío', champ: () => gx('una campeona', 'un campeón') + ' de las formas',
     hello: n => `¡Hola, ${n}! Toca la isla verde para empezar.`, types: ['sides', 'sides', 'vert', 'vert', 'name', 'name', 'notpoly', 'poly'] },
   2: { nodes: ['intro3d', ...SOLIDS.map(s => s.id), 'challenge3d'], intro: 'intro3d', chal: 'challenge3d', figs: SOLIDS, label: '2 · <span class="lg">Figuras </span>2D y 3D',
@@ -568,6 +568,28 @@ const POLI_SVG = `
  </g>
 </svg>`;
 let lastSay = '';
+/* pasa a lo siguiente recién cuando Poli terminó de hablar (o, con el sonido apagado, cuando hubo tiempo de leer),
+   para no cortar explicaciones como "¡Sí! 12 + 2 = 14". Tocar la pantalla salta la espera.
+   node: si deja de estar en pantalla (Volver), no hace nada */
+function afterSay(fn, node) {
+  const t0 = Date.now(), read = Math.min(5000, 900 + lastSay.length * 35);
+  const voiceOn = () => save.voice && 'speechSynthesis' in window && speechSynthesis.getVoices().length > 0;
+  const talking = () => speechSynthesis.speaking || speechSynthesis.pending;
+  let quietSince = 0, gone = false;
+  const go2 = () => { if (gone) return; gone = true; removeEventListener('pointerdown', skip, true); if (!node || node.isConnected) fn(); };
+  const skip = e => { if (Date.now() - t0 > 350 && !e.target.closest('#bar,#dock')) { e.stopPropagation(); go2(); } };
+  addEventListener('pointerdown', skip, true);
+  const tick = () => {
+    if (gone) return;
+    if (node && !node.isConnected) { gone = true; removeEventListener('pointerdown', skip, true); return; }
+    const t = Date.now() - t0;
+    if (voiceOn() && talking()) quietSince = 0; else quietSince ||= Date.now();
+    // con voz: espera a que termine + 0,3 s; sin voz: el tiempo de leer el mensaje
+    const done = voiceOn() && t > 500 ? quietSince && Date.now() - quietSince > 300 && t > 900 : t > read;
+    if (done || t > 15000) go2(); else setTimeout(tick, 120);
+  };
+  setTimeout(tick, 300);
+}
 const poli = {
   say(t, talk = true) {
     lastSay = t; $('#bubbleText').textContent = t;
@@ -607,7 +629,7 @@ const scr = () => $('#screen');
 const isIntro = id => Object.values(CH).some(C => C.intro === id);
 
 function go(name, params = {}) { sfx.pop(); cur = { name, ...params }; render(); }
-const backTarget = () => ({ island: ['map'], lesson: isIntro(cur.id) ? ['map'] : ['island', { id: cur.id }], build: ['island', { id: cur.id }], paint: ['island', { id: cur.id }], hunt: ['island', { id: cur.id }], game: ['island', { id: cur.id }], challenge: ['map'], album: ['map'], workshop: ['map'], repaso: ['map'], parent: ['album'] }[cur.name]);
+const backTarget = () => ({ island: ['map'], lesson: isIntro(cur.id) ? ['map'] : ['island', { id: cur.id }], build: ['island', { id: cur.id }], paint: ['island', { id: cur.id }], hunt: ['island', { id: cur.id }], game: ['island', { id: cur.id }], challenge: ['map'], album: ['map'], workshop: ['map'], repaso: ['map'], parent: ['map'], avance: ['map'] }[cur.name]);
 function setAction(label, fn, enabled = true, cls = '') {
   const b = $('#action');
   if (!label) { b.hidden = true; return; }
@@ -641,7 +663,8 @@ function titleFor() {
     case 'album': return 'Mi álbum';
     case 'workshop': return 'Taller libre';
     case 'repaso': return 'Repaso del día';
-    case 'parent': return 'Panel de apoderado';
+    case 'parent': return 'Ajustes';
+    case 'avance': return `Avance de ${save.name}`;
     default: return 'Aprende con Poli';
   }
 }
@@ -649,12 +672,13 @@ function render() {
   if ('speechSynthesis' in window) speechSynthesis.cancel();
   stepBack = null;
   $('#btnBack').hidden = !backTarget();
+  $('#barSlot').innerHTML = '';
   $('#app').classList.toggle('is-home', cur.name === 'welcome');
   $('#title').textContent = titleFor();
   setAction(null);
   refreshStars();
   scr().innerHTML = '';
-  ({ welcome: viewWelcome, map: viewMap, island: viewIsland, lesson: viewLesson, build: viewBuild, paint: viewPaint, hunt: viewHunt, game: viewGame, challenge: viewChallenge, album: viewAlbum, workshop: viewWorkshop, repaso: viewRepaso, parent: viewParent })[cur.name]();
+  ({ welcome: viewWelcome, map: viewMap, island: viewIsland, lesson: viewLesson, build: viewBuild, paint: viewPaint, hunt: viewHunt, game: viewGame, challenge: viewChallenge, album: viewAlbum, workshop: viewWorkshop, repaso: viewRepaso, parent: viewParent, avance: viewAvance })[cur.name]();
 }
 
 /* =========================================================
@@ -716,12 +740,20 @@ function nodeState(ch, vert) {
   return C.nodes.map((id, i) => {
     const x = vert ? (i % 2 ? 70 : 30) : 7 + i * 86 / (len - 1), y = vert ? (i + .5) / len * 100 : i % 2 ? 70 : 32;
     const isChal = id === C.chal;
+    if (id === 'taller') return { id, x, y, locked: false, current: false, isChal: false, free: true }; // Taller: siempre abierto, sin estrellas
     const locked = i === 0 ? false : isChal ? !C.figs.every(F => prog(F.id).lesson) : !prog(C.nodes[i - 1]).lesson && !Object.keys(prog(id)).length; // una isla ya jugada no se vuelve a cerrar
     const complete = isIntro(id) ? !!prog(id).lesson : isChal ? save[id] > 0 : figStars(id) === 3;
     const current = !locked && !currentFound && !complete; if (current) currentFound = true;
     return { id, x, y, locked, current, isChal };
   });
 }
+const MENU_ITEMS = `
+            <button data-go="repaso"><span class="mi"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round"/><path d="M21 4v5h-5" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7.5V12l3 2" fill="none" stroke="#5a3a00" stroke-width="2.4" stroke-linecap="round"/></svg></span><span><b>Repaso</b><small>5 preguntas para practicar</small></span></button>
+            <button data-go="album"><span class="mi"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3" fill="#ff7eb6" stroke="#7c5cff" stroke-width="2"/><path d="M8 8h8M8 12h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></span><span><b>Álbum</b><small>Tus stickers y estrellas</small></span></button>
+            <button data-go="avance"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8" rx="1.5" fill="#ff8a3d"/><rect x="10" y="8" width="4" height="13" rx="1.5" fill="#4ea8ff"/><rect x="17" y="3" width="4" height="18" rx="1.5" fill="#22c58b"/></svg></span><span><b>Mi avance</b><small>Cómo vas en cada tema</small></span></button>
+            <button data-go="parent"><span class="mi"><svg viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z" fill="none" stroke="#7c5cff" stroke-width="2.4"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="#7c5cff" stroke-width="2.4" stroke-linecap="round"/></svg></span><span><b>Ajustes</b><small>Para adultos 🔒</small></span></button>`;
+const setMenu = open => { const m = $('#menu'); if (!m) return; m.hidden = !open; $('#bMenu').setAttribute('aria-expanded', open); };
+addEventListener('click', e => { if (!e.target.closest('#menu,#bMenu')) setMenu(false); });
 function viewMap() {
   if (!root.cur) return go('welcome');
   const ch = CH[save.ch] ? +save.ch : 1, vert = isVertical();
@@ -731,6 +763,7 @@ function viewMap() {
   const nodeHtml = ns.map(n => {
     let c, dk, icon, label, stars;
     if (isIntro(n.id)) { c = '#34d399'; dk = '#1b9f72'; icon = `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z" fill="#fff"/></svg>`; label = CH[ch].introLabel; stars = starsRow(prog(n.id).lesson ? 1 : 0, 1); }
+    else if (n.free) { c = '#9b6bff'; dk = '#7447e0'; icon = `<svg viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z" fill="#fff" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg>`; label = 'Taller libre'; stars = '<small class="nfree">¡Dibuja!</small>'; }
     else if (n.isChal) { c = '#ffc233'; dk = '#e09a00'; icon = `<svg viewBox="0 0 24 24"><path d="${trophyPath}" fill="#fff" stroke="#fff" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>`; label = 'Gran Desafío'; stars = starsRow(save[n.id] || 0); }
     else { const F = FIG[n.id]; c = F.c; dk = F.d; icon = figSvg(F, true); label = F.short || cap(F.name); stars = starsRow(figStars(F.id)); }
     return `<button class="node ${n.locked ? 'locked' : ''} ${n.current ? 'current' : ''}" data-id="${n.id}" style="left:${n.x}%;top:${n.y}%;--c:${c};--d:${dk}">
@@ -740,9 +773,12 @@ function viewMap() {
       <div class="maptop">
         <div class="chapters">${Object.keys(CH).map(Number).map(k => `<button class="chap ${k === ch ? 'on' : ''}" data-ch="${k}">${CH[k].label}</button>`).join('')}</div>
         <div class="mapbar">
-          <button class="btn gold sm" id="bRep"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round"/><path d="M21 4v5h-5" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7.5V12l3 2" fill="none" stroke="#5a3a00" stroke-width="2.4" stroke-linecap="round"/></svg>Repaso</button>
-          <button class="btn ghost sm" id="bWork"><svg viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z" fill="#ffc233" stroke="#7c5cff" stroke-width="2" stroke-linejoin="round"/></svg>Taller</button>
-          <button class="btn ghost sm" id="bAlb"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3" fill="#ff7eb6" stroke="#7c5cff" stroke-width="2"/><path d="M8 8h8M8 12h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>Álbum</button>
+          <div class="mbtns">
+            <button class="btn gold sm" data-go="repaso"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round"/><path d="M21 4v5h-5" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7.5V12l3 2" fill="none" stroke="#5a3a00" stroke-width="2.4" stroke-linecap="round"/></svg>Repaso</button>
+            <button class="btn ghost sm" data-go="album"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3" fill="#ff7eb6" stroke="#7c5cff" stroke-width="2"/><path d="M8 8h8M8 12h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>Álbum</button>
+            <button class="btn ghost sm" data-go="avance"><svg viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8" rx="1.5" fill="#ff8a3d"/><rect x="10" y="8" width="4" height="13" rx="1.5" fill="#4ea8ff"/><rect x="17" y="3" width="4" height="18" rx="1.5" fill="#22c58b"/></svg>Mi avance</button>
+            <button class="btn ghost sm" data-go="parent"><svg viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z" fill="none" stroke="#7c5cff" stroke-width="2.4"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="#7c5cff" stroke-width="2.4" stroke-linecap="round"/></svg>Ajustes</button>
+          </div>
         </div>
       </div>
       <div class="mapscroll"><div class="map ${!vert && ns.length > 8 ? 'dense' : ''}" ${vert ? `style="height:${ns.length * 132}px"` : ''}>
@@ -752,11 +788,16 @@ function viewMap() {
   $$('.node', el).forEach(b => b.onclick = () => {
     const id = b.dataset.id, n = ns.find(x => x.id === id);
     if (n.locked) { sfx.bad(); poli.oops(n.isChal ? 'Para el Gran Desafío, primero aprende todas las figuras de este capítulo.' : 'Esa isla todavía está cerrada. ¡Termina la anterior!'); return; }
+    if (n.free) return go('workshop');
     isIntro(id) ? go('lesson', { id }) : n.isChal ? go('challenge', { ch }) : go('island', { id });
   });
-  $('#bAlb').onclick = () => go('album');
-  $('#bWork').onclick = () => go('workshop');
-  $('#bRep').onclick = () => go('repaso');
+  /* Repaso, Álbum, Mi avance y Ajustes: botones a la vista en pantallas anchas; en celular, en el Menú */
+  $$('[data-go]', el).forEach(b => b.onclick = () => go(b.dataset.go));
+  /* en celular, el botón Más va en la barra de arriba, al lado del título */
+  $('#barSlot').innerHTML = `<button class="round more" id="bMenu" aria-expanded="false" aria-label="Más opciones"><svg viewBox="0 0 24 24" class="dots4"><circle cx="7" cy="7" r="3.6" fill="#ff6b6b"/><circle cx="17" cy="7" r="3.6" fill="#4ea8ff"/><circle cx="7" cy="17" r="3.6" fill="#22c58b"/><circle cx="17" cy="17" r="3.6" fill="#9b6bff"/></svg></button>
+    <div class="menu" id="menu" hidden>${MENU_ITEMS}</div>`;
+  $$('#barSlot [data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+  $('#bMenu').onclick = e => { e.stopPropagation(); sfx.pop(); setMenu(!!$('#menu').hidden); };
   const cu = ns.find(n => n.current);
   poli.say(!cu ? `¡Increíble, ${save.name}! Completaste todo este capítulo.`
     : isIntro(cu.id) ? CH[ch].hello(save.name)
@@ -1207,7 +1248,7 @@ function viewChallenge() {
   const show = () => {
     const q = qs[qi];
     const el = frame(`<div class="progress">${qs.map((_, i) => `<i class="${i < qi ? (res[i] ? 'ok' : 'meh') : i === qi ? 'now' : ''}"></i>`).join('')}</div><div class="stepbody"></div>`);
-    choice($('.stepbody', el), { prompt: q.prompt, shape: q.shape || '', opts: q.opts, cls: q.cls || '', onRight: first => { res[qi] = first; track(topicOf(ts[qi]), first); setTimeout(() => { qi++; qi < qs.length ? show() : finish(); }, 1300); } });
+    choice($('.stepbody', el), { prompt: q.prompt, shape: q.shape || '', opts: q.opts, cls: q.cls || '', onRight: first => { res[qi] = first; track(topicOf(ts[qi]), first); afterSay(() => { qi++; qi < qs.length ? show() : finish(); }, el); } });
     poli.say(q.voice || q.prompt);
   };
   const finish = () => {
@@ -1236,8 +1277,7 @@ function viewAlbum() {
       stk((save[C.chal] || 0) >= 3, trophy, gx('Campeona', 'Campeón'), 'Desafío perfecto'),
     ].join('');
   };
-  const el = frame(`<p class="rank"><span>${save.name ? save.name + ' · ' : ''}${rank} · ${total}/${max} ★</span></p><div class="album">${Object.keys(CH).map(section).join('')}</div><div class="albfoot"><button class="tinybtn" id="bPar">Panel de apoderado</button></div>`);
-  $('#bPar').onclick = () => go('parent');
+  const el = frame(`<p class="rank"><span>${save.name ? save.name + ' · ' : ''}${rank} · ${total}/${max} ★</span></p><div class="album">${Object.keys(CH).map(section).join('')}</div>`);
   poli.say(`¡Mira tu álbum, ${save.name}! Completa las tres estrellas de cada isla para ganar sus stickers.`);
 }
 
