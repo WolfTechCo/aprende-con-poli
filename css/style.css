@@ -187,6 +187,11 @@ svg{display:block}
 .mapbar{position:relative}
 .mbtns{display:flex;gap:10px}
 #bMenu{display:none}
+#bMenu{animation:glow 2.4s ease-in-out infinite}
+#bMenu[aria-expanded=true]{animation:none}
+@keyframes glow{0%,100%{box-shadow:0 5px 0 var(--gold-d),0 0 0 0 rgba(255,194,51,.55)}50%{box-shadow:0 5px 0 var(--gold-d),0 0 0 9px rgba(255,194,51,0)}}
+#bMenu .dots4{animation:twirl 6s ease-in-out infinite}
+@keyframes twirl{0%,80%,100%{transform:none}88%{transform:rotate(90deg) scale(1.15)}}
 @media (max-width:900px){.mbtns{display:none}#bMenu{display:inline-flex}}
 @media (min-width:901px) and (max-width:1120px){.chap{padding:5px 11px;font-size:14px}.chapters{gap:5px}.chap .lg{display:none}.mbtns{gap:6px}.mbtns .btn.sm{font-size:15px;padding:7px 12px;gap:6px}.mbtns .btn svg{width:20px;height:20px}}
 .node .nfree{font-weight:800;font-size:13px;color:var(--violet-d);background:#fff;border-radius:99px;padding:0 8px;line-height:20px}
