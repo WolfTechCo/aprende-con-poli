@@ -16,13 +16,19 @@ const ps = pts => pts.map(p => p.join(',')).join(' ');
 
 /* ---------- guardado ---------- */
 const KEY = 'poligonos-magicos-v1';
-const NEWSAVE = () => ({ name: '', fx: true, voice: true, prog: {}, challenge: 0, challenge3d: 0, challengeNum: 0, ch: 1, stats: {}, repasoOff: [] });
+const SAVEVER = 1;
+const NEWSAVE = () => ({ ver: SAVEVER, name: '', fx: true, voice: true, prog: {}, challenge: 0, challenge3d: 0, challengeNum: 0, ch: 1, stats: {}, repasoOff: [] });
 let save = NEWSAVE();
-try { Object.assign(save, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { }
+try { const raw = JSON.parse(localStorage.getItem(KEY) || '{}'); Object.assign(save, raw); if (!('ver' in raw)) save.ver = 0; } catch (e) { }
 /* el nombre se muestra dentro de la página: solo letras, números y espacios */
 const cleanName = s => String(s || '').replace(/[^\p{L}\p{N} .-]/gu, '').trim().slice(0, 14);
 save.name = cleanName(save.name);
+/* traspaso del progreso entre versiones del guardado: si algún día se renombra, une o elimina
+   una isla, se agrega aquí un paso { de: n, paso: s => {...} } que convierte el progreso antiguo */
+const MIGRATIONS = [{ de: 0, paso: s => s }]; // 0 → 1: guardados anteriores al número de versión, sin cambios
+function migrate(s) { s.ver ||= 0; for (const m of MIGRATIONS) if (s.ver === m.de) { m.paso(s); s.ver = m.de + 1; } return s; }
 const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(save)); } catch (e) { } };
+migrate(save); persist();
 const prog = id => (save.prog[id] ||= {});
 
 /* objetos ya mostrados en esta sesión, para no repetirlos entre lección y caza */
@@ -1267,5 +1273,12 @@ addEventListener('resize', () => {
   rsT = setTimeout(() => { const v = isVertical(); if (v !== lastVert) { lastVert = v; if (cur.name === 'map') viewMap(); } }, 250);
 });
 /* arranca cuando ya cargaron todos los scripts (js/numeros.js agrega el capítulo 3) */
-const boot = () => { initBg(); updateVoiceIcon(); render(); };
+const boot = () => {
+  initBg(); updateVoiceIcon(); render();
+  // modo sin internet (solo cuando la app está publicada, no al abrir el archivo directo)
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('sw.js').catch(() => { });
+};
+/* instalar la app: el navegador avisa cuando se puede (Chrome / Android) */
+let installPrompt = null;
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); installPrompt = e; });
 document.readyState === 'loading' ? addEventListener('DOMContentLoaded', boot) : boot();

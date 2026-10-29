@@ -1,3 +1,5 @@
+/* letra de la app incluida en la propia app (sin Google Fonts). Baloo 2, licencia SIL OFL: fonts/OFL.txt */
+@font-face{font-family:"Baloo 2";font-style:normal;font-weight:400 800;font-display:swap;src:url(../fonts/baloo2-latin.woff2) format("woff2")}
 :root{
   --ink:#2b2d6e; --ink2:#5a5d9a; --paper:#ffffff;
   --sky1:#8fd8ff; --sky2:#e8f8ff; --sea:#35a8ff; --sea2:#1f86e0;
@@ -447,6 +449,10 @@ svg.join{width:var(--board);max-width:100%;height:auto}
 .pname{font-weight:800;font-size:clamp(16px,2vw,20px)}
 .pdata{font-weight:600;font-size:clamp(13px,1.6vw,16px);color:var(--ink2)}
 .pdata .okp{color:var(--good-d)}.pdata .lowp{color:#e0651a}
+.pbox{background:#fff;border-radius:18px;padding:12px 16px;box-shadow:0 5px 0 #c7c9f0;font-weight:600;font-size:clamp(14px,1.7vw,17px);line-height:1.35}
+.pbox p{margin:0 0 8px}
+.pbtns{display:flex;gap:10px;flex-wrap:wrap;margin:4px 0}
+.psteps{margin:6px 0 0;padding-left:20px;display:grid;gap:4px}
 .pstar{font-style:normal;font-size:.8em;font-weight:800;color:#5a3a00;background:#ffe9a8;border-radius:99px;padding:1px 10px;margin-left:8px;white-space:nowrap}
 
 /* ---------- confeti ---------- */
