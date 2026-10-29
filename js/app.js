@@ -118,7 +118,7 @@ const plural = F => F.pl || `${F.art === 'la' ? 'las' : 'los'} ${F.name}s`;
 
 /* capítulos: el 3 (números) se agrega desde js/numeros.js */
 const CH = {
-  1: { nodes: ['intro', 'tri', 'sq', 'rect', 'pent', 'hex', 'oct', 'challenge'], intro: 'intro', chal: 'challenge', figs: SHAPES, label: '1 · Polígonos',
+  1: { nodes: ['intro', 'tri', 'sq', 'rect', 'pent', 'hex', 'oct', 'challenge', 'taller'], intro: 'intro', chal: 'challenge', figs: SHAPES, label: '1 · Polígonos',
     introLabel: 'Inicio', sticker: () => [gx('Exploradora', 'Explorador'), 'Qué es un polígono'], chalTitle: 'Gran Desafío', champ: () => gx('una campeona', 'un campeón') + ' de las formas',
     hello: n => `¡Hola, ${n}! Toca la isla verde para empezar.`, types: ['sides', 'sides', 'vert', 'vert', 'name', 'name', 'notpoly', 'poly'] },
   2: { nodes: ['intro3d', ...SOLIDS.map(s => s.id), 'challenge3d'], intro: 'intro3d', chal: 'challenge3d', figs: SOLIDS, label: '2 · <span class="lg">Figuras </span>2D y 3D',
@@ -739,6 +739,7 @@ function nodeState(ch, vert) {
   return C.nodes.map((id, i) => {
     const x = vert ? (i % 2 ? 70 : 30) : 7 + i * 86 / (len - 1), y = vert ? (i + .5) / len * 100 : i % 2 ? 70 : 32;
     const isChal = id === C.chal;
+    if (id === 'taller') return { id, x, y, locked: false, current: false, isChal: false, free: true }; // Taller: siempre abierto, sin estrellas
     const locked = i === 0 ? false : isChal ? !C.figs.every(F => prog(F.id).lesson) : !prog(C.nodes[i - 1]).lesson && !Object.keys(prog(id)).length; // una isla ya jugada no se vuelve a cerrar
     const complete = isIntro(id) ? !!prog(id).lesson : isChal ? save[id] > 0 : figStars(id) === 3;
     const current = !locked && !currentFound && !complete; if (current) currentFound = true;
@@ -754,6 +755,7 @@ function viewMap() {
   const nodeHtml = ns.map(n => {
     let c, dk, icon, label, stars;
     if (isIntro(n.id)) { c = '#34d399'; dk = '#1b9f72'; icon = `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z" fill="#fff"/></svg>`; label = CH[ch].introLabel; stars = starsRow(prog(n.id).lesson ? 1 : 0, 1); }
+    else if (n.free) { c = '#9b6bff'; dk = '#7447e0'; icon = `<svg viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z" fill="#fff" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg>`; label = 'Taller libre'; stars = '<small class="nfree">¡Dibuja!</small>'; }
     else if (n.isChal) { c = '#ffc233'; dk = '#e09a00'; icon = `<svg viewBox="0 0 24 24"><path d="${trophyPath}" fill="#fff" stroke="#fff" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>`; label = 'Gran Desafío'; stars = starsRow(save[n.id] || 0); }
     else { const F = FIG[n.id]; c = F.c; dk = F.d; icon = figSvg(F, true); label = F.short || cap(F.name); stars = starsRow(figStars(F.id)); }
     return `<button class="node ${n.locked ? 'locked' : ''} ${n.current ? 'current' : ''}" data-id="${n.id}" style="left:${n.x}%;top:${n.y}%;--c:${c};--d:${dk}">
@@ -763,13 +765,18 @@ function viewMap() {
       <div class="maptop">
         <div class="chapters">${Object.keys(CH).map(Number).map(k => `<button class="chap ${k === ch ? 'on' : ''}" data-ch="${k}">${CH[k].label}</button>`).join('')}</div>
         <div class="mapbar">
+          <div class="mbtns">
+            <button class="btn gold sm" data-go="repaso"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round"/><path d="M21 4v5h-5" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7.5V12l3 2" fill="none" stroke="#5a3a00" stroke-width="2.4" stroke-linecap="round"/></svg>Repaso</button>
+            <button class="btn ghost sm" data-go="album"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3" fill="#ff7eb6" stroke="#7c5cff" stroke-width="2"/><path d="M8 8h8M8 12h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>Álbum</button>
+            <button class="btn ghost sm" data-go="avance"><svg viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8" rx="1.5" fill="#ff8a3d"/><rect x="10" y="8" width="4" height="13" rx="1.5" fill="#4ea8ff"/><rect x="17" y="3" width="4" height="18" rx="1.5" fill="#22c58b"/></svg>Mi avance</button>
+            <button class="btn ghost sm" data-go="parent"><svg viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z" fill="none" stroke="#7c5cff" stroke-width="2.4"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="#7c5cff" stroke-width="2.4" stroke-linecap="round"/></svg>Ajustes</button>
+          </div>
           <button class="btn gold sm" id="bMenu" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke="#5a3a00" stroke-width="2.8" stroke-linecap="round"/></svg>Menú</button>
           <div class="menu" id="menu" hidden>
-            <button id="bRep"><span class="mi"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round"/><path d="M21 4v5h-5" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7.5V12l3 2" fill="none" stroke="#5a3a00" stroke-width="2.4" stroke-linecap="round"/></svg></span><span><b>Repaso</b><small>5 preguntas para practicar</small></span></button>
-            <button id="bWork"><span class="mi"><svg viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z" fill="#ffc233" stroke="#7c5cff" stroke-width="2" stroke-linejoin="round"/></svg></span><span><b>Taller</b><small>Dibuja tus propias figuras</small></span></button>
-            <button id="bAlb"><span class="mi"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3" fill="#ff7eb6" stroke="#7c5cff" stroke-width="2"/><path d="M8 8h8M8 12h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></span><span><b>Álbum</b><small>Tus stickers y estrellas</small></span></button>
-            <button id="bAv"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8" rx="1.5" fill="#ff8a3d"/><rect x="10" y="8" width="4" height="13" rx="1.5" fill="#4ea8ff"/><rect x="17" y="3" width="4" height="18" rx="1.5" fill="#22c58b"/></svg></span><span><b>Mi avance</b><small>Cómo vas en cada tema</small></span></button>
-            <button id="bSet"><span class="mi"><svg viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z" fill="none" stroke="#7c5cff" stroke-width="2.4"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="#7c5cff" stroke-width="2.4" stroke-linecap="round"/></svg></span><span><b>Ajustes</b><small>Para adultos 🔒</small></span></button>
+            <button data-go="repaso"><span class="mi"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round"/><path d="M21 4v5h-5" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7.5V12l3 2" fill="none" stroke="#5a3a00" stroke-width="2.4" stroke-linecap="round"/></svg></span><span><b>Repaso</b><small>5 preguntas para practicar</small></span></button>
+            <button data-go="album"><span class="mi"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3" fill="#ff7eb6" stroke="#7c5cff" stroke-width="2"/><path d="M8 8h8M8 12h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></span><span><b>Álbum</b><small>Tus stickers y estrellas</small></span></button>
+            <button data-go="avance"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8" rx="1.5" fill="#ff8a3d"/><rect x="10" y="8" width="4" height="13" rx="1.5" fill="#4ea8ff"/><rect x="17" y="3" width="4" height="18" rx="1.5" fill="#22c58b"/></svg></span><span><b>Mi avance</b><small>Cómo vas en cada tema</small></span></button>
+            <button data-go="parent"><span class="mi"><svg viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z" fill="none" stroke="#7c5cff" stroke-width="2.4"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="#7c5cff" stroke-width="2.4" stroke-linecap="round"/></svg></span><span><b>Ajustes</b><small>Para adultos 🔒</small></span></button>
           </div>
         </div>
       </div>
@@ -780,18 +787,15 @@ function viewMap() {
   $$('.node', el).forEach(b => b.onclick = () => {
     const id = b.dataset.id, n = ns.find(x => x.id === id);
     if (n.locked) { sfx.bad(); poli.oops(n.isChal ? 'Para el Gran Desafío, primero aprende todas las figuras de este capítulo.' : 'Esa isla todavía está cerrada. ¡Termina la anterior!'); return; }
+    if (n.free) return go('workshop');
     isIntro(id) ? go('lesson', { id }) : n.isChal ? go('challenge', { ch }) : go('island', { id });
   });
-  /* menú: Repaso, Taller, Álbum, Mi avance y Ajustes en una lista */
+  /* Repaso, Álbum, Mi avance y Ajustes: botones a la vista en pantallas anchas; en celular, en el Menú */
+  $$('[data-go]', el).forEach(b => b.onclick = () => go(b.dataset.go));
   const menu = $('#menu', el), bm = $('#bMenu', el);
   const setMenu = open => { menu.hidden = !open; bm.setAttribute('aria-expanded', open); };
   bm.onclick = e => { e.stopPropagation(); sfx.pop(); setMenu(menu.hidden); };
   el.addEventListener('click', e => { if (!menu.hidden && !e.target.closest('#menu')) setMenu(false); });
-  $('#bAlb').onclick = () => go('album');
-  $('#bWork').onclick = () => go('workshop');
-  $('#bRep').onclick = () => go('repaso');
-  $('#bAv').onclick = () => go('avance');
-  $('#bSet').onclick = () => go('parent');
   const cu = ns.find(n => n.current);
   poli.say(!cu ? `¡Increíble, ${save.name}! Completaste todo este capítulo.`
     : isIntro(cu.id) ? CH[ch].hello(save.name)

@@ -185,6 +185,11 @@ svg{display:block}
 .mapbar .btn{margin:0}
 .mapbar .btn svg{width:24px;height:24px}
 .mapbar{position:relative}
+.mbtns{display:flex;gap:10px}
+#bMenu{display:none}
+@media (max-width:900px){.mbtns{display:none}#bMenu{display:inline-flex}}
+@media (min-width:901px) and (max-width:1120px){.chap{padding:5px 11px;font-size:14px}.chapters{gap:5px}.chap .lg{display:none}.mbtns{gap:6px}.mbtns .btn.sm{font-size:15px;padding:7px 12px;gap:6px}.mbtns .btn svg{width:20px;height:20px}}
+.node .nfree{font-weight:800;font-size:13px;color:var(--violet-d);background:#fff;border-radius:99px;padding:0 8px;line-height:20px}
 .menu{position:absolute;right:0;top:calc(100% + 8px);z-index:20;background:#fff;border-radius:22px;padding:8px;min-width:250px;
   display:flex;flex-direction:column;gap:2px;box-shadow:0 8px 0 #c7c9f0,0 20px 34px rgba(43,45,110,.3);animation:pop .25s}
 .menu[hidden]{display:none}
@@ -194,7 +199,7 @@ svg{display:block}
 .menu .mi svg{width:26px;height:26px}
 .menu b{display:block;font-size:19px;line-height:1.1}
 .menu small{display:block;font-size:13px;font-weight:600;color:var(--ink2)}
-#bRep .mi{background:#fff3c4}
+.menu [data-go=repaso] .mi{background:#fff3c4}
 .menu{max-height:calc(100dvh - 170px);overflow-y:auto}
 
 /* ---------- hub de isla ---------- */

@@ -25,10 +25,11 @@ Los ejercicios se generan al azar: cada vez que se entra a una sección son dist
 - El respaldo guarda a todos los perfiles juntos (y acepta respaldos antiguos de un solo perfil).
 
 ## Repaso, Mi avance y Ajustes
-- **Repaso** (en el **Menú** del mapa): 5 preguntas mezcladas de los temas ya aprendidos, con más preguntas de los temas donde se equivoca.
-- **📈 Mi avance** (en el **Menú** del mapa, sin clave): estrellas, temas aprendidos y, por tema, el % de aciertos a la primera
+- En el mapa, **Repaso, Álbum, Mi avance y Ajustes** son botones a la vista en tablet y notebook, y van en el **☰ Menú** en celular. El **Taller libre** es una isla del capítulo 1.
+- **Repaso**: 5 preguntas mezcladas de los temas ya aprendidos, con más preguntas de los temas donde se equivoca.
+- **📈 Mi avance** (sin clave): estrellas, temas aprendidos y, por tema, el % de aciertos a la primera
   (últimas 20 respuestas), cuántas respuestas lleva y cuándo practicó; los temas bajo 70 % aparecen como ⭐ para reforzar.
-- **⚙️ Ajustes** (en el **Menú** del mapa, se entra resolviendo una multiplicación): perfiles, temas que entran al Repaso,
+- **⚙️ Ajustes** (se entra resolviendo una multiplicación): perfiles, temas que entran al Repaso,
   **respaldo del progreso** e instrucciones para **instalar la app**.
 
 ## Cómo usarla
