@@ -16,13 +16,19 @@ const ps = pts => pts.map(p => p.join(',')).join(' ');
 
 /* ---------- guardado ---------- */
 const KEY = 'poligonos-magicos-v1';
-const NEWSAVE = () => ({ name: '', fx: true, voice: true, prog: {}, challenge: 0, challenge3d: 0, challengeNum: 0, ch: 1, stats: {}, repasoOff: [] });
+const SAVEVER = 1;
+const NEWSAVE = () => ({ ver: SAVEVER, name: '', fx: true, voice: true, prog: {}, challenge: 0, challenge3d: 0, challengeNum: 0, ch: 1, stats: {}, repasoOff: [] });
 let save = NEWSAVE();
-try { Object.assign(save, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { }
+try { const raw = JSON.parse(localStorage.getItem(KEY) || '{}'); Object.assign(save, raw); if (!('ver' in raw)) save.ver = 0; } catch (e) { }
 /* el nombre se muestra dentro de la página: solo letras, números y espacios */
 const cleanName = s => String(s || '').replace(/[^\p{L}\p{N} .-]/gu, '').trim().slice(0, 14);
 save.name = cleanName(save.name);
+/* traspaso del progreso entre versiones del guardado: si algún día se renombra, une o elimina
+   una isla, se agrega aquí un paso { de: n, paso: s => {...} } que convierte el progreso antiguo */
+const MIGRATIONS = [{ de: 0, paso: s => s }]; // 0 → 1: guardados anteriores al número de versión, sin cambios
+function migrate(s) { s.ver ||= 0; for (const m of MIGRATIONS) if (s.ver === m.de) { m.paso(s); s.ver = m.de + 1; } return s; }
 const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(save)); } catch (e) { } };
+migrate(save); persist();
 const prog = id => (save.prog[id] ||= {});
 
 /* objetos ya mostrados en esta sesión, para no repetirlos entre lección y caza */
@@ -611,12 +617,13 @@ function titleFor() {
     case 'workshop': return 'Taller libre';
     case 'repaso': return 'Repaso del día';
     case 'parent': return 'Panel de apoderado';
-    default: return 'Mundo de Formas y Números';
+    default: return 'Aprende con Poli';
   }
 }
 function render() {
   if ('speechSynthesis' in window) speechSynthesis.cancel();
   $('#btnBack').hidden = !backTarget();
+  $('#app').classList.toggle('is-home', cur.name === 'welcome');
   $('#title').textContent = titleFor();
   setAction(null);
   refreshStars();
@@ -631,20 +638,26 @@ function frame(html, cls = '') { scr().innerHTML = `<div class="screen ${cls}">$
 
 /* ---------- Bienvenida ---------- */
 function viewWelcome() {
-  const logo = `<svg viewBox="0 0 260 200" class="logo">
-    <polygon points="${rs(6, 0, 70, 130, 100)}" fill="#9b6bff" stroke="#7447e0" stroke-width="7" stroke-linejoin="round"/>
-    <polygon points="62,150 20,70 104,70" fill="#ff6b6b" stroke="#d94646" stroke-width="7" stroke-linejoin="round" transform="translate(-4 14) rotate(-12 62 110)"/>
-    <g transform="translate(140 -10) scale(1.45)">${ob(20, 38, 44, 44, 18, '#ffb703', '#ffd166', '#d98f00')}</g>
-    <polygon points="${rs(5, -90, 34, 196, 150)}" fill="#2ec4b6" stroke="#1f9e92" stroke-width="7" stroke-linejoin="round"/>
-    <text x="130" y="117" text-anchor="middle" font-family="Baloo 2,Arial" font-weight="800" font-size="50" stroke="#fff" stroke-width="7" paint-order="stroke" stroke-linejoin="round"><tspan fill="${PV.c.c}">1</tspan><tspan fill="${PV.d.c}">2</tspan><tspan fill="${PV.u.c}">3</tspan></text>
-  </svg>`;
-  frame(`${logo}<h2>Mundo de Formas<br>y Números</h2><span class="tagline">Polígonos · Figuras 2D y 3D · Números</span>
-    <p>${save.name ? `¡Qué bueno verte de nuevo, ${save.name}!` : '¡Una aventura con Poli para descubrir las formas y los números!'}</p>
-    <div class="field"><input id="nm" maxlength="14" placeholder="¿Cómo te llamas?" value="${save.name || ''}" autocomplete="off"><button class="btn gold" id="go">¡Empezar!</button></div>`, 'welcome');
+  /* Poli grande saludando, rodeado de lo que se aprende en la app */
+  const orb = (cls, svg) => `<span class="orb ${cls}"><svg viewBox="0 0 100 100">${svg}</svg></span>`;
+  const hero = `<div class="hero" aria-hidden="true"><div class="halo"></div><div class="ring"></div>
+    ${orb('o1', `<polygon points="50,10 92,84 8,84" fill="#ff6b6b" stroke="#d94646" stroke-width="7" stroke-linejoin="round"/>`)}
+    ${orb('o2', ob(14, 34, 50, 50, 20, '#ffb703', '#ffd166', '#d98f00'))}
+    ${orb('o3', `<text x="50" y="68" text-anchor="middle" font-family="Baloo 2,Arial" font-weight="800" font-size="46" stroke="#fff" stroke-width="9" paint-order="stroke" stroke-linejoin="round"><tspan fill="${PV.c.c}">1</tspan><tspan fill="${PV.d.c}">2</tspan><tspan fill="${PV.u.c}">3</tspan></text>`)}
+    ${orb('o4', `<polygon points="${rs(5, -90, 40)}" fill="#2ec4b6" stroke="#1f9e92" stroke-width="7" stroke-linejoin="round"/>`)}
+    ${orb('o5', `<path d="M50 6l12 26 28 3-21 19 6 28-25-14-25 14 6-28-21-19 28-3z" fill="#ffc233" stroke="#e09a00" stroke-width="5" stroke-linejoin="round"/>`)}
+    ${orb('o6', `<text x="50" y="74" text-anchor="middle" font-family="Baloo 2,Arial" font-weight="800" font-size="76" fill="#9b6bff" stroke="#fff" stroke-width="8" paint-order="stroke">+</text>`)}
+    <div class="pbig">${POLI_SVG}</div><div class="pshadow"></div></div>`;
+  frame(`<div class="home">${hero}<div class="txt">
+    <h2>Aprende<br>con <span>Poli</span></h2>
+    <span class="tagline">Matemáticas · 2° básico</span>
+    <span class="subline">Mundo de Formas y Números</span>
+    <p>${save.name ? `¡Qué bueno verte de nuevo, ${save.name}!` : '¡Aprende jugando, a tu ritmo y con Poli!'}</p>
+    <div class="field"><input id="nm" maxlength="14" placeholder="¿Cómo te llamas?" value="${save.name || ''}" autocomplete="off"><button class="btn gold" id="go">¡Empezar!</button></div></div></div>`, 'welcome');
   const start = () => { ac(); save.name = cleanName($('#nm').value) || 'amiga'; persist(); go('map'); };
   $('#go').onclick = start;
   $('#nm').onkeydown = e => { if (e.key === 'Enter') start(); };
-  poli.say(save.name ? `¡Hola otra vez, ${save.name}! Soy Poli. ¿Seguimos jugando?` : '¡Hola! Soy Poli, tu guía en el mundo de las formas y los números. Escribe tu nombre y comencemos.', false);
+  poli.say(save.name ? `¡Hola otra vez, ${save.name}! Soy Poli. ¿Seguimos aprendiendo?` : '¡Hola! Soy Poli y vamos a aprender jugando. Escribe tu nombre y comencemos.', false);
 }
 
 /* ---------- Mapa ---------- */
@@ -1267,5 +1280,12 @@ addEventListener('resize', () => {
   rsT = setTimeout(() => { const v = isVertical(); if (v !== lastVert) { lastVert = v; if (cur.name === 'map') viewMap(); } }, 250);
 });
 /* arranca cuando ya cargaron todos los scripts (js/numeros.js agrega el capítulo 3) */
-const boot = () => { initBg(); updateVoiceIcon(); render(); };
+const boot = () => {
+  initBg(); updateVoiceIcon(); render();
+  // modo sin internet (solo cuando la app está publicada, no al abrir el archivo directo)
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('sw.js').catch(() => { });
+};
+/* instalar la app: el navegador avisa cuando se puede (Chrome / Android) */
+let installPrompt = null;
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); installPrompt = e; });
 document.readyState === 'loading' ? addEventListener('DOMContentLoaded', boot) : boot();
