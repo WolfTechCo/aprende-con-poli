@@ -17,7 +17,7 @@ const ps = pts => pts.map(p => p.join(',')).join(' ');
 /* ---------- guardado ---------- */
 const KEY = 'poligonos-magicos-v1';
 const SAVEVER = 1;
-const NEWSAVE = () => ({ ver: SAVEVER, name: '', fx: true, voice: true, prog: {}, challenge: 0, challenge3d: 0, challengeNum: 0, ch: 1, stats: {}, repasoOff: [] });
+const NEWSAVE = () => ({ ver: SAVEVER, name: '', g: '', fx: true, voice: true, prog: {}, challenge: 0, challenge3d: 0, challengeNum: 0, ch: 1, stats: {}, repasoOff: [] });
 /* el nombre se muestra dentro de la página: solo letras, números y espacios */
 const cleanName = s => String(s || '').replace(/[^\p{L}\p{N} .-]/gu, '').trim().slice(0, 14);
 /* traspaso del progreso entre versiones del guardado: si algún día se renombra, une o elimina
@@ -42,10 +42,12 @@ function loadProfile(id) {
 }
 if (!root.profiles[root.cur]) root.cur = root.order[0] || null;
 let save = root.cur ? loadProfile(root.cur) : NEWSAVE();
+/* g: 'a' niña · 'o' niño (vacío: aún no se pregunta). gx('campeona', 'campeón') elige la palabra según el perfil */
+const gx = (a, o) => save.g === 'o' ? o : a;
 const persist = () => { if (root.cur) root.profiles[root.cur] = save; try { localStorage.setItem(KEY, JSON.stringify({ ver: 2, ...root })); } catch (e) { } };
 persist();
 function switchProfile(id) { persist(); root.cur = id; save = loadProfile(id); persist(); }
-function addProfile(name) { const id = newPid(); root.profiles[id] = { ...NEWSAVE(), name }; root.order.push(id); switchProfile(id); }
+function addProfile(name, g) { const id = newPid(); root.profiles[id] = { ...NEWSAVE(), name, g }; root.order.push(id); switchProfile(id); }
 function deleteProfile(id) {
   delete root.profiles[id]; root.order = root.order.filter(x => x !== id);
   if (root.cur === id) { root.cur = root.order[0] || null; save = root.cur ? loadProfile(root.cur) : NEWSAVE(); }
@@ -117,11 +119,11 @@ const plural = F => F.pl || `${F.art === 'la' ? 'las' : 'los'} ${F.name}s`;
 /* capítulos: el 3 (números) se agrega desde js/numeros.js */
 const CH = {
   1: { nodes: ['intro', 'tri', 'sq', 'rect', 'pent', 'hex', 'oct', 'challenge'], intro: 'intro', chal: 'challenge', figs: SHAPES, label: '1 · Polígonos',
-    introLabel: 'Inicio', sticker: ['Exploradora', 'Qué es un polígono'], chalTitle: 'Gran Desafío', champ: 'una campeona de las formas',
+    introLabel: 'Inicio', sticker: () => [gx('Exploradora', 'Explorador'), 'Qué es un polígono'], chalTitle: 'Gran Desafío', champ: () => gx('una campeona', 'un campeón') + ' de las formas',
     hello: n => `¡Hola, ${n}! Toca la isla verde para empezar.`, types: ['sides', 'sides', 'vert', 'vert', 'name', 'name', 'notpoly', 'poly'] },
   2: { nodes: ['intro3d', ...SOLIDS.map(s => s.id), 'challenge3d'], intro: 'intro3d', chal: 'challenge3d', figs: SOLIDS, label: '2 · <span class="lg">Figuras </span>2D y 3D',
-    introLabel: '¿2D o 3D?', sticker: ['Ojo 3D', '2D y 3D'], chalTitle: 'Gran Desafío 3D', champ: 'una campeona de las formas',
-    hello: n => `¡Bienvenida al capítulo de figuras 2D y 3D, ${n}! Toca la isla verde.`, types: ['is3d', 'name3d', 'print', 'rolls', 'count3d', 'count3d', 'count3d', 'name3d'] },
+    introLabel: '¿2D o 3D?', sticker: () => ['Ojo 3D', '2D y 3D'], chalTitle: 'Gran Desafío 3D', champ: () => gx('una campeona', 'un campeón') + ' de las formas',
+    hello: n => `¡${gx('Bienvenida', 'Bienvenido')} al capítulo de figuras 2D y 3D, ${n}! Toca la isla verde.`, types: ['is3d', 'name3d', 'print', 'rolls', 'count3d', 'count3d', 'count3d', 'name3d'] },
 };
 const chStars = ch => { const C = CH[ch]; return C.figs.reduce((a, F) => a + figStars(F.id), 0) + (prog(C.intro).lesson ? 1 : 0) + (save[C.chal] || 0); };
 const totalStars = () => Object.keys(CH).reduce((a, ch) => a + chStars(ch), 0);
@@ -676,7 +678,7 @@ function viewWelcome() {
     <h2>Aprende<br>con <span>Poli</span></h2>
     <span class="tagline">Matemáticas · 2° básico</span>
     <span class="subline">Mundo de Formas y Números</span>
-    ${root.order.length ? `<p>¿Quién va a jugar?</p><div class="who">${root.order.map(id => { const nm = root.profiles[id].name || '?';
+    ${root.order.length ? `<p class="who">¿Quién va a jugar?</p><div class="who">${root.order.map(id => { const nm = root.profiles[id].name || '?';
       return `<button class="kid" data-id="${id}" style="--k:${COLORS[[...nm].reduce((a, c) => a + c.codePointAt(0), 0) % COLORS.length]}"><span class="av">${nm[0].toUpperCase()}</span><b>${nm}</b><small>★ ${profileStars(id)}</small></button>`; }).join('')}
       ${root.order.length < MAXPROFILES ? '<button class="kid add" id="bAdd"><span class="av">+</span><b>Agregar</b><small>niño o niña</small></button>' : ''}</div>` : '<p>¡Aprende jugando, a tu ritmo y con Poli!</p>'}
     <div class="field" ${root.order.length ? 'hidden' : ''}><input id="nm" maxlength="14" placeholder="¿Cómo te llamas?" autocomplete="off"><button class="btn gold" id="go">¡Empezar!</button></div></div></div>`, 'welcome');
@@ -684,11 +686,23 @@ function viewWelcome() {
     const nm = cleanName($('#nm').value);
     if (!nm) { sfx.bad(); poli.oops('Escribe tu nombre para empezar.'); $('#nm').focus(); return; }
     if (root.order.some(id => root.profiles[id].name.toLowerCase() === nm.toLowerCase())) { sfx.bad(); poli.oops(`Ya hay alguien que se llama ${nm}. Toca su tarjeta o escribe otro nombre.`); return; }
-    ac(); addProfile(nm); go('map');
+    ac(); askGender(nm, g => { addProfile(nm, g); go('map'); });
+  };
+  /* pregunta una sola vez: al crear el perfil o la primera vez que entra un perfil antiguo */
+  const askGender = (nm, done) => {
+    const f = $('.welcome .field'); f.hidden = false;
+    f.innerHTML = `<p class="gq">¿${nm} es niña o niño?</p><div class="gbtns"><button class="btn gold" data-g="a">👧 Niña</button><button class="btn" data-g="o">👦 Niño</button></div>`;
+    $$('.who', document).forEach(w => w.hidden = true);
+    $$('[data-g]', f).forEach(b => b.onclick = () => { sfx.pop(); done(b.dataset.g); });
+    poli.say(`¿${nm} es niña o niño?`, false);
   };
   $('#go').onclick = start;
   $('#nm').onkeydown = e => { if (e.key === 'Enter') start(); };
-  $$('.kid[data-id]').forEach(b => b.onclick = () => { ac(); switchProfile(b.dataset.id); go('map'); });
+  $$('.kid[data-id]').forEach(b => b.onclick = () => {
+    ac(); switchProfile(b.dataset.id);
+    if (save.g) return go('map');
+    askGender(save.name, g => { save.g = g; persist(); go('map'); });
+  });
   if ($('#bAdd')) $('#bAdd').onclick = () => { sfx.pop(); $('.welcome .field').hidden = false; $('#nm').focus(); poli.say('¡Hola! Escribe tu nombre y comencemos.', false); };
   poli.say(root.order.length ? '¡Hola! Soy Poli. ¿Quién va a jugar hoy? Toca tu nombre.' : '¡Hola! Soy Poli y vamos a aprender jugando. Escribe tu nombre y comencemos.', false);
 }
@@ -1202,7 +1216,7 @@ function viewChallenge() {
     sfx.win(); confetti(160);
     frame(`<div class="stepbody"><div class="col trophy"><h2>¡Terminaste el desafío!</h2><div style="display:flex;gap:6px">${[0, 1, 2].map(i => `<div class="star-big" style="animation-delay:${.2 + i * .25}s">${starSvg(i < stars, 110)}</div>`).join('')}</div><span class="sub">${good} de ${qs.length} a la primera</span></div></div>`);
     setAction('Volver al mapa', () => go('map'), true, 'green');
-    poli.cheer(stars === 3 ? `¡Perfecto, ${save.name}! Eres ${CH[ch].champ}.` : `¡Buen trabajo, ${save.name}! Puedes volver a jugar para ganar más estrellas.`);
+    poli.cheer(stars === 3 ? `¡Perfecto, ${save.name}! Eres ${CH[ch].champ()}.` : `¡Buen trabajo, ${save.name}! Puedes volver a jugar para ganar más estrellas.`);
   };
   show();
 }
@@ -1210,16 +1224,16 @@ function viewChallenge() {
 /* ---------- Álbum ---------- */
 function viewAlbum() {
   const total = totalStars(), max = maxStars();
-  const rank = total >= max ? '¡Reina de las formas y los números!' : total >= 40 ? 'Maestra' : total >= 15 ? 'Exploradora' : 'Aprendiz';
+  const rank = total >= max ? `¡${gx('Reina', 'Rey')} de las formas y los números!` : total >= 40 ? gx('Maestra', 'Maestro') : total >= 15 ? gx('Exploradora', 'Explorador') : 'Aprendiz';
   const stk = (on, art, name, sub) => `<div class="stk ${on ? 'on' : 'off'}">${art}<b>${name}</b><small>${sub}</small></div>`;
   const starIco = c => `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z" fill="${c}" stroke="#1b9f72" stroke-width="1.4" stroke-linejoin="round"/></svg>`;
   const trophy = `<svg viewBox="0 0 24 24"><path d="${trophyPath}" fill="#ffc233" stroke="#e09a00" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
   const section = ch => {
     const C = CH[ch];
     return `<h3 class="sec">Capítulo ${C.label}</h3>` + [
-      stk(prog(C.intro).lesson, starIco('#34d399'), ...C.sticker),
+      stk(prog(C.intro).lesson, starIco('#34d399'), ...C.sticker()),
       ...C.figs.map(F => { const on = figStars(F.id) === 3; return stk(on, figSvg(F), F.short || cap(F.name), on ? '¡Completo!' : '3 estrellas'); }),
-      stk((save[C.chal] || 0) >= 3, trophy, 'Campeona', 'Desafío perfecto'),
+      stk((save[C.chal] || 0) >= 3, trophy, gx('Campeona', 'Campeón'), 'Desafío perfecto'),
     ].join('');
   };
   const el = frame(`<p class="rank"><span>${save.name ? save.name + ' · ' : ''}${rank} · ${total}/${max} ★</span></p><div class="album">${Object.keys(CH).map(section).join('')}</div><div class="albfoot"><button class="tinybtn" id="bPar">Panel de apoderado</button></div>`);

@@ -98,6 +98,7 @@ function viewParent() {
     <h3 class="sec">Niños y niñas</h3>
     <div class="pbox"><div class="pkids">${root.order.map(id => `<button class="pkid ${id === root.cur ? 'on' : ''}" data-id="${id}">${root.profiles[id].name || '?'}</button>`).join('')}</div>
       <p>Viendo el avance de <b>${save.name}</b>. Toca otro nombre para ver el suyo.</p>
+      <div class="pbtns gsel"><button class="pkid ${save.g === 'a' ? 'on' : ''}" data-gs="a">👧 Niña</button><button class="pkid ${save.g === 'o' ? 'on' : ''}" data-gs="o">👦 Niño</button></div>
       <div class="pbtns"><input id="pName" maxlength="14" value="${save.name}" autocomplete="off" aria-label="Nombre"><button class="btn sm ghost" id="bRen">Cambiar nombre</button><button class="btn sm danger" id="bDel">Borrar este perfil</button></div></div>
     <p class="pintro">Marca los temas que <b>${save.name}</b> practicará en el <b>Repaso del día</b>. El porcentaje considera sus últimas 20 respuestas; los temas con menos de 70 % aparecen como <em class="pstar">⭐ Para reforzar</em>.</p>
     ${Object.keys(CH).map(ch => `<h3 class="sec">Capítulo ${CH[ch].label}</h3><div class="plist">${rows(+ch)}</div>`).join('')}
@@ -118,6 +119,7 @@ function viewParent() {
     save.repasoOff = [...off]; persist(); sfx.pop();
   });
   $$('.pkid', el).forEach(b => b.onclick = () => { sfx.pop(); switchProfile(b.dataset.id); go('parent', { ok: true }); });
+  $$('[data-gs]', el).forEach(b => b.onclick = () => { save.g = b.dataset.gs; persist(); sfx.pop(); go('parent', { ok: true }); });
   $('#bRen', el).onclick = () => {
     const nm = cleanName($('#pName', el).value);
     if (!nm || root.order.some(id => id !== root.cur && root.profiles[id].name.toLowerCase() === nm.toLowerCase())) { sfx.bad(); poli.oops(nm ? 'Ya hay otro perfil con ese nombre.' : 'Escribe un nombre.'); return; }
@@ -172,6 +174,7 @@ function cleanProfile(src) {
   const out = NEWSAVE(), id = /^[\w-]{1,20}$/;
   out.ver = Number.isInteger(src.ver) && src.ver >= 0 && src.ver <= SAVEVER ? src.ver : 0;
   out.name = cleanName(src.name);
+  if (src.g === 'a' || src.g === 'o') out.g = src.g;
   for (const k of ['fx', 'voice']) if (typeof src[k] === 'boolean') out[k] = src[k];
   for (const k of ['challenge', 'challenge3d', 'challengeNum']) if (Number.isFinite(src[k])) out[k] = Math.max(0, Math.min(3, Math.round(src[k])));
   if (CH[src.ch]) out.ch = +src.ch;

@@ -139,6 +139,9 @@ svg{display:block}
 .kid.add{background:#ffffffaa;border:3px dashed #c7c9f0;box-shadow:none}
 .kid.add .av{background:#e8e2ff;color:var(--violet-d);text-shadow:none}
 .kid.add small{color:var(--ink2);font-weight:700}
+.gq{font-size:clamp(20px,2.4vw,26px)!important;font-weight:800!important;margin:0!important}
+.gbtns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.welcome .field:has(.gq){flex-direction:column}
 .welcome h2{margin:0;font-size:clamp(38px,7vw,76px);line-height:.95;font-weight:800;color:#fff;
   text-shadow:0 5px 0 var(--violet-d),0 10px 0 rgba(90,63,224,.35),0 18px 26px rgba(43,45,110,.3)}
 .welcome .tagline{display:inline-block;background:var(--gold);color:#5a3a00;font-weight:800;font-size:clamp(15px,2vw,22px);
