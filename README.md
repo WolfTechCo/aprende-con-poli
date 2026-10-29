@@ -12,6 +12,11 @@ App interactiva para 2° básico, en tres capítulos:
    - **Tabla del 1000:** de 10 en 10 y de 100 en 100 hasta 1000.
    - **Secuencias numéricas:** descubrir la regla (+2, +5, +10, +100, −10…) y completar el número que falta.
 
+## Repaso del día y panel de apoderado
+- **Repaso** (botón en el mapa): 5 preguntas mezcladas de los temas ya aprendidos, con más preguntas de los temas donde se equivoca.
+- **Panel de apoderado** (desde el álbum, se entra resolviendo una multiplicación): muestra el % de aciertos a la primera por tema
+  (últimas 20 respuestas), cuántas respuestas lleva y cuándo practicó; ahí se marcan los temas que entran al repaso.
+
 ## Cómo usarla
 - **En el computador:** abre `index.html` con doble clic (Chrome o Edge funcionan mejor; la voz en español depende del navegador).
 - **Online / tablet:** publícala con GitHub Pages (ver abajo) y abre el link en la tablet.
@@ -26,6 +31,7 @@ App interactiva para 2° básico, en tres capítulos:
 - `css/style.css`: diseño
 - `js/app.js`: pantallas, juegos, sonidos y voz de los capítulos 1 y 2 (sin librerías externas)
 - `js/numeros.js`: capítulo 3 (números)
+- `js/repaso.js`: repaso del día y panel de apoderado
 - `PENDIENTES.md`: ideas anotadas para más adelante
 
 Los ejercicios se generan al azar: cada vez que se entra a una sección son distintos y no se repiten en la misma sesión.

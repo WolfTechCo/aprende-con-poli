@@ -16,8 +16,12 @@ const ps = pts => pts.map(p => p.join(',')).join(' ');
 
 /* ---------- guardado ---------- */
 const KEY = 'poligonos-magicos-v1';
-let save = { name: '', fx: true, voice: true, prog: {}, challenge: 0, challenge3d: 0, ch: 1 };
+const NEWSAVE = () => ({ name: '', fx: true, voice: true, prog: {}, challenge: 0, challenge3d: 0, challengeNum: 0, ch: 1, stats: {}, repasoOff: [] });
+let save = NEWSAVE();
 try { Object.assign(save, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { }
+/* el nombre se muestra dentro de la página: solo letras, números y espacios */
+const cleanName = s => String(s || '').replace(/[^\p{L}\p{N} .-]/gu, '').trim().slice(0, 14);
+save.name = cleanName(save.name);
 const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(save)); } catch (e) { } };
 const prog = id => (save.prog[id] ||= {});
 
@@ -572,7 +576,7 @@ const scr = () => $('#screen');
 const isIntro = id => Object.values(CH).some(C => C.intro === id);
 
 function go(name, params = {}) { sfx.pop(); cur = { name, ...params }; render(); }
-const backTarget = () => ({ island: ['map'], lesson: isIntro(cur.id) ? ['map'] : ['island', { id: cur.id }], build: ['island', { id: cur.id }], paint: ['island', { id: cur.id }], hunt: ['island', { id: cur.id }], game: ['island', { id: cur.id }], challenge: ['map'], album: ['map'], workshop: ['map'] }[cur.name]);
+const backTarget = () => ({ island: ['map'], lesson: isIntro(cur.id) ? ['map'] : ['island', { id: cur.id }], build: ['island', { id: cur.id }], paint: ['island', { id: cur.id }], hunt: ['island', { id: cur.id }], game: ['island', { id: cur.id }], challenge: ['map'], album: ['map'], workshop: ['map'], repaso: ['map'], parent: ['album'] }[cur.name]);
 function setAction(label, fn, enabled = true, cls = '') {
   const b = $('#action');
   if (!label) { b.hidden = true; return; }
@@ -605,6 +609,8 @@ function titleFor() {
     case 'map': return 'Mapa de aventuras';
     case 'album': return 'Mi álbum';
     case 'workshop': return 'Taller libre';
+    case 'repaso': return 'Repaso del día';
+    case 'parent': return 'Panel de apoderado';
     default: return 'Mundo de Formas y Números';
   }
 }
@@ -615,7 +621,7 @@ function render() {
   setAction(null);
   refreshStars();
   scr().innerHTML = '';
-  ({ welcome: viewWelcome, map: viewMap, island: viewIsland, lesson: viewLesson, build: viewBuild, paint: viewPaint, hunt: viewHunt, game: viewGame, challenge: viewChallenge, album: viewAlbum, workshop: viewWorkshop })[cur.name]();
+  ({ welcome: viewWelcome, map: viewMap, island: viewIsland, lesson: viewLesson, build: viewBuild, paint: viewPaint, hunt: viewHunt, game: viewGame, challenge: viewChallenge, album: viewAlbum, workshop: viewWorkshop, repaso: viewRepaso, parent: viewParent })[cur.name]();
 }
 
 /* =========================================================
@@ -635,7 +641,7 @@ function viewWelcome() {
   frame(`${logo}<h2>Mundo de Formas<br>y Números</h2><span class="tagline">Polígonos · Figuras 2D y 3D · Números</span>
     <p>${save.name ? `¡Qué bueno verte de nuevo, ${save.name}!` : '¡Una aventura con Poli para descubrir las formas y los números!'}</p>
     <div class="field"><input id="nm" maxlength="14" placeholder="¿Cómo te llamas?" value="${save.name || ''}" autocomplete="off"><button class="btn gold" id="go">¡Empezar!</button></div>`, 'welcome');
-  const start = () => { ac(); save.name = ($('#nm').value.trim() || 'amiga'); persist(); go('map'); };
+  const start = () => { ac(); save.name = cleanName($('#nm').value) || 'amiga'; persist(); go('map'); };
   $('#go').onclick = start;
   $('#nm').onkeydown = e => { if (e.key === 'Enter') start(); };
   poli.say(save.name ? `¡Hola otra vez, ${save.name}! Soy Poli. ¿Seguimos jugando?` : '¡Hola! Soy Poli, tu guía en el mundo de las formas y los números. Escribe tu nombre y comencemos.', false);
@@ -673,6 +679,7 @@ function viewMap() {
       <div class="maptop">
         <div class="chapters">${Object.keys(CH).map(Number).map(k => `<button class="chap ${k === ch ? 'on' : ''}" data-ch="${k}">${CH[k].label}</button>`).join('')}</div>
         <div class="mapbar">
+          <button class="btn gold sm" id="bRep"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round"/><path d="M21 4v5h-5" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7.5V12l3 2" fill="none" stroke="#5a3a00" stroke-width="2.4" stroke-linecap="round"/></svg>Repaso</button>
           <button class="btn ghost sm" id="bWork"><svg viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z" fill="#ffc233" stroke="#7c5cff" stroke-width="2" stroke-linejoin="round"/></svg>Taller</button>
           <button class="btn ghost sm" id="bAlb"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3" fill="#ff7eb6" stroke="#7c5cff" stroke-width="2"/><path d="M8 8h8M8 12h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>Álbum</button>
         </div>
@@ -688,6 +695,7 @@ function viewMap() {
   });
   $('#bAlb').onclick = () => go('album');
   $('#bWork').onclick = () => go('workshop');
+  $('#bRep').onclick = () => go('repaso');
   const cu = ns.find(n => n.current);
   poli.say(!cu ? `¡Increíble, ${save.name}! Completaste todo este capítulo.`
     : isIntro(cu.id) ? CH[ch].hello(save.name)
@@ -1052,7 +1060,7 @@ function viewHunt() {
     others = [...circ, ...pick(OBJ.filter(o => SH[o.shape] && o.shape !== F.id), TOTAL - good.length - circ.length)];
   }
   const cards = shuffle([...good, ...others]);
-  let found = 0;
+  let found = 0, missed = false;
   const el = frame(`<div class="hunt-title" style="--d:${F.d}">${figSvg(F)}<span class="tag">Encuentra ${plural(F)}: ${good.length}</span></div>
     <div class="hgrid g8">${objCards(cards, 'hcard')}</div>`);
   poli.say(`Hay ${NUM[good.length]} objetos con forma de ${F.name}. ¡Encuéntralos!`);
@@ -1063,10 +1071,11 @@ function viewHunt() {
       c.classList.add('right'); found++; sfx.ok();
       const left = good.length - found;
       if (!left) {
+        track(is3 ? 'fig3d' : 'poli', !missed);
         setTimeout(() => { confetti(); sfx.win(); award('hunt', F.id); poli.cheer(`¡Los encontraste todos, ${save.name}!`); setAction('¡Listo!', () => go('island', { id: F.id }), true, 'green'); }, 400);
       } else if (left === 1) poli.cheer('¡Falta uno!');
     } else {
-      c.classList.remove('wrong'); void c.offsetWidth; c.classList.add('wrong'); sfx.bad();
+      missed = true; c.classList.remove('wrong'); void c.offsetWidth; c.classList.add('wrong'); sfx.bad();
       const why = o.shape === 'circ' ? `${cap(o.n)} es redondo.` : o.shape === 'curva' ? `${cap(o.n)} tiene curvas.` : `${cap(o.n)} tiene forma de ${FIG[o.shape].name}.`;
       poli.oops(why);
     }
@@ -1128,12 +1137,12 @@ function makeQuestion(type) {
 }
 function viewChallenge() {
   const ch = CH[cur.ch] ? cur.ch : 1, key = CH[ch].chal;
-  const qs = shuffle(CH[ch].types).map(makeQuestion);
+  const ts = shuffle(CH[ch].types), qs = ts.map(makeQuestion);
   const res = []; let qi = 0;
   const show = () => {
     const q = qs[qi];
     const el = frame(`<div class="progress">${qs.map((_, i) => `<i class="${i < qi ? (res[i] ? 'ok' : 'meh') : i === qi ? 'now' : ''}"></i>`).join('')}</div><div class="stepbody"></div>`);
-    choice($('.stepbody', el), { prompt: q.prompt, shape: q.shape || '', opts: q.opts, cls: q.cls || '', onRight: first => { res[qi] = first; setTimeout(() => { qi++; qi < qs.length ? show() : finish(); }, 1300); } });
+    choice($('.stepbody', el), { prompt: q.prompt, shape: q.shape || '', opts: q.opts, cls: q.cls || '', onRight: first => { res[qi] = first; track(topicOf(ts[qi]), first); setTimeout(() => { qi++; qi < qs.length ? show() : finish(); }, 1300); } });
     poli.say(q.voice || q.prompt);
   };
   const finish = () => {
@@ -1162,8 +1171,9 @@ function viewAlbum() {
       stk((save[C.chal] || 0) >= 3, trophy, 'Campeona', 'Desafío perfecto'),
     ].join('');
   };
-  const el = frame(`<p class="rank"><span>${save.name ? save.name + ' · ' : ''}${rank} · ${total}/${max} ★</span></p><div class="album">${Object.keys(CH).map(section).join('')}</div><button class="tinybtn" id="rst">Borrar mi progreso</button>`);
-  $('#rst').onclick = () => { if (confirm('¿Seguro que quieres borrar todo el progreso?')) { save = { name: '', fx: true, voice: true, prog: {}, challenge: 0, challenge3d: 0, challengeNum: 0, ch: 1 }; persist(); go('welcome'); } };
+  const el = frame(`<p class="rank"><span>${save.name ? save.name + ' · ' : ''}${rank} · ${total}/${max} ★</span></p><div class="album">${Object.keys(CH).map(section).join('')}</div><div class="albfoot"><button class="tinybtn" id="bPar">Panel de apoderado</button><button class="tinybtn" id="rst">Borrar mi progreso</button></div>`);
+  $('#bPar').onclick = () => go('parent');
+  $('#rst').onclick = () => { if (confirm('¿Seguro que quieres borrar todo el progreso?')) { save = NEWSAVE(); persist(); go('welcome'); } };
   poli.say(`¡Mira tu álbum, ${save.name}! Completa las tres estrellas de cada isla para ganar sus stickers.`);
 }
 

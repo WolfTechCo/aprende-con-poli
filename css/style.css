@@ -428,6 +428,27 @@ svg.join{width:var(--board);max-width:100%;height:auto}
 .wagon.got span{background:#e6fff5;color:var(--good-d);animation:pop .4s}
 .rulechip{animation:pop .5s;align-self:center;margin:0 0 14px 8px}
 
+/* ---------- repaso y panel de apoderado ---------- */
+.reptag{text-align:center;margin:-2px 0 4px}
+.reptag span{display:inline-block;background:#fff;color:var(--violet-d);font-weight:800;font-size:clamp(14px,1.8vw,18px);border-radius:99px;padding:2px 16px;box-shadow:0 4px 0 #c7c9f0}
+.albfoot{display:flex;gap:22px;justify-content:center;flex-wrap:wrap}
+.albfoot .tinybtn{margin-top:10px}
+.pgate .field{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.pgate input{font:700 24px var(--font);padding:10px 20px;border-radius:99px;border:4px solid #fff;outline:0;width:180px;text-align:center;color:var(--ink);background:#ffffffdd;box-shadow:0 6px 0 #c7c9f0}
+.pgate input:focus{border-color:var(--gold);background:#fff}
+.pgate .btn{margin:0}
+.pwrap{flex:1;min-height:0;overflow:auto;width:100%;max-width:860px;margin:0 auto;padding:0 6px 16px}
+.pintro{margin:4px 0 6px;background:#fff;border-radius:20px;padding:10px 16px;font-weight:600;font-size:clamp(15px,1.8vw,18px);line-height:1.35;box-shadow:0 5px 0 #c7c9f0}
+.pwrap .sec{margin:14px 0 6px}
+.plist{display:flex;flex-direction:column;gap:8px}
+.prow{display:grid;grid-template-columns:auto 1fr;column-gap:12px;align-items:center;background:#fff;border-radius:18px;padding:10px 16px;box-shadow:0 5px 0 #c7c9f0;cursor:pointer}
+.prow input{width:26px;height:26px;accent-color:var(--violet);grid-row:1/3;cursor:pointer}
+.prow.off{opacity:.55;cursor:default}
+.pname{font-weight:800;font-size:clamp(16px,2vw,20px)}
+.pdata{font-weight:600;font-size:clamp(13px,1.6vw,16px);color:var(--ink2)}
+.pdata .okp{color:var(--good-d)}.pdata .lowp{color:#e0651a}
+.pstar{font-style:normal;font-size:.8em;font-weight:800;color:#5a3a00;background:#ffe9a8;border-radius:99px;padding:1px 10px;margin-left:8px;white-space:nowrap}
+
 /* ---------- confeti ---------- */
 #confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
 
