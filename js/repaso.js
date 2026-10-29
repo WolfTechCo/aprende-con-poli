@@ -87,13 +87,6 @@ function viewParent() {
     poli.say('Esta parte es para adultos.', false);
     return;
   }
-  // temas del repaso: aquí, con clave, para que solo el adulto los elija
-  const rows = ch => TOPICS.filter(T => T.ch === ch).map(T => {
-    const L = T.learned(), on = L && !(save.repasoOff || []).includes(T.id);
-    return `<label class="prow ${L ? '' : 'off'}"><input type="checkbox" data-t="${T.id}" ${on ? 'checked' : ''} ${L ? '' : 'disabled'}>
-      <span class="pname">${T.name}${weak(T) ? '<em class="pstar">⭐ Para reforzar</em>' : ''}</span>
-      <span class="pdata">${L ? 'Aprendido' : 'Aún no lo aprende'}</span></label>`;
-  }).join('');
   const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   const el = frame(`<div class="pwrap">
     <h3 class="sec">Niños y niñas</h3>
@@ -101,9 +94,6 @@ function viewParent() {
       <p>Ajustes de <b>${save.name}</b>. Toca otro nombre para cambiar los suyos.</p>
       <div class="pbtns gsel"><button class="pkid ${save.g === 'a' ? 'on' : ''}" data-gs="a">👧 Niña</button><button class="pkid ${save.g === 'o' ? 'on' : ''}" data-gs="o">👦 Niño</button></div>
       <div class="pbtns"><input id="pName" maxlength="14" value="${save.name}" autocomplete="off" aria-label="Nombre"><button class="btn sm ghost" id="bRen">Cambiar nombre</button><button class="btn sm danger" id="bDel">Borrar este perfil</button></div></div>
-    <h3 class="sec">Temas del Repaso</h3>
-    <p class="pintro">Marca los temas que <b>${save.name}</b> practicará en el <b>Repaso del día</b>. Su avance por tema está en <b>📈 Mi avance</b>.</p>
-    ${Object.keys(CH).map(ch => `<h4 class="sub2">Capítulo ${CH[ch].label}</h4><div class="plist">${rows(+ch)}</div>`).join('')}
     <h3 class="sec">Respaldo del progreso</h3>
     <div class="pbox"><p>Guarda un archivo con el progreso de todos los niños y niñas de este dispositivo (estrellas, aciertos y temas elegidos). Sirve para pasarlo a otro dispositivo o recuperarlo si se borran los datos del navegador.</p>
       <div class="pbtns"><button class="btn sm green" id="bSave">Guardar respaldo</button><button class="btn sm ghost" id="bLoad">Cargar respaldo</button>
@@ -115,12 +105,7 @@ function viewParent() {
         <ul class="psteps"><li><b>Android (Chrome):</b> menú ⋮ → <i>Instalar app</i> o <i>Agregar a la pantalla principal</i>.</li>
         <li><b>iPad o iPhone (Safari):</b> botón Compartir → <i>Agregar a inicio</i>. En Apple la app instalada guarda su progreso aparte de Safari: usa el respaldo para pasarlo.</li></ul>`}</div>
   </div>`, 'fill');
-  $$('input[data-t]', el).forEach(cb => cb.onchange = () => {
-    const off = new Set(save.repasoOff || []);
-    cb.checked ? off.delete(cb.dataset.t) : off.add(cb.dataset.t);
-    save.repasoOff = [...off]; persist(); sfx.pop();
-  });
-  $$('.pkid', el).forEach(b => b.onclick = () => { sfx.pop(); switchProfile(b.dataset.id); go('parent', { ok: true }); });
+  $$('.pkid[data-id]', el).forEach(b => b.onclick = () => { sfx.pop(); switchProfile(b.dataset.id); go('parent', { ok: true }); });
   $$('[data-gs]', el).forEach(b => b.onclick = () => { save.g = b.dataset.gs; persist(); sfx.pop(); go('parent', { ok: true }); });
   $('#bRen', el).onclick = () => {
     const nm = cleanName($('#pName', el).value);
@@ -147,15 +132,15 @@ function viewParent() {
     go('parent', { ok: true }); poli.cheer('¡Progreso cargado!');
   };
   if ($('#bInst', el)) $('#bInst', el).onclick = async () => { installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; go('parent', { ok: true }); };
-  poli.say('Aquí están los ajustes: perfiles, temas del repaso, respaldo e instalación.', false);
+  poli.say('Aquí están los ajustes: perfiles, respaldo e instalación.', false);
 }
 
 /* ---------- Mi avance: cómo le va en cada tema (sin clave, solo para mirar) ---------- */
 function viewAvance() {
-  const total = totalStars(), max = maxStars(), learned = TOPICS.filter(T => T.learned()), weakL = learned.filter(weak);
+  const total = totalStars(), max = maxStars(), learned = TOPICS.filter(T => T.learned()), weakL = learned.filter(weak), edit = !!cur.edit;
   const row = T => {
-    const st = save.stats?.[T.id], p = pctOf(st), L = T.learned();
-    return `<div class="arow ${L ? '' : 'off'}"><div class="atop"><b>${T.name}</b>${weak(T) ? '<em class="pstar">⭐ Para reforzar</em>' : ''}</div>
+    const st = save.stats?.[T.id], p = pctOf(st), L = T.learned(), on = L && !(save.repasoOff || []).includes(T.id);
+    return `<div class="arow ${L ? '' : 'off'}"><div class="atop"><label class="rck ${edit && L ? 'live' : ''}" title="Entra al Repaso"><input type="checkbox" data-t="${T.id}" ${on ? 'checked' : ''} ${edit && L ? '' : 'disabled'}></label><b>${T.name}</b>${weak(T) ? '<em class="pstar">⭐ Para reforzar</em>' : ''}</div>
       ${L && st ? `<div class="abar"><i style="width:${Math.max(4, p)}%;background:${p >= 70 ? 'var(--good)' : '#ff8a3d'}"></i><span>${p} %</span></div>
         <small>a la primera · ${st.n} ${st.n === 1 ? 'respuesta' : 'respuestas'} · ${ago(st.last)}</small>` : `<small>${L ? 'Sin práctica aún' : 'Aún no lo aprende'}</small>`}</div>`;
   };
@@ -164,10 +149,29 @@ function viewAvance() {
     <div class="asum"><div class="acard"><b>★ ${total}</b><small>de ${max} estrellas</small></div>
       <div class="acard"><b>${learned.length}</b><small>de ${TOPICS.length} temas aprendidos</small></div>
       <div class="acard ${weakL.length ? 'warn' : 'good'}"><b>${weakL.length ? weakL.length : '✓'}</b><small>${weakL.length ? 'para reforzar' : 'todo bien'}</small></div></div>
+    <div class="rlock ${edit ? 'open' : ''}">${edit
+      ? `<p>🔓 Marca los temas que <b>${save.name}</b> practicará en el <b>Repaso del día</b> ✓.</p><button class="btn sm green" id="bLock">Listo 🔒</button>`
+      : `<p>✓ = el tema entra al <b>Repaso del día</b>. Para cambiarlos, desbloquea.</p><button class="btn sm ghost" id="bUnlock">🔒 Desbloquear</button>
+        <div class="rgate" hidden><span id="rq"></span><input id="rg" type="text" inputmode="numeric" maxlength="3" autocomplete="off" aria-label="Respuesta"><button class="btn sm gold" id="rgo">OK</button></div>`}</div>
     ${weakL.length ? `<p class="pintro">⭐ <b>Para reforzar:</b> ${weakL.map(T => T.name).join(', ')}. El Repaso del día le da más preguntas de estos temas.</p>` : ''}
     ${Object.keys(CH).map(ch => `<h3 class="sec">Capítulo ${CH[ch].label}</h3><div class="plist">${TOPICS.filter(T => T.ch === +ch).map(row).join('')}</div>`).join('')}
     <p class="pnote">El porcentaje considera las últimas 20 respuestas de cada tema, en juegos, repaso y desafíos. Bajo 70 % aparece como ⭐ para reforzar.</p></div>`, 'fill');
-  $$('.pkid', el).forEach(b => b.onclick = () => { sfx.pop(); switchProfile(b.dataset.id); go('avance'); });
+  $$('.pkid', el).forEach(b => b.onclick = () => { sfx.pop(); switchProfile(b.dataset.id); go('avance', { edit }); });
+  $$('input[data-t]', el).forEach(cb => cb.onchange = () => {
+    const off = new Set(save.repasoOff || []);
+    cb.checked ? off.delete(cb.dataset.t) : off.add(cb.dataset.t);
+    save.repasoOff = [...off]; persist(); sfx.pop();
+  });
+  if (edit) { $('#bLock', el).onclick = () => go('avance'); }
+  else {
+    // desbloquear: la misma multiplicación de Ajustes (protege de la niña, no de un adulto)
+    let ans = 0;
+    const ask = () => { const a = rnd(6, 9), b = rnd(6, 9); ans = a * b; $('#rq', el).textContent = `¿Cuánto es ${a} × ${b}?`; $('#rg', el).value = ''; };
+    const tryIt = () => { if (+$('#rg', el).value.trim() === ans) return go('avance', { edit: true }); sfx.bad(); poli.oops('Esa no es. Esta parte es para adultos.'); ask(); };
+    $('#bUnlock', el).onclick = () => { sfx.pop(); $('.rgate', el).hidden = false; $('#bUnlock', el).hidden = true; ask(); $('#rg', el).focus(); };
+    $('#rgo', el).onclick = tryIt;
+    $('#rg', el).onkeydown = e => { if (e.key === 'Enter') tryIt(); };
+  }
   poli.say(weakL.length ? `Este es el avance de ${save.name}. Hay ${weakL.length === 1 ? 'un tema' : weakL.length + ' temas'} para reforzar.` : `Este es el avance de ${save.name}. ¡Va muy bien!`, false);
 }
 

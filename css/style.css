@@ -539,6 +539,18 @@ svg.join{width:var(--board);max-width:100%;height:auto}
 .abar{position:relative;height:22px;border-radius:99px;background:#eef0fb;overflow:hidden}
 .abar i{position:absolute;inset:0 auto 0 0;border-radius:99px;transition:width .6s}
 .abar span{position:absolute;right:10px;top:0;line-height:22px;font-weight:800;font-size:14px;color:var(--ink)}
+.rlock{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border-radius:18px;padding:8px 14px;margin:0 0 8px;box-shadow:0 5px 0 #c7c9f0;border:3px solid transparent}
+.rlock.open{border-color:var(--good);background:#e9fff5}
+.rlock p{margin:0;flex:1 1 220px;font-weight:600;font-size:clamp(14px,1.7vw,16px)}
+.rlock .btn{margin:0}
+.rgate{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:800}
+.rgate[hidden]{display:none}
+.rgate input{font:700 18px var(--font);width:84px;padding:5px 12px;border-radius:99px;border:3px solid #dfe3ff;outline:0;text-align:center}
+.rgate input:focus{border-color:var(--gold)}
+.rck{display:inline-grid;place-items:center;margin-right:8px}
+.rck input{width:24px;height:24px;accent-color:var(--good);margin:0}
+.rck input:disabled{opacity:.85}
+.rck.live input{cursor:pointer;animation:pop .35s}
 .pnote{font-size:13px;color:var(--ink2);font-weight:600;text-align:center;margin:12px 0 0}
 .pwrap .sub2{margin:10px 0 6px;color:var(--violet-d);font-size:clamp(14px,1.8vw,18px)}
 .pstar{font-style:normal;font-size:.8em;font-weight:800;color:#5a3a00;background:#ffe9a8;border-radius:99px;padding:1px 10px;margin-left:8px;white-space:nowrap}
