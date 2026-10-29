@@ -29,7 +29,8 @@ Los ejercicios se generan al azar: cada vez que se entra a una sección son dist
 - **Repaso**: 5 preguntas mezcladas de los temas ya aprendidos, con más preguntas de los temas donde se equivoca.
 - **📈 Mi avance** (sin clave): estrellas, temas aprendidos y, por tema, el % de aciertos a la primera
   (últimas 20 respuestas), cuántas respuestas lleva y cuándo practicó; los temas bajo 70 % aparecen como ⭐ para reforzar.
-- **⚙️ Ajustes** (se entra resolviendo una multiplicación): perfiles, temas que entran al Repaso,
+  Cada tema tiene su casilla ✓ de **entra al Repaso**: está bloqueada y se desbloquea resolviendo una multiplicación.
+- **⚙️ Ajustes** (se entra resolviendo una multiplicación): perfiles,
   **respaldo del progreso** e instrucciones para **instalar la app**.
 
 ## Cómo usarla
