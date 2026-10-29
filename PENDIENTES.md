@@ -7,6 +7,7 @@ Mejoras conversadas que quedaron anotadas para después:
 - **Capítulo de medir y comparar:** largo, más alto / más bajo, más pesado / más liviano.
 - **App instalable y sin internet (PWA):** que se pueda instalar en la tablet o el celular y funcione sin conexión.
 - **Privacidad:** tipografía guardada en la propia app (sin Google Fonts) y voces del equipo.
-- **Modo profesor / apoderado:** pantalla protegida para ver el progreso por capítulo.
+- **Guardar / cargar progreso:** respaldo para cambiar de dispositivo o pasar de Safari a la app instalada.
 - **Más variedad de preguntas en el capítulo 1** (polígonos).
+- **Sumas C + D + U con letras repetidas:** por ejemplo 1D + 1C + 1D + 1D + 1U = 131, juntando las letras iguales (nivel más difícil; baja prioridad, las sumas desordenadas ya están).
 - Probar en tablet y celular reales.

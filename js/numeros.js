@@ -326,7 +326,7 @@ function quizGame(F, k, gens, msg) {
     const el = frame(`${progressBar(qs.length, qi, res)}<div class="stepbody"></div>`);
     choice($('.stepbody', el), {
       prompt: q.prompt, shape: q.shape || '', opts: q.opts, cls: q.cls || '',
-      onRight: first => { res[qi] = first; const say = q.opts.find(o => o.ok).say || ''; setTimeout(() => { qi++; qi < qs.length ? show() : gameDone(F, k, msg); }, Math.min(4200, 1300 + say.length * 40)); },
+      onRight: first => { res[qi] = first; track(F.id, first); const say = q.opts.find(o => o.ok).say || ''; setTimeout(() => { qi++; qi < qs.length ? show() : gameDone(F, k, msg); }, Math.min(4200, 1300 + say.length * 40)); },
     });
     poli.say(q.voice || q.prompt);
   };
@@ -596,8 +596,8 @@ function gameTableFill(F) {
     choice($('#qBox', el), {
       prompt: '¿Qué número va en el casillero amarillo?',
       opts: numChoices(v, [v + 10, v - 10, v + 100, v - 100, v + 1], `¡Sí! Es ${v}.`, 'Mira el número de su izquierda y súmale 10. O el de arriba, y súmale 100.'),
-      onRight: () => {
-        cell.classList.remove('ask'); cell.classList.add('found'); cell.textContent = v; r++;
+      onRight: first => {
+        track('tabla', first); cell.classList.remove('ask'); cell.classList.add('found'); cell.textContent = v; r++;
         setTimeout(() => { if (el.isConnected) r < hidden.length ? ask() : gameDone(F, 'g1', '¡Completaste la tabla del 1000!'); }, 1200);
       },
     });
@@ -614,16 +614,16 @@ function gameTableFind(F) {
     const el = frame(`${progressBar(targets.length, r)}<div class="hunt-title"><span class="tag">Toca el <b>${t}</b></span></div>
       <div class="tlayout">${tableHtml(v => anchor(v) ? 'anchor' : 'blank', anchor)}</div>`);
     poli.say(r === 0 ? `Los números de la tabla se escondieron. Usa las pistas de la orilla para encontrar el ${t}.` : `Ahora encuentra el ${t}.`);
-    let done = false;
+    let done = false, missed = false;
     $$('.ncell', el).forEach(cell => cell.onclick = () => {
       const v = +cell.dataset.v; if (done || anchor(v)) return;
       if (v === t) {
-        done = true; cell.textContent = v; cell.classList.remove('blank', 'peek'); cell.classList.add('found'); sfx.ok();
+        done = true; track('tabla', !missed); cell.textContent = v; cell.classList.remove('blank', 'peek'); cell.classList.add('found'); sfx.ok();
         poli.cheer(`¡Sí! Ese es el ${t}.`);
         setTimeout(() => { if (!el.isConnected) return; r++; r < targets.length ? round() : gameDone(F, 'g2', '¡Encontraste todos los números!'); }, 1600);
         return;
       }
-      cell.textContent = v; cell.classList.remove('blank'); cell.classList.add('peek'); sfx.bad();
+      missed = true; cell.textContent = v; cell.classList.remove('blank'); cell.classList.add('peek'); sfx.bad();
       poli.oops(tRow(v) !== tRow(t) ? `Ese es el ${v}. El ${t} está en la fila que empieza con ${tRow(t) * 100 + 10}.` : v < t ? `Ese es el ${v}. Avanza hacia la derecha: suma 10.` : `Ese es el ${v}. El ${t} está más a la izquierda.`);
     });
   };
@@ -671,8 +671,8 @@ function gameTrain(F) {
       choice($('#qBox', el), {
         prompt: '¿Qué número va en el vagón amarillo?',
         opts: missOpts(vals, i, step, last ? `¡Sí! Es ${vals[i]}. La regla es ${ruleTxt(step).toLowerCase()}.` : `¡Sí! Es ${vals[i]}.`),
-        onRight: () => {
-          got.add(i); mi++;
+        onRight: first => {
+          track('secu', first); got.add(i); mi++;
           $('#trainBox', el).innerHTML = trainHtml(vals, miss, got, -1);
           if (!last) { setTimeout(() => el.isConnected && ask(), 1000); return; }
           $('#trainBox', el).insertAdjacentHTML('beforeend', `<span class="chip rulechip">Regla: ${ruleTxt(step).toLowerCase()}</span>`);
