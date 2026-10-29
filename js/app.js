@@ -1,7 +1,7 @@
 'use strict';
 /* =========================================================
-   Mundo de Formas — app para 2° básico
-   Capítulo 1: polígonos · Capítulo 2: figuras 2D y 3D
+   Mundo de Formas y Números — app para 2° básico
+   Capítulo 1: polígonos · Capítulo 2: figuras 2D y 3D · Capítulo 3: números (js/numeros.js)
    Sin dependencias: HTML + CSS + JS puro (SVG, Canvas 3D, WebAudio, SpeechSynthesis)
    ========================================================= */
 
@@ -81,13 +81,18 @@ const figStars = id => ACTS[FIG[id].kind].filter(k => prog(id)[k]).length;
 const del = F => F.art === 'el' ? `del ${F.name}` : `de la ${F.name}`;
 const plural = F => F.pl || `${F.art === 'la' ? 'las' : 'los'} ${F.name}s`;
 
+/* capítulos: el 3 (números) se agrega desde js/numeros.js */
 const CH = {
-  1: { nodes: ['intro', 'tri', 'sq', 'rect', 'pent', 'hex', 'oct', 'challenge'], intro: 'intro', chal: 'challenge', figs: SHAPES, label: '1 · Polígonos' },
-  2: { nodes: ['intro3d', ...SOLIDS.map(s => s.id), 'challenge3d'], intro: 'intro3d', chal: 'challenge3d', figs: SOLIDS, label: '2 · <span class="lg">Figuras </span>2D y 3D' },
+  1: { nodes: ['intro', 'tri', 'sq', 'rect', 'pent', 'hex', 'oct', 'challenge'], intro: 'intro', chal: 'challenge', figs: SHAPES, label: '1 · Polígonos',
+    introLabel: 'Inicio', sticker: ['Exploradora', 'Qué es un polígono'], chalTitle: 'Gran Desafío', champ: 'una campeona de las formas',
+    hello: n => `¡Hola, ${n}! Toca la isla verde para empezar.`, types: ['sides', 'sides', 'vert', 'vert', 'name', 'name', 'notpoly', 'poly'] },
+  2: { nodes: ['intro3d', ...SOLIDS.map(s => s.id), 'challenge3d'], intro: 'intro3d', chal: 'challenge3d', figs: SOLIDS, label: '2 · <span class="lg">Figuras </span>2D y 3D',
+    introLabel: '¿2D o 3D?', sticker: ['Ojo 3D', '2D y 3D'], chalTitle: 'Gran Desafío 3D', champ: 'una campeona de las formas',
+    hello: n => `¡Bienvenida al capítulo de figuras 2D y 3D, ${n}! Toca la isla verde.`, types: ['is3d', 'name3d', 'print', 'rolls', 'count3d', 'count3d', 'count3d', 'name3d'] },
 };
 const chStars = ch => { const C = CH[ch]; return C.figs.reduce((a, F) => a + figStars(F.id), 0) + (prog(C.intro).lesson ? 1 : 0) + (save[C.chal] || 0); };
-const totalStars = () => chStars(1) + chStars(2);
-const MAXSTARS = (SHAPES.length + SOLIDS.length) * 3 + 2 * (1 + 3);
+const totalStars = () => Object.keys(CH).reduce((a, ch) => a + chStars(ch), 0);
+const maxStars = () => Object.values(CH).reduce((a, C) => a + C.figs.length * 3 + 1 + 3, 0);
 
 const polySvg = (S, { cls = '', fill, stroke, sw = 6, extra = '' } = {}) =>
   `<svg viewBox="0 0 200 200" class="${cls}"><polygon points="${ps(S.pts)}" pathLength="1" fill="${fill || S.c}" stroke="${stroke || S.d}" stroke-width="${sw}" stroke-linejoin="round"/>${extra}</svg>`;
@@ -120,7 +125,7 @@ function solidArt(id, c, l, d) {
   }[id]();
 }
 const solidSvg = (F, white) => `<svg viewBox="0 0 100 100">${white ? solidArt(F.id, '#ffffffee', '#ffffff', '#ffffffb0') : solidArt(F.id, F.c, F.l, F.d)}</svg>`;
-const figSvg = (F, white) => F.kind === '3d' ? solidSvg(F, white) : polySvg(F, white ? { fill: '#fff', stroke: '#fff', sw: 4 } : { sw: 7 });
+const figSvg = (F, white) => F.kind === 'num' ? numIcon(F.id, white) : F.kind === '3d' ? solidSvg(F, white) :polySvg(F, white ? { fill: '#fff', stroke: '#fff', sw: 4 } : { sw: 7 });
 
 /* ---------- objetos de la vida real (2D) ---------- */
 const rs = (n, s, r, cx = 50, cy = 50) => ps(reg(n, s, r, cx, cy));
@@ -564,10 +569,10 @@ function confetti(count = 110) {
    ========================================================= */
 let cur = { name: 'welcome' };
 const scr = () => $('#screen');
-const isIntro = id => id === 'intro' || id === 'intro3d';
+const isIntro = id => Object.values(CH).some(C => C.intro === id);
 
 function go(name, params = {}) { sfx.pop(); cur = { name, ...params }; render(); }
-const backTarget = () => ({ island: ['map'], lesson: isIntro(cur.id) ? ['map'] : ['island', { id: cur.id }], build: ['island', { id: cur.id }], paint: ['island', { id: cur.id }], hunt: ['island', { id: cur.id }], challenge: ['map'], album: ['map'], workshop: ['map'] }[cur.name]);
+const backTarget = () => ({ island: ['map'], lesson: isIntro(cur.id) ? ['map'] : ['island', { id: cur.id }], build: ['island', { id: cur.id }], paint: ['island', { id: cur.id }], hunt: ['island', { id: cur.id }], game: ['island', { id: cur.id }], challenge: ['map'], album: ['map'], workshop: ['map'] }[cur.name]);
 function setAction(label, fn, enabled = true, cls = '') {
   const b = $('#action');
   if (!label) { b.hidden = true; return; }
@@ -589,17 +594,18 @@ function award(kind, id) {
 
 function titleFor() {
   const F = FIG[cur.id];
+  if (F && F.kind === 'num') return cur.name === 'lesson' ? `Aprende: ${F.short}` : cur.name === 'game' ? F.acts.find(a => a.k === cur.k).t : F.title;
   switch (cur.name) {
     case 'island': return `Isla ${del(F)}`;
-    case 'lesson': return cur.id === 'intro' ? '¿Qué es un polígono?' : cur.id === 'intro3d' ? '¿2D o 3D?' : `Aprende: ${F.name}`;
+    case 'lesson': return { intro: '¿Qué es un polígono?', intro3d: '¿2D o 3D?', intro123: '¿Cómo contamos?' }[cur.id] || `Aprende: ${F.name}`;
     case 'build': return `Construye ${F.art} ${F.name}`;
     case 'paint': return 'Pinta sus caras';
     case 'hunt': return 'Caza en la vida real';
-    case 'challenge': return cur.ch === 2 ? 'Gran Desafío 3D' : 'Gran Desafío';
-    case 'map': return 'Mapa de las formas';
+    case 'challenge': return (CH[cur.ch] || CH[1]).chalTitle;
+    case 'map': return 'Mapa de aventuras';
     case 'album': return 'Mi álbum';
     case 'workshop': return 'Taller libre';
-    default: return 'Mundo de Formas';
+    default: return 'Mundo de Formas y Números';
   }
 }
 function render() {
@@ -609,7 +615,7 @@ function render() {
   setAction(null);
   refreshStars();
   scr().innerHTML = '';
-  ({ welcome: viewWelcome, map: viewMap, island: viewIsland, lesson: viewLesson, build: viewBuild, paint: viewPaint, hunt: viewHunt, challenge: viewChallenge, album: viewAlbum, workshop: viewWorkshop })[cur.name]();
+  ({ welcome: viewWelcome, map: viewMap, island: viewIsland, lesson: viewLesson, build: viewBuild, paint: viewPaint, hunt: viewHunt, game: viewGame, challenge: viewChallenge, album: viewAlbum, workshop: viewWorkshop })[cur.name]();
 }
 
 /* =========================================================
@@ -624,15 +630,15 @@ function viewWelcome() {
     <polygon points="62,150 20,70 104,70" fill="#ff6b6b" stroke="#d94646" stroke-width="7" stroke-linejoin="round" transform="translate(-4 14) rotate(-12 62 110)"/>
     <g transform="translate(140 -10) scale(1.45)">${ob(20, 38, 44, 44, 18, '#ffb703', '#ffd166', '#d98f00')}</g>
     <polygon points="${rs(5, -90, 34, 196, 150)}" fill="#2ec4b6" stroke="#1f9e92" stroke-width="7" stroke-linejoin="round"/>
-    <g transform="translate(130 100)"><path d="M0 -26l7 15 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></g>
+    <text x="130" y="117" text-anchor="middle" font-family="Baloo 2,Arial" font-weight="800" font-size="50" stroke="#fff" stroke-width="7" paint-order="stroke" stroke-linejoin="round"><tspan fill="${PV.c.c}">1</tspan><tspan fill="${PV.d.c}">2</tspan><tspan fill="${PV.u.c}">3</tspan></text>
   </svg>`;
-  frame(`${logo}<h2>Mundo<br>de Formas</h2><span class="tagline">Polígonos · Figuras 2D y 3D</span>
-    <p>${save.name ? `¡Qué bueno verte de nuevo, ${save.name}!` : '¡Una aventura con Poli para descubrir las formas!'}</p>
+  frame(`${logo}<h2>Mundo de Formas<br>y Números</h2><span class="tagline">Polígonos · Figuras 2D y 3D · Números</span>
+    <p>${save.name ? `¡Qué bueno verte de nuevo, ${save.name}!` : '¡Una aventura con Poli para descubrir las formas y los números!'}</p>
     <div class="field"><input id="nm" maxlength="14" placeholder="¿Cómo te llamas?" value="${save.name || ''}" autocomplete="off"><button class="btn gold" id="go">¡Empezar!</button></div>`, 'welcome');
   const start = () => { ac(); save.name = ($('#nm').value.trim() || 'amiga'); persist(); go('map'); };
   $('#go').onclick = start;
   $('#nm').onkeydown = e => { if (e.key === 'Enter') start(); };
-  poli.say(save.name ? `¡Hola otra vez, ${save.name}! Soy Poli. ¿Seguimos jugando?` : '¡Hola! Soy Poli, tu guía en la isla de las formas. Escribe tu nombre y comencemos.', false);
+  poli.say(save.name ? `¡Hola otra vez, ${save.name}! Soy Poli. ¿Seguimos jugando?` : '¡Hola! Soy Poli, tu guía en el mundo de las formas y los números. Escribe tu nombre y comencemos.', false);
 }
 
 /* ---------- Mapa ---------- */
@@ -651,21 +657,21 @@ function nodeState(ch, vert) {
   });
 }
 function viewMap() {
-  const ch = save.ch === 2 ? 2 : 1, vert = isVertical();
+  const ch = CH[save.ch] ? +save.ch : 1, vert = isVertical();
   const ns = nodeState(ch, vert);
   let d = `M ${ns[0].x} ${ns[0].y}`;
   for (let i = 1; i < ns.length; i++) { const a = ns[i - 1], b = ns[i], mx = (a.x + b.x) / 2; d += ` C ${mx} ${a.y}, ${mx} ${b.y}, ${b.x} ${b.y}`; }
   const nodeHtml = ns.map(n => {
     let c, dk, icon, label, stars;
-    if (isIntro(n.id)) { c = '#34d399'; dk = '#1b9f72'; icon = `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z" fill="#fff"/></svg>`; label = ch === 1 ? 'Inicio' : '¿2D o 3D?'; stars = starsRow(prog(n.id).lesson ? 1 : 0, 1); }
+    if (isIntro(n.id)) { c = '#34d399'; dk = '#1b9f72'; icon = `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z" fill="#fff"/></svg>`; label = CH[ch].introLabel; stars = starsRow(prog(n.id).lesson ? 1 : 0, 1); }
     else if (n.isChal) { c = '#ffc233'; dk = '#e09a00'; icon = `<svg viewBox="0 0 24 24"><path d="${trophyPath}" fill="#fff" stroke="#fff" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>`; label = 'Gran Desafío'; stars = starsRow(save[n.id] || 0); }
-    else { const F = FIG[n.id]; c = F.c; dk = F.d; icon = figSvg(F, true); label = cap(F.name); stars = starsRow(figStars(F.id)); }
+    else { const F = FIG[n.id]; c = F.c; dk = F.d; icon = figSvg(F, true); label = F.short || cap(F.name); stars = starsRow(figStars(F.id)); }
     return `<button class="node ${n.locked ? 'locked' : ''} ${n.current ? 'current' : ''}" data-id="${n.id}" style="left:${n.x}%;top:${n.y}%;--c:${c};--d:${dk}">
       <span class="bub">${icon}${n.locked ? lockSvg : ''}</span><span class="ribbon">${label}</span><span class="nst">${stars}</span></button>`;
   }).join('');
   const el = frame(`<div class="mapwrap ${vert ? 'vert' : ''}">
       <div class="maptop">
-        <div class="chapters">${[1, 2].map(k => `<button class="chap ${k === ch ? 'on' : ''}" data-ch="${k}">${CH[k].label}</button>`).join('')}</div>
+        <div class="chapters">${Object.keys(CH).map(Number).map(k => `<button class="chap ${k === ch ? 'on' : ''}" data-ch="${k}">${CH[k].label}</button>`).join('')}</div>
         <div class="mapbar">
           <button class="btn ghost sm" id="bWork"><svg viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z" fill="#ffc233" stroke="#7c5cff" stroke-width="2" stroke-linejoin="round"/></svg>Taller</button>
           <button class="btn ghost sm" id="bAlb"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3" fill="#ff7eb6" stroke="#7c5cff" stroke-width="2"/><path d="M8 8h8M8 12h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>Álbum</button>
@@ -684,13 +690,14 @@ function viewMap() {
   $('#bWork').onclick = () => go('workshop');
   const cu = ns.find(n => n.current);
   poli.say(!cu ? `¡Increíble, ${save.name}! Completaste todo este capítulo.`
-    : isIntro(cu.id) ? (ch === 1 ? `¡Hola, ${save.name}! Toca la isla verde para empezar.` : `¡Bienvenida al capítulo de figuras 2D y 3D, ${save.name}! Toca la isla verde.`)
+    : isIntro(cu.id) ? CH[ch].hello(save.name)
       : `Muy bien, ${save.name}. Sigamos con la isla que está saltando.`);
 }
 
 /* ---------- Isla (hub) ---------- */
 function viewIsland() {
   const F = FIG[cur.id], p = prog(F.id), is3 = F.kind === '3d';
+  if (F.kind === 'num') return islandNum(F);
   save.ch = is3 ? 2 : 1; persist();
   const card = (k, t, sub, icon) => `<button class="card ${p[k] ? 'done' : ''}" data-k="${k}" style="--d:${F.d};--l:${F.l}">
      <span class="ico">${icon}</span><span><b>${t}</b><small>${sub}</small></span><span class="st">${starSvg(p[k])}</span></button>`;
@@ -777,8 +784,9 @@ function bindObjNames(root) { $$('.obj', root).forEach(x => x.onclick = () => { 
 function viewLesson() {
   if (cur.id === 'intro') return lessonIntro();
   if (cur.id === 'intro3d') return lessonIntro3D();
+  if (cur.id === 'intro123') return lessonIntroNum();
   const F = FIG[cur.id];
-  return F.kind === '3d' ? lessonSolid(F) : lessonShape(F);
+  return F.kind === 'num' ? NUMLESSON[F.id](F) : F.kind === '3d' ? lessonSolid(F) : lessonShape(F);
 }
 function doneStep(id, title, sub, say) {
   return { say, render: b => { b.innerHTML = `<div class="col trophy"><h2>${title}</h2><div class="star-big">${starSvg(true, 180)}</div><span class="sub">${sub}</span></div>`; if (award('lesson', id)) { confetti(); sfx.win(); } } };
@@ -1067,6 +1075,7 @@ function viewHunt() {
 
 /* ---------- Gran Desafío ---------- */
 function makeQuestion(type) {
+  if (type.startsWith('n:')) return NQ[type.slice(2)]();
   const cols = shuffle(COLORS);
   const S = pick(SHAPES, 1)[0];
   if (type === 'sides' || type === 'vert') {
@@ -1118,15 +1127,14 @@ function makeQuestion(type) {
   }
 }
 function viewChallenge() {
-  const ch = cur.ch === 2 ? 2 : 1, key = CH[ch].chal;
-  const types = ch === 2 ? ['is3d', 'name3d', 'print', 'rolls', 'count3d', 'count3d', 'count3d', 'name3d'] : ['sides', 'sides', 'vert', 'vert', 'name', 'name', 'notpoly', 'poly'];
-  const qs = shuffle(types).map(makeQuestion);
+  const ch = CH[cur.ch] ? cur.ch : 1, key = CH[ch].chal;
+  const qs = shuffle(CH[ch].types).map(makeQuestion);
   const res = []; let qi = 0;
   const show = () => {
     const q = qs[qi];
     const el = frame(`<div class="progress">${qs.map((_, i) => `<i class="${i < qi ? (res[i] ? 'ok' : 'meh') : i === qi ? 'now' : ''}"></i>`).join('')}</div><div class="stepbody"></div>`);
     choice($('.stepbody', el), { prompt: q.prompt, shape: q.shape || '', opts: q.opts, cls: q.cls || '', onRight: first => { res[qi] = first; setTimeout(() => { qi++; qi < qs.length ? show() : finish(); }, 1300); } });
-    poli.say(q.prompt);
+    poli.say(q.voice || q.prompt);
   };
   const finish = () => {
     const good = res.filter(Boolean).length, stars = good >= 7 ? 3 : good >= 5 ? 2 : 1;
@@ -1134,28 +1142,28 @@ function viewChallenge() {
     sfx.win(); confetti(160);
     frame(`<div class="stepbody"><div class="col trophy"><h2>¡Terminaste el desafío!</h2><div style="display:flex;gap:6px">${[0, 1, 2].map(i => `<div class="star-big" style="animation-delay:${.2 + i * .25}s">${starSvg(i < stars, 110)}</div>`).join('')}</div><span class="sub">${good} de ${qs.length} a la primera</span></div></div>`);
     setAction('Volver al mapa', () => go('map'), true, 'green');
-    poli.cheer(stars === 3 ? `¡Perfecto, ${save.name}! Eres una campeona de las formas.` : `¡Buen trabajo, ${save.name}! Puedes volver a jugar para ganar más estrellas.`);
+    poli.cheer(stars === 3 ? `¡Perfecto, ${save.name}! Eres ${CH[ch].champ}.` : `¡Buen trabajo, ${save.name}! Puedes volver a jugar para ganar más estrellas.`);
   };
   show();
 }
 
 /* ---------- Álbum ---------- */
 function viewAlbum() {
-  const total = totalStars();
-  const rank = total >= MAXSTARS ? '¡Reina de las formas!' : total >= 30 ? 'Maestra de las formas' : total >= 12 ? 'Exploradora' : 'Aprendiz';
+  const total = totalStars(), max = maxStars();
+  const rank = total >= max ? '¡Reina de las formas y los números!' : total >= 40 ? 'Maestra' : total >= 15 ? 'Exploradora' : 'Aprendiz';
   const stk = (on, art, name, sub) => `<div class="stk ${on ? 'on' : 'off'}">${art}<b>${name}</b><small>${sub}</small></div>`;
   const starIco = c => `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z" fill="${c}" stroke="#1b9f72" stroke-width="1.4" stroke-linejoin="round"/></svg>`;
   const trophy = `<svg viewBox="0 0 24 24"><path d="${trophyPath}" fill="#ffc233" stroke="#e09a00" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
   const section = ch => {
     const C = CH[ch];
     return `<h3 class="sec">Capítulo ${C.label}</h3>` + [
-      stk(prog(C.intro).lesson, starIco('#34d399'), ch === 1 ? 'Exploradora' : 'Ojo 3D', ch === 1 ? 'Qué es un polígono' : '2D y 3D'),
-      ...C.figs.map(F => { const on = figStars(F.id) === 3; return stk(on, figSvg(F), cap(F.name), on ? '¡Completo!' : '3 estrellas'); }),
+      stk(prog(C.intro).lesson, starIco('#34d399'), ...C.sticker),
+      ...C.figs.map(F => { const on = figStars(F.id) === 3; return stk(on, figSvg(F), F.short || cap(F.name), on ? '¡Completo!' : '3 estrellas'); }),
       stk((save[C.chal] || 0) >= 3, trophy, 'Campeona', 'Desafío perfecto'),
     ].join('');
   };
-  const el = frame(`<p class="rank"><span>${save.name ? save.name + ' · ' : ''}${rank} · ${total}/${MAXSTARS} ★</span></p><div class="album">${section(1)}${section(2)}</div><button class="tinybtn" id="rst">Borrar mi progreso</button>`);
-  $('#rst').onclick = () => { if (confirm('¿Seguro que quieres borrar todo el progreso?')) { save = { name: '', fx: true, voice: true, prog: {}, challenge: 0, challenge3d: 0, ch: 1 }; persist(); go('welcome'); } };
+  const el = frame(`<p class="rank"><span>${save.name ? save.name + ' · ' : ''}${rank} · ${total}/${max} ★</span></p><div class="album">${Object.keys(CH).map(section).join('')}</div><button class="tinybtn" id="rst">Borrar mi progreso</button>`);
+  $('#rst').onclick = () => { if (confirm('¿Seguro que quieres borrar todo el progreso?')) { save = { name: '', fx: true, voice: true, prog: {}, challenge: 0, challenge3d: 0, challengeNum: 0, ch: 1 }; persist(); go('welcome'); } };
   poli.say(`¡Mira tu álbum, ${save.name}! Completa las tres estrellas de cada isla para ganar sus stickers.`);
 }
 
@@ -1248,4 +1256,6 @@ addEventListener('resize', () => {
   clearTimeout(rsT);
   rsT = setTimeout(() => { const v = isVertical(); if (v !== lastVert) { lastVert = v; if (cur.name === 'map') viewMap(); } }, 250);
 });
-initBg(); updateVoiceIcon(); render();
+/* arranca cuando ya cargaron todos los scripts (js/numeros.js agrega el capítulo 3) */
+const boot = () => { initBg(); updateVoiceIcon(); render(); };
+document.readyState === 'loading' ? addEventListener('DOMContentLoaded', boot) : boot();
