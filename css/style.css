@@ -575,6 +575,7 @@ svg.join{width:var(--board);max-width:100%;height:auto}
   .chap{padding:5px 12px;font-size:14px}
   .mapbar{gap:6px;flex-wrap:wrap;justify-content:center}.mapbar .btn.sm{font-size:14px;padding:5px 10px;gap:5px}.mapbar .btn svg{width:18px;height:18px}
   .maptop{justify-content:center}
+  .mapbar{position:static}.maptop{position:relative}.menu{right:4px}
   .btn{padding:10px 20px;font-size:18px}
   #dock{min-height:0;gap:8px}
   #poli{width:62px}
