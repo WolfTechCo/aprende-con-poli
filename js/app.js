@@ -568,6 +568,28 @@ const POLI_SVG = `
  </g>
 </svg>`;
 let lastSay = '';
+/* pasa a lo siguiente recién cuando Poli terminó de hablar (o, con el sonido apagado, cuando hubo tiempo de leer),
+   para no cortar explicaciones como "¡Sí! 12 + 2 = 14". Tocar la pantalla salta la espera.
+   node: si deja de estar en pantalla (Volver), no hace nada */
+function afterSay(fn, node) {
+  const t0 = Date.now(), read = Math.min(5000, 900 + lastSay.length * 35);
+  const voiceOn = () => save.voice && 'speechSynthesis' in window && speechSynthesis.getVoices().length > 0;
+  const talking = () => speechSynthesis.speaking || speechSynthesis.pending;
+  let quietSince = 0, gone = false;
+  const go2 = () => { if (gone) return; gone = true; removeEventListener('pointerdown', skip, true); if (!node || node.isConnected) fn(); };
+  const skip = e => { if (Date.now() - t0 > 350 && !e.target.closest('#bar,#dock')) { e.stopPropagation(); go2(); } };
+  addEventListener('pointerdown', skip, true);
+  const tick = () => {
+    if (gone) return;
+    if (node && !node.isConnected) { gone = true; removeEventListener('pointerdown', skip, true); return; }
+    const t = Date.now() - t0;
+    if (voiceOn() && talking()) quietSince = 0; else quietSince ||= Date.now();
+    // con voz: espera a que termine + 0,3 s; sin voz: el tiempo de leer el mensaje
+    const done = voiceOn() && t > 500 ? quietSince && Date.now() - quietSince > 300 && t > 900 : t > read;
+    if (done || t > 15000) go2(); else setTimeout(tick, 120);
+  };
+  setTimeout(tick, 300);
+}
 const poli = {
   say(t, talk = true) {
     lastSay = t; $('#bubbleText').textContent = t;
@@ -1207,7 +1229,7 @@ function viewChallenge() {
   const show = () => {
     const q = qs[qi];
     const el = frame(`<div class="progress">${qs.map((_, i) => `<i class="${i < qi ? (res[i] ? 'ok' : 'meh') : i === qi ? 'now' : ''}"></i>`).join('')}</div><div class="stepbody"></div>`);
-    choice($('.stepbody', el), { prompt: q.prompt, shape: q.shape || '', opts: q.opts, cls: q.cls || '', onRight: first => { res[qi] = first; track(topicOf(ts[qi]), first); setTimeout(() => { qi++; qi < qs.length ? show() : finish(); }, 1300); } });
+    choice($('.stepbody', el), { prompt: q.prompt, shape: q.shape || '', opts: q.opts, cls: q.cls || '', onRight: first => { res[qi] = first; track(topicOf(ts[qi]), first); afterSay(() => { qi++; qi < qs.length ? show() : finish(); }, el); } });
     poli.say(q.voice || q.prompt);
   };
   const finish = () => {

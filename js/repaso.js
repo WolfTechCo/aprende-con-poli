@@ -55,7 +55,7 @@ function viewRepaso() {
     const el = frame(`${progressBar(qs.length, qi, res)}<div class="reptag"><span>${chosen[qi].name}</span></div><div class="stepbody"></div>`);
     choice($('.stepbody', el), {
       prompt: q.prompt, shape: q.shape || '', opts: q.opts, cls: q.cls || '',
-      onRight: first => { res[qi] = first; track(chosen[qi].id, first); const say = q.opts.find(o => o.ok).say || ''; setTimeout(() => { qi++; qi < qs.length ? show() : finish(); }, Math.min(4200, 1300 + say.length * 40)); },
+      onRight: first => { res[qi] = first; track(chosen[qi].id, first); afterSay(() => { qi++; qi < qs.length ? show() : finish(); }, el); },
     });
     poli.say(q.voice || q.prompt);
   };
