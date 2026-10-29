@@ -650,7 +650,7 @@ function nodeState(ch, vert) {
   return C.nodes.map((id, i) => {
     const x = vert ? (i % 2 ? 70 : 30) : 7 + i * 86 / (len - 1), y = vert ? (i + .5) / len * 100 : i % 2 ? 70 : 32;
     const isChal = id === C.chal;
-    const locked = i === 0 ? false : isChal ? !C.figs.every(F => prog(F.id).lesson) : !prog(C.nodes[i - 1]).lesson;
+    const locked = i === 0 ? false : isChal ? !C.figs.every(F => prog(F.id).lesson) : !prog(C.nodes[i - 1]).lesson && !Object.keys(prog(id)).length; // una isla ya jugada no se vuelve a cerrar
     const complete = isIntro(id) ? !!prog(id).lesson : isChal ? save[id] > 0 : figStars(id) === 3;
     const current = !locked && !currentFound && !complete; if (current) currentFound = true;
     return { id, x, y, locked, current, isChal };
@@ -1075,7 +1075,7 @@ function viewHunt() {
 
 /* ---------- Gran Desafío ---------- */
 function makeQuestion(type) {
-  if (type.startsWith('n:')) return NQ[type.slice(2)]();
+  if (type.startsWith('n:')) return freshQ(() => NQ[type.slice(2)]());
   const cols = shuffle(COLORS);
   const S = pick(SHAPES, 1)[0];
   if (type === 'sides' || type === 'vert') {

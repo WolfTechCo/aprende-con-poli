@@ -8,6 +8,7 @@ App interactiva para 2° básico, en tres capítulos:
    - **Agrupar:** contar agrupando de 10 en 10.
    - **Unidad, decena y centena:** 10 unidades forman 1 decena y 10 decenas forman 1 centena; armar números con bloques (con canje).
    - **Valor posicional:** tabla de centenas, decenas y unidades, y la suma por columnas (345 = 300 + 40 + 5).
+   - **Sumas de C, D y U:** transformar la notación en un número (3C + 4D + 2U = 342), también desordenada, con un lugar vacío o con más de 9 unidades.
    - **Tabla del 1000:** de 10 en 10 y de 100 en 100 hasta 1000.
    - **Secuencias numéricas:** descubrir la regla (+2, +5, +10, +100, −10…) y completar el número que falta.
 
@@ -26,5 +27,7 @@ App interactiva para 2° básico, en tres capítulos:
 - `js/app.js`: pantallas, juegos, sonidos y voz de los capítulos 1 y 2 (sin librerías externas)
 - `js/numeros.js`: capítulo 3 (números)
 - `PENDIENTES.md`: ideas anotadas para más adelante
+
+Los ejercicios se generan al azar: cada vez que se entra a una sección son distintos y no se repiten en la misma sesión.
 
 El progreso se guarda en el propio navegador (`localStorage`).
