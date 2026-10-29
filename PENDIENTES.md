@@ -9,4 +9,5 @@ Mejoras conversadas que quedaron anotadas para después:
 - **Privacidad:** tipografía guardada en la propia app (sin Google Fonts) y voces del equipo.
 - **Modo profesor / apoderado:** pantalla protegida para ver el progreso por capítulo.
 - **Más variedad de preguntas en el capítulo 1** (polígonos).
+- **Sumas C + D + U con letras repetidas:** por ejemplo 1D + 1C + 1D + 1D + 1U = 131, juntando las letras iguales (nivel más difícil).
 - Probar en tablet y celular reales.
