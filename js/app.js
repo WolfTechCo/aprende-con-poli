@@ -672,6 +672,7 @@ function render() {
   if ('speechSynthesis' in window) speechSynthesis.cancel();
   stepBack = null;
   $('#btnBack').hidden = !backTarget();
+  $('#barSlot').innerHTML = '';
   $('#app').classList.toggle('is-home', cur.name === 'welcome');
   $('#title').textContent = titleFor();
   setAction(null);
@@ -746,6 +747,13 @@ function nodeState(ch, vert) {
     return { id, x, y, locked, current, isChal };
   });
 }
+const MENU_ITEMS = `
+            <button data-go="repaso"><span class="mi"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round"/><path d="M21 4v5h-5" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7.5V12l3 2" fill="none" stroke="#5a3a00" stroke-width="2.4" stroke-linecap="round"/></svg></span><span><b>Repaso</b><small>5 preguntas para practicar</small></span></button>
+            <button data-go="album"><span class="mi"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3" fill="#ff7eb6" stroke="#7c5cff" stroke-width="2"/><path d="M8 8h8M8 12h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></span><span><b>Álbum</b><small>Tus stickers y estrellas</small></span></button>
+            <button data-go="avance"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8" rx="1.5" fill="#ff8a3d"/><rect x="10" y="8" width="4" height="13" rx="1.5" fill="#4ea8ff"/><rect x="17" y="3" width="4" height="18" rx="1.5" fill="#22c58b"/></svg></span><span><b>Mi avance</b><small>Cómo vas en cada tema</small></span></button>
+            <button data-go="parent"><span class="mi"><svg viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z" fill="none" stroke="#7c5cff" stroke-width="2.4"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="#7c5cff" stroke-width="2.4" stroke-linecap="round"/></svg></span><span><b>Ajustes</b><small>Para adultos 🔒</small></span></button>`;
+const setMenu = open => { const m = $('#menu'); if (!m) return; m.hidden = !open; $('#bMenu').setAttribute('aria-expanded', open); };
+addEventListener('click', e => { if (!e.target.closest('#menu,#bMenu')) setMenu(false); });
 function viewMap() {
   if (!root.cur) return go('welcome');
   const ch = CH[save.ch] ? +save.ch : 1, vert = isVertical();
@@ -771,13 +779,6 @@ function viewMap() {
             <button class="btn ghost sm" data-go="avance"><svg viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8" rx="1.5" fill="#ff8a3d"/><rect x="10" y="8" width="4" height="13" rx="1.5" fill="#4ea8ff"/><rect x="17" y="3" width="4" height="18" rx="1.5" fill="#22c58b"/></svg>Mi avance</button>
             <button class="btn ghost sm" data-go="parent"><svg viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z" fill="none" stroke="#7c5cff" stroke-width="2.4"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="#7c5cff" stroke-width="2.4" stroke-linecap="round"/></svg>Ajustes</button>
           </div>
-          <button class="btn gold sm" id="bMenu" aria-expanded="false" aria-label="Más opciones"><svg viewBox="0 0 24 24" class="dots4"><circle cx="7" cy="7" r="3.6" fill="#ff6b6b"/><circle cx="17" cy="7" r="3.6" fill="#4ea8ff"/><circle cx="7" cy="17" r="3.6" fill="#22c58b"/><circle cx="17" cy="17" r="3.6" fill="#9b6bff"/></svg>✨ Más</button>
-          <div class="menu" id="menu" hidden>
-            <button data-go="repaso"><span class="mi"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round"/><path d="M21 4v5h-5" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7.5V12l3 2" fill="none" stroke="#5a3a00" stroke-width="2.4" stroke-linecap="round"/></svg></span><span><b>Repaso</b><small>5 preguntas para practicar</small></span></button>
-            <button data-go="album"><span class="mi"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3" fill="#ff7eb6" stroke="#7c5cff" stroke-width="2"/><path d="M8 8h8M8 12h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></span><span><b>Álbum</b><small>Tus stickers y estrellas</small></span></button>
-            <button data-go="avance"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8" rx="1.5" fill="#ff8a3d"/><rect x="10" y="8" width="4" height="13" rx="1.5" fill="#4ea8ff"/><rect x="17" y="3" width="4" height="18" rx="1.5" fill="#22c58b"/></svg></span><span><b>Mi avance</b><small>Cómo vas en cada tema</small></span></button>
-            <button data-go="parent"><span class="mi"><svg viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z" fill="none" stroke="#7c5cff" stroke-width="2.4"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="#7c5cff" stroke-width="2.4" stroke-linecap="round"/></svg></span><span><b>Ajustes</b><small>Para adultos 🔒</small></span></button>
-          </div>
         </div>
       </div>
       <div class="mapscroll"><div class="map ${!vert && ns.length > 8 ? 'dense' : ''}" ${vert ? `style="height:${ns.length * 132}px"` : ''}>
@@ -792,10 +793,11 @@ function viewMap() {
   });
   /* Repaso, Álbum, Mi avance y Ajustes: botones a la vista en pantallas anchas; en celular, en el Menú */
   $$('[data-go]', el).forEach(b => b.onclick = () => go(b.dataset.go));
-  const menu = $('#menu', el), bm = $('#bMenu', el);
-  const setMenu = open => { menu.hidden = !open; bm.setAttribute('aria-expanded', open); };
-  bm.onclick = e => { e.stopPropagation(); sfx.pop(); setMenu(menu.hidden); };
-  el.addEventListener('click', e => { if (!menu.hidden && !e.target.closest('#menu')) setMenu(false); });
+  /* en celular, el botón Más va en la barra de arriba, al lado del título */
+  $('#barSlot').innerHTML = `<button class="round more" id="bMenu" aria-expanded="false" aria-label="Más opciones"><svg viewBox="0 0 24 24" class="dots4"><circle cx="7" cy="7" r="3.6" fill="#ff6b6b"/><circle cx="17" cy="7" r="3.6" fill="#4ea8ff"/><circle cx="7" cy="17" r="3.6" fill="#22c58b"/><circle cx="17" cy="17" r="3.6" fill="#9b6bff"/></svg></button>
+    <div class="menu" id="menu" hidden>${MENU_ITEMS}</div>`;
+  $$('#barSlot [data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+  $('#bMenu').onclick = e => { e.stopPropagation(); sfx.pop(); setMenu(!!$('#menu').hidden); };
   const cu = ns.find(n => n.current);
   poli.say(!cu ? `¡Increíble, ${save.name}! Completaste todo este capítulo.`
     : isIntro(cu.id) ? CH[ch].hello(save.name)
