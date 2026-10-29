@@ -376,6 +376,8 @@ canvas.qc3{width:min(26vh,230px);height:min(26vh,230px)}
 .ntv{color:var(--c);background:var(--l)}
 .ntres{color:#fff;background:var(--good);box-shadow:0 6px 0 var(--good-d)}
 .nt .ghost{visibility:hidden;animation:none}
+.ntres.ask{background:var(--gold);color:#5a3a00;box-shadow:0 6px 0 var(--gold-d)}
+.helpbtn{margin-top:4px}
 .ntv.on,.ntres.on{visibility:visible;animation:pop .45s}
 .nplus{font-size:clamp(34px,5.4vw,60px);font-weight:800;color:var(--ink2);line-height:1.3}
 

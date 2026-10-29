@@ -198,7 +198,7 @@ const NQ = {
     };
   },
   /* notación → número: 3C + 4D + 2U = 342 (nivel 0: en orden · 1: desordenado · 2: falta un lugar · 3: más de 9 unidades) */
-  nota(level = rnd(0, 2)) {
+  nota(level = rnd(0, 2), help = true) {
     let D = pick(DIG9, 3);
     if (level === 3) D = [rnd(1, 7), rnd(1, 7), rnd(11, 15)];
     let terms = PVK.map((k, i) => [k, D[i]]);
@@ -208,12 +208,15 @@ const NQ = {
     const written = +terms.map(t => t[1]).join(''); // error típico: leer los números en el orden escrito
     const cands = level === 3 ? [D[0] * 100 + D[1] * 10 + D[2] % 10, written] : level === 2 ? [written, rev(n), swapDU(n)] : [written, rev(n), swapDU(n)];
     return {
-      prompt: '¿Qué número es?', voice: `¿Qué número es ${notaVoice(terms)}?`, shape: `<div class="nshape">${notaHtml(terms)}</div>`,
+      prompt: '¿Qué número es?', voice: `¿Qué número es ${notaVoice(terms)}?`,
+      shape: `<div class="nshape">${notaHtml(terms)}${help ? `<button class="btn ghost sm helpbtn">💡 Ayuda</button><template>${termsHtml(terms, true, false)}</template>` : ''}</div>`,
       opts: numChoices(n, cands.filter(v => v !== n && v <= 1000),
         `¡Sí! ${terms.map(([k, c]) => c * PV_VAL[k]).join(' + ')} = ${n}.`,
-        level === 3 ? '10 unidades forman 1 decena. ¡Cuenta otra vez!' : 'Fíjate en la letra: C vale 100, D vale 10 y U vale 1.'),
+        (level === 3 ? '10 unidades forman 1 decena. ¡Cuenta otra vez!' : 'Fíjate en la letra: C vale 100, D vale 10 y U vale 1.') + (help ? ' Si quieres, toca Ayuda.' : '')),
     };
   },
+  /* en el Gran Desafío no hay botón de ayuda */
+  notaDesafio() { return NQ.nota(rnd(0, 2), false); },
   /* número → notación */
   notaRev() {
     const D = pick(DIG9, 3), n = n3(D);
@@ -263,7 +266,7 @@ CH[3] = {
   nodes: ['intro123', ...NUMS.map(T => T.id), 'challengeNum'], intro: 'intro123', chal: 'challengeNum', figs: NUMS, label: '3 · Números',
   introLabel: 'Agrupar', sticker: ['Agrupadora', 'Contar en grupos'], chalTitle: 'Gran Desafío de Números', champ: 'una campeona de los números',
   hello: n => `¡Bienvenida al capítulo de los números, ${n}! Toca la isla verde.`,
-  types: ['n:blocks', 'n:value', 'n:nota', 'n:sum', 'n:missing', 'n:next', 'n:rule', 'n:table'],
+  types: ['n:blocks', 'n:value', 'n:notaDesafio', 'n:sum', 'n:missing', 'n:next', 'n:rule', 'n:table'],
 };
 
 function numIcon(id, white) {
@@ -503,11 +506,12 @@ function lessonValor(F) {
    Isla 3: sumas de C, D y U (notación → número)
    ========================================================= */
 /* cada término se transforma en su valor: 2C → 200, 3D → 30, 4U → 4; al final aparece el número */
-function termsHtml(terms, open) {
+/* open: valores a la vista · total: muestra el resultado (la ayuda de los juegos lo deja en "?") */
+function termsHtml(terms, open, total = open) {
   return `<div class="nterms">${terms.map(([k, c], i) => `${i ? '<span class="nplus">+</span>' : ''}<div class="nt" style="--c:${PV[k].d};--l:${PV[k].l}">
     <button class="ntb ${open ? 'done' : ''}" data-i="${i}">${c}${PV[k].ab}</button><span class="ntw">${c} ${c === 1 ? PV[k].one : PV[k].pl}</span>
     <span class="ntv ${open ? 'on' : ''}">${c * PV_VAL[k]}</span></div>`).join('')}
-    <div class="nt"><span class="ntb ghost">0</span><span class="ntw ghost">.</span><span class="ntres ${open ? 'on' : ''}">= ${terms.reduce((a, [k, c]) => a + c * PV_VAL[k], 0)}</span></div></div>`;
+    <div class="nt"><span class="ntb ghost">0</span><span class="ntw ghost">.</span><span class="ntres ${open ? 'on' : ''} ${total ? '' : 'ask'}">= ${total ? terms.reduce((a, [k, c]) => a + c * PV_VAL[k], 0) : '?'}</span></div></div>`;
 }
 function lessonNota(F) {
   const D = pick(DIG9, 3), t1 = PVK.map((k, i) => [k, D[i]]), n1 = n3(D);
@@ -681,6 +685,15 @@ function gameTrain(F) {
   };
   round();
 }
+
+/* botón 💡 Ayuda de las sumas C + D + U: transforma cada parte en su valor, pero el total lo descubre ella */
+document.addEventListener('click', e => {
+  const b = e.target.closest('.helpbtn'); if (!b) return;
+  const box = b.parentNode; sfx.pop();
+  box.innerHTML = box.querySelector('template').innerHTML;
+  const vals = $$('.ntv', box).map(v => v.textContent);
+  poli.say(`Mira cuánto vale cada parte: ${vals.join(', ')}. ¡Júntalas y elige el número!`);
+});
 
 /* ---------- lecciones y juegos de cada isla ---------- */
 const NUMLESSON = { udc: lessonUDC, valor: lessonValor, nota: lessonNota, tabla: lessonTabla, secu: lessonSecu };
