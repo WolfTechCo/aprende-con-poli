@@ -18,17 +18,40 @@ const ps = pts => pts.map(p => p.join(',')).join(' ');
 const KEY = 'poligonos-magicos-v1';
 const SAVEVER = 1;
 const NEWSAVE = () => ({ ver: SAVEVER, name: '', fx: true, voice: true, prog: {}, challenge: 0, challenge3d: 0, challengeNum: 0, ch: 1, stats: {}, repasoOff: [] });
-let save = NEWSAVE();
-try { const raw = JSON.parse(localStorage.getItem(KEY) || '{}'); Object.assign(save, raw); if (!('ver' in raw)) save.ver = 0; } catch (e) { }
 /* el nombre se muestra dentro de la página: solo letras, números y espacios */
 const cleanName = s => String(s || '').replace(/[^\p{L}\p{N} .-]/gu, '').trim().slice(0, 14);
-save.name = cleanName(save.name);
 /* traspaso del progreso entre versiones del guardado: si algún día se renombra, une o elimina
    una isla, se agrega aquí un paso { de: n, paso: s => {...} } que convierte el progreso antiguo */
 const MIGRATIONS = [{ de: 0, paso: s => s }]; // 0 → 1: guardados anteriores al número de versión, sin cambios
 function migrate(s) { s.ver ||= 0; for (const m of MIGRATIONS) if (s.ver === m.de) { m.paso(s); s.ver = m.de + 1; } return s; }
-const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(save)); } catch (e) { } };
-migrate(save); persist();
+/* perfiles: cada niño o niña tiene su propio progreso.
+   Se guarda { profiles: {id: progreso}, order: [ids], cur: id }; save es el progreso del perfil que está jugando */
+const MAXPROFILES = 6;
+let root = { profiles: {}, order: [], cur: null };
+const newPid = () => 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+try {
+  const raw = JSON.parse(localStorage.getItem(KEY) || '{}');
+  if (raw && raw.profiles && Array.isArray(raw.order)) root = { profiles: raw.profiles, order: raw.order.filter(id => raw.profiles[id]), cur: raw.cur };
+  else if (raw && (raw.name || raw.prog)) { const id = newPid(); root = { profiles: { [id]: raw }, order: [id], cur: id }; } // progreso de antes de los perfiles
+} catch (e) { }
+function loadProfile(id) {
+  const raw = root.profiles[id] || {}, s = Object.assign(NEWSAVE(), raw);
+  if (!('ver' in raw)) s.ver = 0;
+  s.name = cleanName(s.name);
+  return migrate(s);
+}
+if (!root.profiles[root.cur]) root.cur = root.order[0] || null;
+let save = root.cur ? loadProfile(root.cur) : NEWSAVE();
+const persist = () => { if (root.cur) root.profiles[root.cur] = save; try { localStorage.setItem(KEY, JSON.stringify({ ver: 2, ...root })); } catch (e) { } };
+persist();
+function switchProfile(id) { persist(); root.cur = id; save = loadProfile(id); persist(); }
+function addProfile(name) { const id = newPid(); root.profiles[id] = { ...NEWSAVE(), name }; root.order.push(id); switchProfile(id); }
+function deleteProfile(id) {
+  delete root.profiles[id]; root.order = root.order.filter(x => x !== id);
+  if (root.cur === id) { root.cur = root.order[0] || null; save = root.cur ? loadProfile(root.cur) : NEWSAVE(); }
+  persist();
+}
+const profileStars = id => { const keep = save; save = id === root.cur ? save : loadProfile(id); const n = totalStars(); save = keep; return n; };
 const prog = id => (save.prog[id] ||= {});
 
 /* objetos ya mostrados en esta sesión, para no repetirlos entre lección y caza */
@@ -622,6 +645,7 @@ function titleFor() {
 }
 function render() {
   if ('speechSynthesis' in window) speechSynthesis.cancel();
+  stepBack = null;
   $('#btnBack').hidden = !backTarget();
   $('#app').classList.toggle('is-home', cur.name === 'welcome');
   $('#title').textContent = titleFor();
@@ -652,12 +676,21 @@ function viewWelcome() {
     <h2>Aprende<br>con <span>Poli</span></h2>
     <span class="tagline">Matemáticas · 2° básico</span>
     <span class="subline">Mundo de Formas y Números</span>
-    <p>${save.name ? `¡Qué bueno verte de nuevo, ${save.name}!` : '¡Aprende jugando, a tu ritmo y con Poli!'}</p>
-    <div class="field"><input id="nm" maxlength="14" placeholder="¿Cómo te llamas?" value="${save.name || ''}" autocomplete="off"><button class="btn gold" id="go">¡Empezar!</button></div></div></div>`, 'welcome');
-  const start = () => { ac(); save.name = cleanName($('#nm').value) || 'amiga'; persist(); go('map'); };
+    ${root.order.length ? `<p>¿Quién va a jugar?</p><div class="who">${root.order.map(id => { const nm = root.profiles[id].name || '?';
+      return `<button class="kid" data-id="${id}" style="--k:${COLORS[[...nm].reduce((a, c) => a + c.codePointAt(0), 0) % COLORS.length]}"><span class="av">${nm[0].toUpperCase()}</span><b>${nm}</b><small>★ ${profileStars(id)}</small></button>`; }).join('')}
+      ${root.order.length < MAXPROFILES ? '<button class="kid add" id="bAdd"><span class="av">+</span><b>Agregar</b><small>niño o niña</small></button>' : ''}</div>` : '<p>¡Aprende jugando, a tu ritmo y con Poli!</p>'}
+    <div class="field" ${root.order.length ? 'hidden' : ''}><input id="nm" maxlength="14" placeholder="¿Cómo te llamas?" autocomplete="off"><button class="btn gold" id="go">¡Empezar!</button></div></div></div>`, 'welcome');
+  const start = () => {
+    const nm = cleanName($('#nm').value);
+    if (!nm) { sfx.bad(); poli.oops('Escribe tu nombre para empezar.'); $('#nm').focus(); return; }
+    if (root.order.some(id => root.profiles[id].name.toLowerCase() === nm.toLowerCase())) { sfx.bad(); poli.oops(`Ya hay alguien que se llama ${nm}. Toca su tarjeta o escribe otro nombre.`); return; }
+    ac(); addProfile(nm); go('map');
+  };
   $('#go').onclick = start;
   $('#nm').onkeydown = e => { if (e.key === 'Enter') start(); };
-  poli.say(save.name ? `¡Hola otra vez, ${save.name}! Soy Poli. ¿Seguimos aprendiendo?` : '¡Hola! Soy Poli y vamos a aprender jugando. Escribe tu nombre y comencemos.', false);
+  $$('.kid[data-id]').forEach(b => b.onclick = () => { ac(); switchProfile(b.dataset.id); go('map'); });
+  if ($('#bAdd')) $('#bAdd').onclick = () => { sfx.pop(); $('.welcome .field').hidden = false; $('#nm').focus(); poli.say('¡Hola! Escribe tu nombre y comencemos.', false); };
+  poli.say(root.order.length ? '¡Hola! Soy Poli. ¿Quién va a jugar hoy? Toca tu nombre.' : '¡Hola! Soy Poli y vamos a aprender jugando. Escribe tu nombre y comencemos.', false);
 }
 
 /* ---------- Mapa ---------- */
@@ -676,6 +709,7 @@ function nodeState(ch, vert) {
   });
 }
 function viewMap() {
+  if (!root.cur) return go('welcome');
   const ch = CH[save.ch] ? +save.ch : 1, vert = isVertical();
   const ns = nodeState(ch, vert);
   let d = `M ${ns[0].x} ${ns[0].y}`;
@@ -737,16 +771,20 @@ function viewIsland() {
 }
 
 /* ---------- Motor de pasos para lecciones ---------- */
+/* "Volver" dentro de una lección: va al paso anterior (desde el primero, sale a la isla) */
+let stepBack = null;
 function runSteps(steps, onFinish, accent) {
   let i = 0;
+  const passed = new Set(); // pasos con pregunta ya respondida: al volver no hay que responderlos otra vez
   const show = () => {
+    stepBack = i > 0 ? () => { i--; show(); } : null;
     const s = steps[i];
     const el = frame(`<div class="dots">${steps.map((_, k) => `<i class="${k < i ? 'past' : k === i ? 'on' : ''}"></i>`).join('')}</div><div class="stepbody"></div>`);
     if (accent) el.style.setProperty('--d', accent);
     const last = i === steps.length - 1;
-    setAction(last ? '¡Listo!' : 'Siguiente ➜', next, !s.gate, last ? 'green' : '');
-    const body = $('.stepbody', el);
-    s.render(body, { unlock() { enableAction(); } });
+    setAction(last ? '¡Listo!' : 'Siguiente ➜', next, !s.gate || passed.has(i), last ? 'green' : '');
+    const body = $('.stepbody', el), at = i;
+    s.render(body, { unlock() { passed.add(at); enableAction(); } });
     mount3D(body);
     const t = typeof s.say === 'function' ? s.say() : s.say; if (t) poli.say(t);
   };
@@ -1184,9 +1222,8 @@ function viewAlbum() {
       stk((save[C.chal] || 0) >= 3, trophy, 'Campeona', 'Desafío perfecto'),
     ].join('');
   };
-  const el = frame(`<p class="rank"><span>${save.name ? save.name + ' · ' : ''}${rank} · ${total}/${max} ★</span></p><div class="album">${Object.keys(CH).map(section).join('')}</div><div class="albfoot"><button class="tinybtn" id="bPar">Panel de apoderado</button><button class="tinybtn" id="rst">Borrar mi progreso</button></div>`);
+  const el = frame(`<p class="rank"><span>${save.name ? save.name + ' · ' : ''}${rank} · ${total}/${max} ★</span></p><div class="album">${Object.keys(CH).map(section).join('')}</div><div class="albfoot"><button class="tinybtn" id="bPar">Panel de apoderado</button></div>`);
   $('#bPar').onclick = () => go('parent');
-  $('#rst').onclick = () => { if (confirm('¿Seguro que quieres borrar todo el progreso?')) { save = NEWSAVE(); persist(); go('welcome'); } };
   poli.say(`¡Mira tu álbum, ${save.name}! Completa las tres estrellas de cada isla para ganar sus stickers.`);
 }
 
@@ -1270,7 +1307,7 @@ function updateVoiceIcon() {
     : '<path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>';
 }
 $('#poli').innerHTML = POLI_SVG;
-$('#btnBack').onclick = () => { const t = backTarget(); if (t) go(t[0], t[1] || {}); };
+$('#btnBack').onclick = () => { if (stepBack) { sfx.pop(); stepBack(); return; } const t = backTarget(); if (t) go(t[0], t[1] || {}); };
 $('#btnVoice').onclick = () => { const on = !(save.voice || save.fx); save.voice = save.fx = on; persist(); updateVoiceIcon(); if (!on) speechSynthesis?.cancel?.(); else sfx.pop(); };
 $('#replay').onclick = () => { sfx.pop(); if (lastSay) { const v = save.voice; save.voice = true; speak(lastSay); save.voice = v; } };
 /* al girar el celular, el mapa se rearma (solo si cambia de vertical a horizontal) */

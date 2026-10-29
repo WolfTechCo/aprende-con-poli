@@ -94,10 +94,15 @@ function viewParent() {
       <span class="pdata">${!L ? 'Aún no lo aprende' : st ? `<b class="${p >= 70 ? 'okp' : 'lowp'}">${p} %</b> a la primera · ${st.n} ${st.n === 1 ? 'respuesta' : 'respuestas'} · ${ago(st.last)}` : 'Sin práctica aún'}</span></label>`;
   }).join('');
   const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-  const el = frame(`<div class="pwrap"><p class="pintro">Marca los temas que <b>${save.name || 'la niña'}</b> practicará en el <b>Repaso del día</b>. El porcentaje considera sus últimas 20 respuestas; los temas con menos de 70 % aparecen como <em class="pstar">⭐ Para reforzar</em>.</p>
+  const el = frame(`<div class="pwrap">
+    <h3 class="sec">Niños y niñas</h3>
+    <div class="pbox"><div class="pkids">${root.order.map(id => `<button class="pkid ${id === root.cur ? 'on' : ''}" data-id="${id}">${root.profiles[id].name || '?'}</button>`).join('')}</div>
+      <p>Viendo el avance de <b>${save.name}</b>. Toca otro nombre para ver el suyo.</p>
+      <div class="pbtns"><input id="pName" maxlength="14" value="${save.name}" autocomplete="off" aria-label="Nombre"><button class="btn sm ghost" id="bRen">Cambiar nombre</button><button class="btn sm danger" id="bDel">Borrar este perfil</button></div></div>
+    <p class="pintro">Marca los temas que <b>${save.name}</b> practicará en el <b>Repaso del día</b>. El porcentaje considera sus últimas 20 respuestas; los temas con menos de 70 % aparecen como <em class="pstar">⭐ Para reforzar</em>.</p>
     ${Object.keys(CH).map(ch => `<h3 class="sec">Capítulo ${CH[ch].label}</h3><div class="plist">${rows(+ch)}</div>`).join('')}
     <h3 class="sec">Respaldo del progreso</h3>
-    <div class="pbox"><p>Guarda un archivo con su progreso (estrellas, aciertos y temas elegidos). Sirve para pasarlo a otro dispositivo o recuperarlo si se borran los datos del navegador.</p>
+    <div class="pbox"><p>Guarda un archivo con el progreso de todos los niños y niñas de este dispositivo (estrellas, aciertos y temas elegidos). Sirve para pasarlo a otro dispositivo o recuperarlo si se borran los datos del navegador.</p>
       <div class="pbtns"><button class="btn sm green" id="bSave">Guardar respaldo</button><button class="btn sm ghost" id="bLoad">Cargar respaldo</button>
       <input type="file" id="fLoad" accept=".json,application/json" hidden></div></div>
     <h3 class="sec">Instalar la app</h3>
@@ -112,6 +117,17 @@ function viewParent() {
     cb.checked ? off.delete(cb.dataset.t) : off.add(cb.dataset.t);
     save.repasoOff = [...off]; persist(); sfx.pop();
   });
+  $$('.pkid', el).forEach(b => b.onclick = () => { sfx.pop(); switchProfile(b.dataset.id); go('parent', { ok: true }); });
+  $('#bRen', el).onclick = () => {
+    const nm = cleanName($('#pName', el).value);
+    if (!nm || root.order.some(id => id !== root.cur && root.profiles[id].name.toLowerCase() === nm.toLowerCase())) { sfx.bad(); poli.oops(nm ? 'Ya hay otro perfil con ese nombre.' : 'Escribe un nombre.'); return; }
+    save.name = nm; persist(); sfx.ok(); go('parent', { ok: true }); poli.cheer(`Listo, ahora se llama ${nm}.`);
+  };
+  $('#bDel', el).onclick = () => {
+    if (!confirm(`¿Borrar el perfil de ${save.name} y todo su progreso? Solo se puede recuperar con un respaldo.`)) return;
+    deleteProfile(root.cur); sfx.pop();
+    root.cur ? go('parent', { ok: true }) : go('welcome');
+  };
   $('#bSave', el).onclick = () => { sfx.pop(); downloadBackup(); poli.say('Listo. Guarda el archivo en un lugar seguro.', false); };
   $('#bLoad', el).onclick = () => $('#fLoad', el).click();
   $('#fLoad', el).onchange = async e => {
@@ -119,8 +135,11 @@ function viewParent() {
     let data;
     try { if (f.size > 200000) throw 0; data = restoreFrom(JSON.parse(await f.text())); }
     catch (err) { sfx.bad(); poli.oops('Ese archivo no es un respaldo de la app.'); return; }
-    if (!confirm(`Esto reemplaza el progreso actual${save.name ? ` de ${save.name}` : ''} por el del respaldo${data.name ? ` de ${data.name}` : ''}. ¿Continuar?`)) return;
-    save = data; persist(); sfx.win();
+    const names = list => list.join(', ') || 'nadie';
+    if (!confirm(`Esto reemplaza los perfiles de este dispositivo (${names(root.order.map(id => root.profiles[id].name))}) por los del respaldo (${names(data.map(d => d.name))}). ¿Continuar?`)) return;
+    const profiles = {}, order = [];
+    for (const d of data) { const id = newPid() + order.length; profiles[id] = d; order.push(id); }
+    root = { profiles, order, cur: order[0] }; save = loadProfile(order[0]); persist(); sfx.win();
     go('parent', { ok: true }); poli.cheer('¡Progreso cargado!');
   };
   if ($('#bInst', el)) $('#bInst', el).onclick = async () => { installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; go('parent', { ok: true }); };
@@ -130,17 +149,26 @@ function viewParent() {
 /* ---------- respaldo del progreso ---------- */
 function downloadBackup() {
   const day = new Date().toISOString().slice(0, 10);
-  const blob = new Blob([JSON.stringify({ app: 'aprende-con-poli', fecha: day, save }, null, 1)], { type: 'application/json' });
+  persist();
+  const perfiles = root.order.map(id => root.profiles[id]);
+  const blob = new Blob([JSON.stringify({ app: 'aprende-con-poli', version: 2, fecha: day, perfiles }, null, 1)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); // nombre del archivo sin tildes ni símbolos (algunos navegadores lo rechazan)
-  const who = (save.name || 'respaldo').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'respaldo';
+  const who = (root.order.length > 1 ? 'familia' : save.name || 'respaldo').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'respaldo';
   a.download = `poli-progreso-${who}-${day}.json`;
   document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
 }
-/* el archivo viene de afuera: se copia solo lo conocido y con el tipo correcto */
+/* el archivo viene de afuera: se copia solo lo conocido y con el tipo correcto.
+   Acepta respaldos con varios perfiles (versión 2) y los de antes, con uno solo */
 function restoreFrom(obj) {
-  const src = obj && obj.app === 'aprende-con-poli' && obj.save;
-  if (!src || typeof src !== 'object') throw new Error('no es un respaldo');
+  if (!obj || obj.app !== 'aprende-con-poli') throw new Error('no es un respaldo');
+  const list = Array.isArray(obj.perfiles) ? obj.perfiles : [obj.save];
+  const out = list.slice(0, MAXPROFILES).map(cleanProfile).filter(p => p.name);
+  if (!out.length) throw new Error('respaldo vacío');
+  return out.filter((p, i) => out.findIndex(q => q.name.toLowerCase() === p.name.toLowerCase()) === i); // sin nombres repetidos
+}
+function cleanProfile(src) {
+  if (!src || typeof src !== 'object') return {};
   const out = NEWSAVE(), id = /^[\w-]{1,20}$/;
   out.ver = Number.isInteger(src.ver) && src.ver >= 0 && src.ver <= SAVEVER ? src.ver : 0;
   out.name = cleanName(src.name);

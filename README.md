@@ -19,6 +19,11 @@ distintos cada vez, repaso diario y panel para apoderados. Sin cuentas ni public
 
 Los ejercicios se generan al azar: cada vez que se entra a una sección son distintos y no se repiten en la misma sesión.
 
+## Perfiles
+- Cada niño o niña tiene su propio perfil (hasta 6 por dispositivo): al abrir la app, Poli pregunta **¿Quién va a jugar?**
+- En el panel de apoderado se elige de quién ver el avance, se cambia el nombre o se borra un perfil.
+- El respaldo guarda a todos los perfiles juntos (y acepta respaldos antiguos de un solo perfil).
+
 ## Repaso del día y panel de apoderado
 - **Repaso** (botón en el mapa): 5 preguntas mezcladas de los temas ya aprendidos, con más preguntas de los temas donde se equivoca.
 - **Panel de apoderado** (desde el álbum, se entra resolviendo una multiplicación): muestra el % de aciertos a la primera por tema
@@ -39,7 +44,7 @@ Los ejercicios se generan al azar: cada vez que se entra a una sección son dist
 
 ## Publicar una versión nueva
 1. Subir el número `?v=` en `index.html` **y** `VERSION` en `sw.js` (deben coincidir). Así la app instalada se actualiza sola.
-2. La clave del progreso (`poligonos-magicos-v1`) no se cambia nunca.
+2. La clave del progreso (`poligonos-magicos-v1`) no se cambia nunca. Ahí se guardan todos los perfiles.
 3. Si se renombra, une o elimina una isla, agregar un paso en `MIGRATIONS` (`js/app.js`) para traspasar el progreso antiguo.
 
 GitHub Pages: *Settings → Pages → Deploy from a branch → `main` / `/ (root)`*.
