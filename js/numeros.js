@@ -13,6 +13,10 @@ const PV = {
   u: { one: 'unidad', pl: 'unidades', ab: 'U', c: '#22c58b', d: '#169a6a', l: '#d2f7e8' },
 };
 const PVK = ['c', 'd', 'u'];
+const PV_VAL = { c: 100, d: 10, u: 1 };
+/* notación con letras: 3C + 4D + 2U */
+const notaHtml = (terms, inline) => `<span class="nota ${inline ? 'in' : ''}">${terms.map(([k, c]) => `<b style="--c:${PV[k].d}">${c}${PV[k].ab}</b>`).join('<i>+</i>')}</span>`;
+const notaVoice = terms => terms.map(([k, c]) => `${c} ${c === 1 ? PV[k].one : PV[k].pl}`).join(' más ');
 const DIG9 = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const n3 = ([c, d, u]) => c * 100 + d * 10 + u;
@@ -104,6 +108,17 @@ function numChoices(right, cands, say, hint) {
   for (const v of [...shuffle(cands), right + 10, right - 10, right + 100, right + 1]) if (v !== right && v >= 0 && v <= 1000 && !w.includes(v) && w.length < 2) w.push(v);
   return shuffle([right, ...w]).map(v => ({ html: v, ok: v === right, say, hint }));
 }
+/* preguntas ya vistas en esta sesión: cada vez que entre, los ejercicios son distintos */
+const NSEEN = new Set();
+function freshQ(gen) {
+  let q;
+  for (let t = 0; t < 30; t++) {
+    q = gen();
+    const key = q.prompt + '|' + (q.shape || '') + '|' + q.opts.find(o => o.ok).html;
+    if (!NSEEN.has(key)) { NSEEN.add(key); break; }
+  }
+  return q;
+}
 const missOpts = (vals, i, step, say) => { const v = vals[i]; return numChoices(v, [v + 1, v - 1, v + 10, v - 10, v + 100, v - 100].filter(x => !vals.includes(x)), say || `¡Sí! Es ${v}.`, 'Mira de cuánto en cuánto cambian los números.'); };
 
 /* ---------- preguntas (juegos y Gran Desafío) ---------- */
@@ -182,6 +197,33 @@ const NQ = {
         hint: Math.sign(s) !== Math.sign(step) ? (step > 0 ? 'Mira: los números van creciendo.' : 'Mira: los números van bajando.') : 'Mira cuánto cambia de un número al siguiente.' })),
     };
   },
+  /* notación → número: 3C + 4D + 2U = 342 (nivel 0: en orden · 1: desordenado · 2: falta un lugar · 3: más de 9 unidades) */
+  nota(level = rnd(0, 2)) {
+    let D = pick(DIG9, 3);
+    if (level === 3) D = [rnd(1, 7), rnd(1, 7), rnd(11, 15)];
+    let terms = PVK.map((k, i) => [k, D[i]]);
+    if (level === 2) terms.splice(rnd(1, 2), 1);
+    if (level === 1 || (level >= 2 && Math.random() < .5)) { const t0 = terms; do terms = shuffle(t0); while (terms.every((t, i) => t === t0[i])); }
+    const n = terms.reduce((a, [k, c]) => a + c * PV_VAL[k], 0);
+    const written = +terms.map(t => t[1]).join(''); // error típico: leer los números en el orden escrito
+    const cands = level === 3 ? [D[0] * 100 + D[1] * 10 + D[2] % 10, written] : level === 2 ? [written, rev(n), swapDU(n)] : [written, rev(n), swapDU(n)];
+    return {
+      prompt: '¿Qué número es?', voice: `¿Qué número es ${notaVoice(terms)}?`, shape: `<div class="nshape">${notaHtml(terms)}</div>`,
+      opts: numChoices(n, cands.filter(v => v !== n && v <= 1000),
+        `¡Sí! ${terms.map(([k, c]) => c * PV_VAL[k]).join(' + ')} = ${n}.`,
+        level === 3 ? '10 unidades forman 1 decena. ¡Cuenta otra vez!' : 'Fíjate en la letra: C vale 100, D vale 10 y U vale 1.'),
+    };
+  },
+  /* número → notación */
+  notaRev() {
+    const D = pick(DIG9, 3), n = n3(D);
+    const perms = [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]];
+    const opts = [perms[0], ...pick(perms.slice(1), 2)].map(pm => PVK.map((k, i) => [k, D[pm[i]]]));
+    return {
+      prompt: `¿Cuál es el ${n}?`, shape: `<div class="nshape">${numHtml(n, { col: false })}</div>`, cls: 'txt',
+      opts: shuffle(opts.map((t, i) => ({ html: notaHtml(t, true), ok: i === 0, say: `¡Sí! ${n} = ${notaVoice(t)}.`, hint: `Mira el ${n}: ¿cuántas centenas tiene? ¿y decenas?` }))),
+    };
+  },
   /* trozo de la tabla del 1000 con un número perdido */
   table() {
     const vert = Math.random() < .5;
@@ -205,6 +247,9 @@ const NUMS = [
   { id: 'valor', title: 'Valor posicional', short: 'Valor posicional', isle: 'el valor posicional', c: '#4ea8ff', d: '#2a7fd6', l: '#cfe6ff',
     chips: ['C · D · U', '345 = 300 + 40 + 5'],
     acts: [{ k: 'lesson', t: 'Aprende', sub: 'El lugar cambia el valor' }, { k: 'g1', t: '¿Cuánto vale?', sub: 'El valor de cada dígito' }, { k: 'g2', t: 'Suma por columnas', sub: 'Separa y junta números' }] },
+  { id: 'nota', title: 'Sumas de C, D y U', short: 'C + D + U', isle: 'las sumas de centenas, decenas y unidades', c: '#2ec4b6', d: '#1f9e92', l: '#c3f1ec',
+    chips: ['C = 100', 'D = 10', 'U = 1', '1C + 1D + 1U = 111'],
+    acts: [{ k: 'lesson', t: 'Aprende', sub: 'De letras a números' }, { k: 'g1', t: '¿Qué número es?', sub: 'Transforma la suma en un número' }, { k: 'g2', t: '¿Cuál es?', sub: 'Del número a la suma' }] },
   { id: 'tabla', title: 'Tabla del 1000', short: 'Tabla del 1000', isle: 'la tabla del 1000', c: '#9b6bff', d: '#7447e0', l: '#e0d3ff',
     chips: ['De 10 en 10', 'De 100 en 100', 'Hasta 1000'],
     acts: [{ k: 'lesson', t: 'Aprende', sub: 'Cuenta hasta 1000' }, { k: 'g1', t: 'Completa la tabla', sub: 'Encuentra los números perdidos' }, { k: 'g2', t: 'Encuentra el número', sub: 'Usa las pistas de la tabla' }] },
@@ -218,7 +263,7 @@ CH[3] = {
   nodes: ['intro123', ...NUMS.map(T => T.id), 'challengeNum'], intro: 'intro123', chal: 'challengeNum', figs: NUMS, label: '3 · Números',
   introLabel: 'Agrupar', sticker: ['Agrupadora', 'Contar en grupos'], chalTitle: 'Gran Desafío de Números', champ: 'una campeona de los números',
   hello: n => `¡Bienvenida al capítulo de los números, ${n}! Toca la isla verde.`,
-  types: ['n:blocks', 'n:value', 'n:which', 'n:sum', 'n:missing', 'n:next', 'n:rule', 'n:table'],
+  types: ['n:blocks', 'n:value', 'n:nota', 'n:sum', 'n:missing', 'n:next', 'n:rule', 'n:table'],
 };
 
 function numIcon(id, white) {
@@ -229,6 +274,10 @@ function numIcon(id, white) {
       <path d="M${5 + i * 31} 34V26a8 8 0 018-8h12a8 8 0 018 8v8z" fill="${white ? 'rgba(43,45,110,.18)' : PV[k].c}"/>
       <text x="${19 + i * 31}" y="31" text-anchor="middle" font-size="12" fill="${white ? ink : '#fff'}">${PV[k].ab}</text>
       <text x="${19 + i * 31}" y="70" text-anchor="middle" font-size="30" fill="${white ? ink : PV[k].d}">${[3, 4, 5][i]}</text>`).join(''),
+    nota: () => PVK.map((k, i) => `<rect x="${3 + i * 33}" y="16" width="28" height="30" rx="8" fill="${white ? '#fff' : PV[k].l}" ${white ? '' : `stroke="${PV[k].c}" stroke-width="3"`}/>
+      <text x="${17 + i * 33}" y="39" text-anchor="middle" font-size="20" fill="${white ? ink : PV[k].d}">1${PV[k].ab}</text>`).join('')
+      + [0, 1].map(i => `<text x="${33.5 + i * 33}" y="38" text-anchor="middle" font-size="14" fill="${white ? '#fff' : ink}">+</text>`).join('')
+      + `<rect x="18" y="58" width="64" height="30" rx="10" fill="${white ? '#fff' : '#ffc233'}"/><text x="50" y="81" text-anchor="middle" font-size="22" fill="${ink}">111</text>`,
     tabla: () => [10, 20, 30, 110, 120, 130, 210, 220, 230].map((v, i) => `<rect x="${5 + (i % 3) * 31}" y="${5 + Math.floor(i / 3) * 31}" width="28" height="28" rx="6" fill="${white ? '#fff' : i === 4 ? '#ffc233' : '#efeaff'}" ${white ? '' : 'stroke="#9b6bff" stroke-width="2"'}/>
       <text x="${19 + (i % 3) * 31}" y="${24 + Math.floor(i / 3) * 31}" text-anchor="middle" font-size="${v > 99 ? 11 : 13}" fill="${ink}">${v}</text>`).join(''),
     secu: () => [2, 4, 6].map((v, i) => `<circle cx="${16 + i * 34}" cy="68" r="14" fill="#fff" ${white ? '' : 'stroke="#e0529a" stroke-width="3"'}/><text x="${16 + i * 34}" y="75" text-anchor="middle" font-size="20" fill="${ink}">${v}</text>`).join('')
@@ -267,7 +316,7 @@ function gameDone(F, k, msg) {
 }
 /* serie de preguntas con barra de avance; la explicación se escucha completa antes de pasar */
 function quizGame(F, k, gens, msg) {
-  const qs = gens.map(g => g()), res = [];
+  const qs = gens.map(g => freshQ(g)), res = [];
   let qi = 0;
   const show = () => {
     const q = qs[qi];
@@ -445,15 +494,62 @@ function lessonValor(F) {
       render: b => b.innerHTML = `<div class="vsplit">${numHtml(same)}${msumHtml([sd * 100, sd * 10, sd], { total: same })}</div>` },
     { say: `En el ${zn} hay un cero. El cero guarda el lugar de las decenas. ¡Sin él, sería ${z[0] * 10 + z[2]}!`,
       render: b => b.innerHTML = `<div class="vsplit"><div class="nshape">${numHtml(zn)}<p class="eq">El <b style="color:${PV.d.d}">0</b> guarda el lugar de las decenas.<br>Sin él, sería ${z[0] * 10 + z[2]}.</p></div>${msumHtml([z[0] * 100, z[2]], { total: zn })}</div>` },
-    { gate: true, say: () => '¿Cuánto vale el dígito que salta?', render: (b, c) => choice(b, { ...NQ.value(), onRight: () => c.unlock() }) },
+    { gate: true, say: () => '¿Cuánto vale el dígito que salta?', render: (b, c) => choice(b, { ...freshQ(NQ.value), onRight: () => c.unlock() }) },
     doneStep(F.id, '¡Lección completa!', `${n} = ${rows.join(' + ')}`, `¡Lo lograste, ${save.name}! Ya sabes que el lugar de cada dígito cambia su valor.`),
   ], () => go('island', { id: F.id }), F.d);
 }
 
 /* =========================================================
-   Isla 3: tabla del 1000
+   Isla 3: sumas de C, D y U (notación → número)
+   ========================================================= */
+/* cada término se transforma en su valor: 2C → 200, 3D → 30, 4U → 4; al final aparece el número */
+function termsHtml(terms, open) {
+  return `<div class="nterms">${terms.map(([k, c], i) => `${i ? '<span class="nplus">+</span>' : ''}<div class="nt" style="--c:${PV[k].d};--l:${PV[k].l}">
+    <button class="ntb ${open ? 'done' : ''}" data-i="${i}">${c}${PV[k].ab}</button><span class="ntw">${c} ${c === 1 ? PV[k].one : PV[k].pl}</span>
+    <span class="ntv ${open ? 'on' : ''}">${c * PV_VAL[k]}</span></div>`).join('')}
+    <div class="nt"><span class="ntb ghost">0</span><span class="ntw ghost">.</span><span class="ntres ${open ? 'on' : ''}">= ${terms.reduce((a, [k, c]) => a + c * PV_VAL[k], 0)}</span></div></div>`;
+}
+function lessonNota(F) {
+  const D = pick(DIG9, 3), t1 = PVK.map((k, i) => [k, D[i]]), n1 = n3(D);
+  const D2 = pick(DIG9, 3), t2 = shuffle(PVK.map((k, i) => [k, D2[i]])), n2 = n3(D2);
+  const z = [rnd(1, 9), rnd(1, 9)], t3 = [['c', z[0]], ['u', z[1]]], n3z = z[0] * 100 + z[1];
+  runSteps([
+    { say: 'En matemáticas usamos letras para escribir más corto: C es centena y vale 100, D es decena y vale 10, U es unidad y vale 1.',
+      render: b => b.innerHTML = `<div class="duo">
+        <div class="panel"><span class="tagx" style="background:${PV.c.c}">C</span><svg viewBox="0 0 100 100">${bFlat(6, 6, 86)}</svg><p>1C = 1 centena = <b style="color:${PV.c.d}">100</b></p></div>
+        <div class="panel"><span class="tagx" style="background:${PV.d.c}">D</span><svg viewBox="0 0 100 100">${bRod(45, 4, 9)}</svg><p>1D = 1 decena = <b style="color:${PV.d.d}">10</b></p></div>
+        <div class="panel"><span class="tagx" style="background:${PV.u.c}">U</span><svg viewBox="0 0 100 100">${bUnit(34, 34, 30)}</svg><p>1U = 1 unidad = <b style="color:${PV.u.d}">1</b></p></div></div>` },
+    { gate: true, say: `Mira esta suma: ${notaVoice(t1)}. Toca cada parte para transformarla en su valor.`,
+      render: (b, c) => {
+        b.innerHTML = `<div class="col">${termsHtml(t1)}<span class="hint3d">Toca cada parte</span></div>`;
+        const got = new Set();
+        $$('.ntb', b).forEach(btn => btn.onclick = () => {
+          const i = +btn.dataset.i; if (got.has(i)) return;
+          got.add(i); btn.classList.add('done'); sfx.tap(got.size);
+          const [k, cc] = t1[i]; btn.parentNode.querySelector('.ntv').classList.add('on');
+          speak(`${cc} ${cc === 1 ? PV[k].one : PV[k].pl} ${cc === 1 ? 'es' : 'son'} ${cc * PV_VAL[k]}`);
+          if (got.size < t1.length) return;
+          setTimeout(() => {
+            if (!b.isConnected) return;
+            $('.ntres', b).classList.add('on'); sfx.ok();
+            poli.cheer(`¡${t1.map(([k, cc]) => cc * PV_VAL[k]).join(' más ')} es ${n1}!`); c.unlock();
+          }, 1400);
+        });
+      } },
+    { say: `Las partes pueden venir desordenadas. ¡No importa! Cada letra dice su lugar: ${notaVoice(t2)} es ${n2}.`,
+      render: b => b.innerHTML = `<div class="col">${termsHtml(t2, true)}<p class="eq">¡El orden no importa! La letra dice el lugar.</p></div>` },
+    { say: `Aquí no hay decenas. Escribimos un cero en su lugar: ${notaVoice(t3)} es ${n3z}.`,
+      render: b => b.innerHTML = `<div class="col">${termsHtml(t3, true)}<p class="eq">No hay <b style="color:${PV.d.d}">D</b>: el <b style="color:${PV.d.d}">0</b> guarda el lugar de las decenas.</p></div>` },
+    { gate: true, say: () => '¿Qué número es?', render: (b, c) => choice(b, { ...freshQ(() => NQ.nota(1)), onRight: () => c.unlock() }) },
+    doneStep(F.id, '¡Lección completa!', `${notaVoice(t1).replace(/ más /g, ' + ')} = ${n1}`, `¡Lo lograste, ${save.name}! Ya sabes transformar centenas, decenas y unidades en un número.`),
+  ], () => go('island', { id: F.id }), F.d);
+}
+
+/* =========================================================
+   Isla 4: tabla del 1000
    ========================================================= */
 function lessonTabla(F) {
+  const hr = rnd(1, 8), hc = rnd(1, 8), s0 = rnd(1, 10) * 10; // fila y columna resaltadas, inicio del conteo de 100 en 100
   runSteps([
     { say: 'Esta es la tabla del mil. Contamos de 10 en 10, desde 10 hasta 1000.',
       render: b => {
@@ -462,18 +558,18 @@ function lessonTabla(F) {
         cells.forEach((c, i) => setTimeout(() => { if (b.isConnected) { c.textContent = TV[i]; c.classList.remove('blank'); c.classList.add('lit'); } }, 300 + i * 30));
       } },
     { say: 'Hacia el lado, cada número suma 10: avanza una decena. Hacia abajo, cada número suma 100: avanza una centena.',
-      render: b => b.innerHTML = `<div class="tlayout">${tableHtml(v => tRow(v) === 2 ? 'rowhl' : tCol(v) === 6 ? 'colhl' : '')}
+      render: b => b.innerHTML = `<div class="tlayout">${tableHtml(v => tRow(v) === hr ? 'rowhl' : tCol(v) === hc ? 'colhl' : '')}
         <div class="side-panel"><span class="chip" style="background:${PV.d.l};color:${PV.d.d}">→ Hacia el lado: +10</span><span class="chip" style="background:${PV.c.l};color:${PV.c.d}">↓ Hacia abajo: +100</span></div></div>` },
-    { gate: true, say: 'Ahora cuenta de 100 en 100. Toca el 100, el 200, el 300… ¡hasta llegar a 1000!',
+    { gate: true, say: `Ahora cuenta de 100 en 100 desde el ${s0}. Toca el ${s0}, el ${s0 + 100}, el ${s0 + 200}… ¡hasta llegar al ${s0 + 900}!`,
       render: (b, c) => {
         b.innerHTML = `<div class="tlayout">${tableHtml()}<div class="side-panel"><div class="counter"><b class="cn">0</b> de 10</div></div></div>`;
-        let next = 100;
+        let next = s0, k = 0;
         $$('.ncell', b).forEach(cell => cell.onclick = () => {
-          const v = +cell.dataset.v; if (next > 1000 || v < next && v % 100 === 0) return;
-          if (v !== next) { sfx.bad(); poli.oops(`Busca el ${next}. Está al final de una fila.`); return; }
-          cell.classList.add('found'); sfx.tap(v / 100); speak(String(v)); $('.cn', b).textContent = v / 100;
+          const v = +cell.dataset.v; if (k >= 10 || v < next && (v - s0) % 100 === 0) return;
+          if (v !== next) { sfx.bad(); poli.oops(k ? `Busca el ${next}. Está justo debajo del ${next - 100}.` : `Busca el ${next}. Está en la primera fila.`); return; }
+          cell.classList.add('found'); k++; sfx.tap(k); speak(String(v)); $('.cn', b).textContent = k;
           next += 100;
-          if (next > 1000) { $('.counter', b).classList.add('full'); sfx.ok(); poli.cheer('¡Contaste de 100 en 100 hasta 1000!'); c.unlock(); }
+          if (k === 10) { $('.counter', b).classList.add('full'); sfx.ok(); poli.cheer(`¡Contaste de 100 en 100 desde el ${s0} hasta el ${s0 + 900}!`); c.unlock(); }
         });
       } },
     { say: 'Si juntamos 10 centenas tenemos 1000: ¡mil! Es el último número de la tabla.',
@@ -531,20 +627,20 @@ function gameTableFind(F) {
 }
 
 /* =========================================================
-   Isla 4: secuencias numéricas
+   Isla 5: secuencias numéricas
    ========================================================= */
 function lessonSecu(F) {
   const ruleChip = s => `<span class="chip">Regla: ${ruleTxt(s).toLowerCase()}</span>`;
+  const up = pick([2, 5, 10, 100], 1)[0], down = pick([-2, -5, -10, -100], 1)[0], vu = makeSeq(up), vd = makeSeq(down);
   runSteps([
-    { say: 'Una secuencia numérica es una fila de números que sigue una regla. Aquí la regla es sumar 5: 5, 10, 15, 20, 25.',
-      render: b => b.innerHTML = `<div class="col">${seqHtml([5, 10, 15, 20, 25], { hops: true })}${ruleChip(5)}</div>` },
-    { say: 'Las secuencias también pueden ir hacia atrás. Aquí la regla es restar 10: 90, 80, 70, 60, 50.',
-      render: b => b.innerHTML = `<div class="col">${seqHtml([90, 80, 70, 60, 50], { hops: true })}${ruleChip(-10)}</div>` },
+    { say: `Una secuencia numérica es una fila de números que sigue una regla. Aquí la regla es sumar ${up}: ${vu.join(', ')}.`,
+      render: b => b.innerHTML = `<div class="col">${seqHtml(vu, { hops: true })}${ruleChip(up)}</div>` },
+    { say: `Las secuencias también pueden ir hacia atrás. Aquí la regla es restar ${-down}: ${vd.join(', ')}.`,
+      render: b => b.innerHTML = `<div class="col">${seqHtml(vd, { hops: true })}${ruleChip(down)}</div>` },
     { gate: true, say: 'Para encontrar el número que falta, primero descubre la regla. ¿Qué número sigue?',
-      render: (b, c) => { const vals = [200, 300, 400, 500, 600]; choice(b, { prompt: '¿Qué número sigue?', shape: `<div class="nshape">${seqHtml(vals, { miss: [4] })}</div>`, opts: missOpts(vals, 4, 100, '¡Sí! La regla es sumar 100: sigue el 600.'), onRight: () => c.unlock() }); } },
+      render: (b, c) => choice(b, { ...freshQ(() => NQ.next()), onRight: () => c.unlock() }) },
     { gate: true, say: '¿Cuál es la regla de esta secuencia?',
-      render: (b, c) => choice(b, { prompt: '¿Cuál es la regla?', shape: `<div class="nshape">${seqHtml([2, 4, 6, 8, 10], { hops: '?' })}</div>`, cls: 'txt',
-        opts: shuffle([2, 1, -2]).map(s => ({ html: ruleTxt(s), ok: s === 2, say: '¡Sí! Cada número suma 2.', hint: s < 0 ? 'Mira: los números van creciendo.' : 'Mira: del 2 al 4, ¿cuánto avanza?' })), onRight: () => c.unlock() }) },
+      render: (b, c) => choice(b, { ...freshQ(() => NQ.rule(0)), onRight: () => c.unlock() }) },
     doneStep(F.id, '¡Lección completa!', 'Descubre la regla y encuentra el que sigue', `¡Lo lograste, ${save.name}! Ya sabes descubrir la regla de una secuencia.`),
   ], () => go('island', { id: F.id }), F.d);
 }
@@ -558,7 +654,8 @@ const trainHtml = (vals, miss, got, now) => `<div class="train">${LOCO}${vals.ma
 }).join('')}</div>`;
 /* El tren: cada tren sigue una regla; completa los vagones con "?" */
 function gameTrain(F) {
-  const plan = [[2, 0, 1], [5, 0, 1], [10, 0, 1], [10, 1, 2], [100, 1, 2], [-10, 0, 2]]; // [regla, nivel, vagones perdidos]
+  // [regla, nivel, vagones perdidos]: 3 trenes fáciles y 3 más difíciles, con reglas distintas cada vez
+  const plan = [...pick([2, 5, 10, -10], 3).map(s => [s, 0, 1]), ...pick([[10, 1], [100, 1], [-100, 0], [2, 1], [5, 1], [-10, 1]], 3).map(([s, l]) => [s, l, 2])];
   let r = 0;
   const round = () => {
     const [step, lvl, nm] = plan[r], vals = makeSeq(step, lvl), miss = pick([1, 2, 3, 4], nm).sort((a, b) => a - b), got = new Set();
@@ -586,12 +683,16 @@ function gameTrain(F) {
 }
 
 /* ---------- lecciones y juegos de cada isla ---------- */
-const NUMLESSON = { udc: lessonUDC, valor: lessonValor, tabla: lessonTabla, secu: lessonSecu };
+const NUMLESSON = { udc: lessonUDC, valor: lessonValor, nota: lessonNota, tabla: lessonTabla, secu: lessonSecu };
 const NUMGAME = {
   udc: { g1: gameBuild, g2: F => quizGame(F, 'g2', [() => NQ.blocks('mat'), () => NQ.blocks('mat'), () => NQ.blocks('loose'), () => NQ.blocks('loose'), () => NQ.blocks('canje')], '¡Descubriste todos los números!') },
   valor: {
     g1: F => quizGame(F, 'g1', [NQ.value, NQ.place, NQ.which, NQ.value, NQ.place, NQ.which], '¡Ya sabes cuánto vale cada dígito!'),
     g2: F => quizGame(F, 'g2', [() => NQ.sum(false), NQ.missing, () => NQ.sum(true), NQ.missing, () => NQ.sum(false)], '¡Separaste y juntaste todos los números!'),
+  },
+  nota: {
+    g1: F => quizGame(F, 'g1', [() => NQ.nota(0), () => NQ.nota(1), () => NQ.nota(2), () => NQ.nota(1), () => NQ.nota(2), () => NQ.nota(3)], '¡Transformaste todas las sumas en números!'),
+    g2: F => quizGame(F, 'g2', [NQ.notaRev, NQ.notaRev, () => NQ.nota(2), NQ.notaRev, () => NQ.nota(3)], '¡Ya sabes escribir números con C, D y U!'),
   },
   tabla: { g1: gameTableFill, g2: gameTableFind },
   secu: { g1: gameTrain, g2: F => quizGame(F, 'g2', [() => NQ.rule(0), () => NQ.rule(0), () => NQ.rule(1), () => NQ.rule(1), () => NQ.rule(1)], '¡Descubriste todas las reglas!') },
