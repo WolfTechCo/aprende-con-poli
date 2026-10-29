@@ -80,28 +80,30 @@ function viewParent() {
       <div class="field"><input id="pg" type="text" inputmode="numeric" maxlength="3" autocomplete="off" placeholder="Respuesta"><button class="btn gold" id="pgo">Entrar</button></div></div></div>`);
     const tryIt = () => {
       if (+$('#pg').value.trim() === a * b) return go('parent', { ok: true });
-      sfx.bad(); poli.oops('Esa no es. Esta parte es para adultos.'); setTimeout(() => cur.name === 'parent' && go('album'), 1400);
+      sfx.bad(); poli.oops('Esa no es. Esta parte es para adultos.'); setTimeout(() => cur.name === 'parent' && go('map'), 1400);
     };
     $('#pgo').onclick = tryIt;
     $('#pg').onkeydown = e => { if (e.key === 'Enter') tryIt(); };
     poli.say('Esta parte es para adultos.', false);
     return;
   }
+  // temas del repaso: aquí, con clave, para que solo el adulto los elija
   const rows = ch => TOPICS.filter(T => T.ch === ch).map(T => {
-    const st = save.stats?.[T.id], p = pctOf(st), L = T.learned(), on = L && !(save.repasoOff || []).includes(T.id);
+    const L = T.learned(), on = L && !(save.repasoOff || []).includes(T.id);
     return `<label class="prow ${L ? '' : 'off'}"><input type="checkbox" data-t="${T.id}" ${on ? 'checked' : ''} ${L ? '' : 'disabled'}>
       <span class="pname">${T.name}${weak(T) ? '<em class="pstar">⭐ Para reforzar</em>' : ''}</span>
-      <span class="pdata">${!L ? 'Aún no lo aprende' : st ? `<b class="${p >= 70 ? 'okp' : 'lowp'}">${p} %</b> a la primera · ${st.n} ${st.n === 1 ? 'respuesta' : 'respuestas'} · ${ago(st.last)}` : 'Sin práctica aún'}</span></label>`;
+      <span class="pdata">${L ? 'Aprendido' : 'Aún no lo aprende'}</span></label>`;
   }).join('');
   const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   const el = frame(`<div class="pwrap">
     <h3 class="sec">Niños y niñas</h3>
     <div class="pbox"><div class="pkids">${root.order.map(id => `<button class="pkid ${id === root.cur ? 'on' : ''}" data-id="${id}">${root.profiles[id].name || '?'}</button>`).join('')}</div>
-      <p>Viendo el avance de <b>${save.name}</b>. Toca otro nombre para ver el suyo.</p>
+      <p>Ajustes de <b>${save.name}</b>. Toca otro nombre para cambiar los suyos.</p>
       <div class="pbtns gsel"><button class="pkid ${save.g === 'a' ? 'on' : ''}" data-gs="a">👧 Niña</button><button class="pkid ${save.g === 'o' ? 'on' : ''}" data-gs="o">👦 Niño</button></div>
       <div class="pbtns"><input id="pName" maxlength="14" value="${save.name}" autocomplete="off" aria-label="Nombre"><button class="btn sm ghost" id="bRen">Cambiar nombre</button><button class="btn sm danger" id="bDel">Borrar este perfil</button></div></div>
-    <p class="pintro">Marca los temas que <b>${save.name}</b> practicará en el <b>Repaso del día</b>. El porcentaje considera sus últimas 20 respuestas; los temas con menos de 70 % aparecen como <em class="pstar">⭐ Para reforzar</em>.</p>
-    ${Object.keys(CH).map(ch => `<h3 class="sec">Capítulo ${CH[ch].label}</h3><div class="plist">${rows(+ch)}</div>`).join('')}
+    <h3 class="sec">Temas del Repaso</h3>
+    <p class="pintro">Marca los temas que <b>${save.name}</b> practicará en el <b>Repaso del día</b>. Su avance por tema está en <b>📈 Mi avance</b>.</p>
+    ${Object.keys(CH).map(ch => `<h4 class="sub2">Capítulo ${CH[ch].label}</h4><div class="plist">${rows(+ch)}</div>`).join('')}
     <h3 class="sec">Respaldo del progreso</h3>
     <div class="pbox"><p>Guarda un archivo con el progreso de todos los niños y niñas de este dispositivo (estrellas, aciertos y temas elegidos). Sirve para pasarlo a otro dispositivo o recuperarlo si se borran los datos del navegador.</p>
       <div class="pbtns"><button class="btn sm green" id="bSave">Guardar respaldo</button><button class="btn sm ghost" id="bLoad">Cargar respaldo</button>
@@ -145,7 +147,28 @@ function viewParent() {
     go('parent', { ok: true }); poli.cheer('¡Progreso cargado!');
   };
   if ($('#bInst', el)) $('#bInst', el).onclick = async () => { installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; go('parent', { ok: true }); };
-  poli.say('Aquí ves cómo le va en cada tema y eliges qué repasa.', false);
+  poli.say('Aquí están los ajustes: perfiles, temas del repaso, respaldo e instalación.', false);
+}
+
+/* ---------- Mi avance: cómo le va en cada tema (sin clave, solo para mirar) ---------- */
+function viewAvance() {
+  const total = totalStars(), max = maxStars(), learned = TOPICS.filter(T => T.learned()), weakL = learned.filter(weak);
+  const row = T => {
+    const st = save.stats?.[T.id], p = pctOf(st), L = T.learned();
+    return `<div class="arow ${L ? '' : 'off'}"><div class="atop"><b>${T.name}</b>${weak(T) ? '<em class="pstar">⭐ Para reforzar</em>' : ''}</div>
+      ${L && st ? `<div class="abar"><i style="width:${Math.max(4, p)}%;background:${p >= 70 ? 'var(--good)' : '#ff8a3d'}"></i><span>${p} %</span></div>
+        <small>a la primera · ${st.n} ${st.n === 1 ? 'respuesta' : 'respuestas'} · ${ago(st.last)}</small>` : `<small>${L ? 'Sin práctica aún' : 'Aún no lo aprende'}</small>`}</div>`;
+  };
+  const el = frame(`<div class="pwrap">
+    ${root.order.length > 1 ? `<div class="pkids">${root.order.map(id => `<button class="pkid ${id === root.cur ? 'on' : ''}" data-id="${id}">${root.profiles[id].name}</button>`).join('')}</div>` : ''}
+    <div class="asum"><div class="acard"><b>★ ${total}</b><small>de ${max} estrellas</small></div>
+      <div class="acard"><b>${learned.length}</b><small>de ${TOPICS.length} temas aprendidos</small></div>
+      <div class="acard ${weakL.length ? 'warn' : 'good'}"><b>${weakL.length ? weakL.length : '✓'}</b><small>${weakL.length ? 'para reforzar' : 'todo bien'}</small></div></div>
+    ${weakL.length ? `<p class="pintro">⭐ <b>Para reforzar:</b> ${weakL.map(T => T.name).join(', ')}. El Repaso del día le da más preguntas de estos temas.</p>` : ''}
+    ${Object.keys(CH).map(ch => `<h3 class="sec">Capítulo ${CH[ch].label}</h3><div class="plist">${TOPICS.filter(T => T.ch === +ch).map(row).join('')}</div>`).join('')}
+    <p class="pnote">El porcentaje considera las últimas 20 respuestas de cada tema, en juegos, repaso y desafíos. Bajo 70 % aparece como ⭐ para reforzar.</p></div>`, 'fill');
+  $$('.pkid', el).forEach(b => b.onclick = () => { sfx.pop(); switchProfile(b.dataset.id); go('avance'); });
+  poli.say(weakL.length ? `Este es el avance de ${save.name}. Hay ${weakL.length === 1 ? 'un tema' : weakL.length + ' temas'} para reforzar.` : `Este es el avance de ${save.name}. ¡Va muy bien!`, false);
 }
 
 /* ---------- respaldo del progreso ---------- */

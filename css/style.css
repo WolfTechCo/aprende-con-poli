@@ -500,6 +500,21 @@ svg.join{width:var(--board);max-width:100%;height:auto}
 #pName:focus{border-color:var(--gold)}
 .btn.danger{--b:#fff;--bd:#ffc9c9;color:#d94646;text-shadow:none}
 .psteps{margin:6px 0 0;padding-left:20px;display:grid;gap:4px}
+.asum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:4px 0 8px}
+.acard{background:#fff;border-radius:20px;padding:10px 8px;text-align:center;box-shadow:0 5px 0 #c7c9f0;display:flex;flex-direction:column;align-items:center}
+.acard b{font-size:clamp(24px,3.4vw,38px);line-height:1.1;color:var(--violet-d)}
+.acard small{font-weight:700;color:var(--ink2);font-size:clamp(12px,1.5vw,15px);line-height:1.2}
+.acard.warn b{color:#e0651a}.acard.good b{color:var(--good-d)}
+.arow{background:#fff;border-radius:18px;padding:10px 16px;box-shadow:0 5px 0 #c7c9f0;display:flex;flex-direction:column;gap:4px}
+.arow.off{opacity:.55}
+.arow .atop{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
+.arow .atop b{font-size:clamp(16px,2vw,20px)}
+.arow small{font-weight:600;color:var(--ink2);font-size:clamp(13px,1.5vw,15px)}
+.abar{position:relative;height:22px;border-radius:99px;background:#eef0fb;overflow:hidden}
+.abar i{position:absolute;inset:0 auto 0 0;border-radius:99px;transition:width .6s}
+.abar span{position:absolute;right:10px;top:0;line-height:22px;font-weight:800;font-size:14px;color:var(--ink)}
+.pnote{font-size:13px;color:var(--ink2);font-weight:600;text-align:center;margin:12px 0 0}
+.pwrap .sub2{margin:10px 0 6px;color:var(--violet-d);font-size:clamp(14px,1.8vw,18px)}
 .pstar{font-style:normal;font-size:.8em;font-weight:800;color:#5a3a00;background:#ffe9a8;border-radius:99px;padding:1px 10px;margin-left:8px;white-space:nowrap}
 
 /* ---------- confeti ---------- */
@@ -546,7 +561,8 @@ svg.join{width:var(--board);max-width:100%;height:auto}
   .round{width:40px;height:40px}.round svg{width:22px;height:22px}
   .pill{font-size:18px;padding:4px 12px 4px 8px}.pill svg{width:22px;height:22px}
   .chap{padding:5px 12px;font-size:14px}
-  .mapbar{gap:6px}.mapbar .btn.sm{font-size:15px;padding:6px 12px}
+  .mapbar{gap:6px;flex-wrap:wrap;justify-content:center}.mapbar .btn.sm{font-size:14px;padding:5px 10px;gap:5px}.mapbar .btn svg{width:18px;height:18px}
+  .maptop{justify-content:center}
   .btn{padding:10px 20px;font-size:18px}
   #dock{min-height:0;gap:8px}
   #poli{width:62px}

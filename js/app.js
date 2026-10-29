@@ -629,7 +629,7 @@ const scr = () => $('#screen');
 const isIntro = id => Object.values(CH).some(C => C.intro === id);
 
 function go(name, params = {}) { sfx.pop(); cur = { name, ...params }; render(); }
-const backTarget = () => ({ island: ['map'], lesson: isIntro(cur.id) ? ['map'] : ['island', { id: cur.id }], build: ['island', { id: cur.id }], paint: ['island', { id: cur.id }], hunt: ['island', { id: cur.id }], game: ['island', { id: cur.id }], challenge: ['map'], album: ['map'], workshop: ['map'], repaso: ['map'], parent: ['album'] }[cur.name]);
+const backTarget = () => ({ island: ['map'], lesson: isIntro(cur.id) ? ['map'] : ['island', { id: cur.id }], build: ['island', { id: cur.id }], paint: ['island', { id: cur.id }], hunt: ['island', { id: cur.id }], game: ['island', { id: cur.id }], challenge: ['map'], album: ['map'], workshop: ['map'], repaso: ['map'], parent: ['map'], avance: ['map'] }[cur.name]);
 function setAction(label, fn, enabled = true, cls = '') {
   const b = $('#action');
   if (!label) { b.hidden = true; return; }
@@ -663,7 +663,8 @@ function titleFor() {
     case 'album': return 'Mi álbum';
     case 'workshop': return 'Taller libre';
     case 'repaso': return 'Repaso del día';
-    case 'parent': return 'Panel de apoderado';
+    case 'parent': return 'Ajustes';
+    case 'avance': return `Avance de ${save.name}`;
     default: return 'Aprende con Poli';
   }
 }
@@ -676,7 +677,7 @@ function render() {
   setAction(null);
   refreshStars();
   scr().innerHTML = '';
-  ({ welcome: viewWelcome, map: viewMap, island: viewIsland, lesson: viewLesson, build: viewBuild, paint: viewPaint, hunt: viewHunt, game: viewGame, challenge: viewChallenge, album: viewAlbum, workshop: viewWorkshop, repaso: viewRepaso, parent: viewParent })[cur.name]();
+  ({ welcome: viewWelcome, map: viewMap, island: viewIsland, lesson: viewLesson, build: viewBuild, paint: viewPaint, hunt: viewHunt, game: viewGame, challenge: viewChallenge, album: viewAlbum, workshop: viewWorkshop, repaso: viewRepaso, parent: viewParent, avance: viewAvance })[cur.name]();
 }
 
 /* =========================================================
@@ -765,6 +766,8 @@ function viewMap() {
           <button class="btn gold sm" id="bRep"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round"/><path d="M21 4v5h-5" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7.5V12l3 2" fill="none" stroke="#5a3a00" stroke-width="2.4" stroke-linecap="round"/></svg>Repaso</button>
           <button class="btn ghost sm" id="bWork"><svg viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z" fill="#ffc233" stroke="#7c5cff" stroke-width="2" stroke-linejoin="round"/></svg>Taller</button>
           <button class="btn ghost sm" id="bAlb"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3" fill="#ff7eb6" stroke="#7c5cff" stroke-width="2"/><path d="M8 8h8M8 12h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>Álbum</button>
+          <button class="btn ghost sm" id="bAv"><svg viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8" rx="1.5" fill="#ff8a3d"/><rect x="10" y="8" width="4" height="13" rx="1.5" fill="#4ea8ff"/><rect x="17" y="3" width="4" height="18" rx="1.5" fill="#22c58b"/></svg>Mi avance</button>
+          <button class="btn ghost sm" id="bSet"><svg viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z" fill="none" stroke="#7c5cff" stroke-width="2.4"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="#7c5cff" stroke-width="2.4" stroke-linecap="round"/></svg>Ajustes</button>
         </div>
       </div>
       <div class="mapscroll"><div class="map ${!vert && ns.length > 8 ? 'dense' : ''}" ${vert ? `style="height:${ns.length * 132}px"` : ''}>
@@ -779,6 +782,8 @@ function viewMap() {
   $('#bAlb').onclick = () => go('album');
   $('#bWork').onclick = () => go('workshop');
   $('#bRep').onclick = () => go('repaso');
+  $('#bAv').onclick = () => go('avance');
+  $('#bSet').onclick = () => go('parent');
   const cu = ns.find(n => n.current);
   poli.say(!cu ? `¡Increíble, ${save.name}! Completaste todo este capítulo.`
     : isIntro(cu.id) ? CH[ch].hello(save.name)
@@ -1258,8 +1263,7 @@ function viewAlbum() {
       stk((save[C.chal] || 0) >= 3, trophy, gx('Campeona', 'Campeón'), 'Desafío perfecto'),
     ].join('');
   };
-  const el = frame(`<p class="rank"><span>${save.name ? save.name + ' · ' : ''}${rank} · ${total}/${max} ★</span></p><div class="album">${Object.keys(CH).map(section).join('')}</div><div class="albfoot"><button class="tinybtn" id="bPar">Panel de apoderado</button></div>`);
-  $('#bPar').onclick = () => go('parent');
+  const el = frame(`<p class="rank"><span>${save.name ? save.name + ' · ' : ''}${rank} · ${total}/${max} ★</span></p><div class="album">${Object.keys(CH).map(section).join('')}</div>`);
   poli.say(`¡Mira tu álbum, ${save.name}! Completa las tres estrellas de cada isla para ganar sus stickers.`);
 }
 
