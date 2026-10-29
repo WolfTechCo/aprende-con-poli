@@ -1,9 +1,15 @@
-# Mundo de Formas
+# Mundo de Formas y Números
 
-App interactiva para 2° básico, en dos capítulos:
+App interactiva para 2° básico, en tres capítulos:
 1. **Polígonos:** qué es un polígono, lados y vértices; triángulo, cuadrado, rectángulo, pentágono, hexágono y octágono.
 2. **Figuras 2D y 3D:** cubo, prisma rectangular, prisma triangular, pirámide de base cuadrada y triangular,
    esfera, cilindro y cono (en 3D, se pueden girar con el dedo y pintar sus caras).
+3. **Números** (con el método Singapur: bloques → dibujos → dígitos):
+   - **Agrupar:** contar agrupando de 10 en 10.
+   - **Unidad, decena y centena:** 10 unidades forman 1 decena y 10 decenas forman 1 centena; armar números con bloques (con canje).
+   - **Valor posicional:** tabla de centenas, decenas y unidades, y la suma por columnas (345 = 300 + 40 + 5).
+   - **Tabla del 1000:** de 10 en 10 y de 100 en 100 hasta 1000.
+   - **Secuencias numéricas:** descubrir la regla (+2, +5, +10, +100, −10…) y completar el número que falta.
 
 ## Cómo usarla
 - **En el computador:** abre `index.html` con doble clic (Chrome o Edge funcionan mejor; la voz en español depende del navegador).
@@ -17,6 +23,8 @@ App interactiva para 2° básico, en dos capítulos:
 ## Estructura
 - `index.html`: página base
 - `css/style.css`: diseño
-- `js/app.js`: pantallas, juegos, sonidos y voz (sin librerías externas)
+- `js/app.js`: pantallas, juegos, sonidos y voz de los capítulos 1 y 2 (sin librerías externas)
+- `js/numeros.js`: capítulo 3 (números)
+- `PENDIENTES.md`: ideas anotadas para más adelante
 
 El progreso se guarda en el propio navegador (`localStorage`).
