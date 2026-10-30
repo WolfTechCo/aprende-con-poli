@@ -24,6 +24,11 @@ Los ejercicios se generan al azar: cada vez que se entra a una sección son dist
 - En **Ajustes** se cambia el nombre, se indica niña o niño o se borra un perfil.
 - El respaldo guarda a todos los perfiles juntos (y acepta respaldos antiguos de un solo perfil).
 
+## Portada, Novedades y Recorrido
+- En la portada, Poli pregunta **¿Quién va a jugar?** (tarjetas en una fila, con flechas si no caben todas).
+- **✨ Novedades** (botón junto al volumen): lo nuevo de cada versión. Al actualizarse, aparece una vez una ventana con las novedades.
+- **🧭 Recorrido con Poli:** muestra las partes importantes del mapa sobre un mapa de muestra (no toca el progreso). Aparece la primera vez y se repite desde la portada. Ajustes tiene su propio recorrido.
+
 ## Repaso, Mi avance y Ajustes
 - En el mapa, **Repaso, Álbum, Mi avance y Ajustes** son botones a la vista en tablet y notebook, y en celular van en el botón redondo de 4 puntitos de colores, al lado del título del mapa. El **Taller libre** es una isla del capítulo 1.
 - **Repaso**: 5 preguntas mezcladas de los temas ya aprendidos, con más preguntas de los temas donde se equivoca.
@@ -49,6 +54,8 @@ Los ejercicios se generan al azar: cada vez que se entra a una sección son dist
 1. Subir el número `?v=` en `index.html` **y** `VERSION` en `sw.js` (deben coincidir). Así la app instalada se actualiza sola.
 2. La clave del progreso (`poligonos-magicos-v1`) no se cambia nunca. Ahí se guardan todos los perfiles.
 3. Si se renombra, une o elimina una isla, agregar un paso en `MIGRATIONS` (`js/app.js`) para traspasar el progreso antiguo.
+4. Anotar la versión en `CHANGELOG.md` y, si hay algo nuevo para apoderados, subir `APPVER` y agregar la entrada en `NEWS` (`js/novedades.js`).
+5. Si cambia la estructura (secciones o botones), subir `TOURVER` (`js/recorrido.js`) para que el recorrido aparezca de nuevo.
 
 GitHub Pages: *Settings → Pages → Deploy from a branch → `main` / `/ (root)`*.
 
@@ -57,5 +64,8 @@ GitHub Pages: *Settings → Pages → Deploy from a branch → `main` / `/ (root
 - `css/style.css`: diseño · `fonts/`: letra de la app
 - `js/app.js`: base de la app y capítulos 1 y 2 (sin librerías externas)
 - `js/numeros.js`: capítulo 3 (números)
-- `js/repaso.js`: repaso del día, panel de apoderado y respaldo
+- `js/repaso.js`: repaso del día, Mi avance, Ajustes y respaldo
+- `js/novedades.js`: novedades para quien usa la app (`APPVER` y `NEWS`)
+- `js/recorrido.js`: recorrido con Poli (`TOURVER`)
+- `CHANGELOG.md`: historial técnico de versiones
 - `PENDIENTES.md`: ideas anotadas para más adelante

@@ -44,7 +44,8 @@ if (!root.profiles[root.cur]) root.cur = root.order[0] || null;
 let save = root.cur ? loadProfile(root.cur) : NEWSAVE();
 /* g: 'a' niña · 'o' niño (vacío: aún no se pregunta). gx('campeona', 'campeón') elige la palabra según el perfil */
 const gx = (a, o) => save.g === 'o' ? o : a;
-const persist = () => { if (root.cur) root.profiles[root.cur] = save; try { localStorage.setItem(KEY, JSON.stringify({ ver: 2, ...root })); } catch (e) { } };
+let demoMode = false; // recorrido con mapa de muestra: no se guarda nada
+const persist = () => { if (demoMode) return; if (root.cur) root.profiles[root.cur] = save; try { localStorage.setItem(KEY, JSON.stringify({ ver: 2, ...root })); } catch (e) { } };
 persist();
 function switchProfile(id) { persist(); root.cur = id; save = loadProfile(id); persist(); }
 function addProfile(name, g) { const id = newPid(); root.profiles[id] = { ...NEWSAVE(), name, g }; root.order.push(id); switchProfile(id); }
@@ -629,7 +630,7 @@ const scr = () => $('#screen');
 const isIntro = id => Object.values(CH).some(C => C.intro === id);
 
 function go(name, params = {}) { sfx.pop(); cur = { name, ...params }; render(); }
-const backTarget = () => ({ island: ['map'], lesson: isIntro(cur.id) ? ['map'] : ['island', { id: cur.id }], build: ['island', { id: cur.id }], paint: ['island', { id: cur.id }], hunt: ['island', { id: cur.id }], game: ['island', { id: cur.id }], challenge: ['map'], album: ['map'], workshop: ['map'], repaso: ['map'], parent: ['map'], avance: ['map'] }[cur.name]);
+const backTarget = () => ({ island: ['map'], lesson: isIntro(cur.id) ? ['map'] : ['island', { id: cur.id }], build: ['island', { id: cur.id }], paint: ['island', { id: cur.id }], hunt: ['island', { id: cur.id }], game: ['island', { id: cur.id }], challenge: ['map'], album: ['map'], workshop: ['map'], repaso: ['map'], parent: ['map'], avance: ['map'], news: cur.from === 'parent' ? ['parent', { ok: true }] : [cur.from || 'welcome'] }[cur.name]);
 function setAction(label, fn, enabled = true, cls = '') {
   const b = $('#action');
   if (!label) { b.hidden = true; return; }
@@ -665,6 +666,7 @@ function titleFor() {
     case 'repaso': return 'Repaso del día';
     case 'parent': return 'Ajustes';
     case 'avance': return `Avance de ${save.name}`;
+    case 'news': return 'Novedades';
     default: return 'Aprende con Poli';
   }
 }
@@ -672,13 +674,14 @@ function render() {
   if ('speechSynthesis' in window) speechSynthesis.cancel();
   stepBack = null;
   $('#btnBack').hidden = !backTarget();
-  $('#barSlot').innerHTML = '';
+  $('#barSlot').innerHTML = ''; $('#barSlot2').innerHTML = '';
+  $$('#app > .modal').forEach(m => m.remove());
   $('#app').classList.toggle('is-home', cur.name === 'welcome');
   $('#title').textContent = titleFor();
   setAction(null);
   refreshStars();
   scr().innerHTML = '';
-  ({ welcome: viewWelcome, map: viewMap, island: viewIsland, lesson: viewLesson, build: viewBuild, paint: viewPaint, hunt: viewHunt, game: viewGame, challenge: viewChallenge, album: viewAlbum, workshop: viewWorkshop, repaso: viewRepaso, parent: viewParent, avance: viewAvance })[cur.name]();
+  ({ welcome: viewWelcome, map: viewMap, island: viewIsland, lesson: viewLesson, build: viewBuild, paint: viewPaint, hunt: viewHunt, game: viewGame, challenge: viewChallenge, album: viewAlbum, workshop: viewWorkshop, repaso: viewRepaso, parent: viewParent, avance: viewAvance, news: viewNews })[cur.name]();
 }
 
 /* =========================================================
@@ -702,10 +705,27 @@ function viewWelcome() {
     <h2>Aprende<br>con <span>Poli</span></h2>
     <span class="tagline">Matemáticas · 2° básico</span>
     <span class="subline">Mundo de Formas y Números</span>
-    ${root.order.length ? `<p class="who">¿Quién va a jugar?</p><div class="who">${root.order.map(id => { const nm = root.profiles[id].name || '?';
+    ${root.order.length ? `<p class="who">¿Quién va a jugar?</p><div class="whowrap who"><button class="warr off" data-d="-1" aria-label="Anteriores">‹</button><div class="whorow">${root.order.map(id => { const nm = root.profiles[id].name || '?';
       return `<button class="kid" data-id="${id}" style="--k:${COLORS[[...nm].reduce((a, c) => a + c.codePointAt(0), 0) % COLORS.length]}"><span class="av">${nm[0].toUpperCase()}</span><b>${nm}</b><small>★ ${profileStars(id)}</small></button>`; }).join('')}
-      ${root.order.length < MAXPROFILES ? '<button class="kid add" id="bAdd"><span class="av">+</span><b>Agregar</b><small>niño o niña</small></button>' : ''}</div>` : '<p>¡Aprende jugando, a tu ritmo y con Poli!</p>'}
+      ${root.order.length < MAXPROFILES ? '<button class="kid add" id="bAdd"><span class="av">+</span><b>Agregar</b><small>niño o niña</small></button>' : ''}</div><button class="warr off" data-d="1" aria-label="Siguientes">›</button></div>` : '<p>¡Aprende jugando, a tu ritmo y con Poli!</p>'}
     <div class="field" ${root.order.length ? 'hidden' : ''}><input id="nm" maxlength="14" placeholder="¿Cómo te llamas?" autocomplete="off"><button class="btn gold" id="go">¡Empezar!</button></div></div></div>`, 'welcome');
+  // Recorrido: botón con texto en la esquina de arriba (en la portada está libre)
+  $('#barSlot').innerHTML = '<button class="tourpill" id="bTour">🧭 Recorrido</button>';
+  $('#bTour').onclick = () => { sfx.pop(); startMapTour(() => go('welcome')); };
+  // Novedades: botón redondo arriba, al lado del volumen
+  $('#barSlot2').innerHTML = '<button class="round" id="bNews" aria-label="Novedades" title="Novedades"><svg viewBox="0 0 24 24"><path d="M12 2.5l1.9 5.6 5.6 1.9-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.9z" fill="#ffc233" stroke="#e09a00" stroke-width="1.4" stroke-linejoin="round"/><path d="M19 15l.8 2.2 2.2.8-2.2.8L19 21l-.8-2.2-2.2-.8 2.2-.8z" fill="#ff7eb6"/><path d="M5 15.5l.6 1.4 1.4.6-1.4.6L5 19.5l-.6-1.4-1.4-.6 1.4-.6z" fill="#4ea8ff"/></svg></button>';
+  // si hay más niños de los que caben, flechas para moverse (también se desliza con el dedo)
+  const row = $('.whorow');
+  if (row) {
+    const [l, r] = $$('.warr');
+    const arrows = () => {
+      if (!row.isConnected) return removeEventListener('resize', arrows);
+      const more = row.scrollWidth > row.clientWidth + 2;
+      l.classList.toggle("off", !more || row.scrollLeft < 10); r.classList.toggle("off", !more || row.scrollLeft + row.clientWidth > row.scrollWidth - 10);
+    };
+    [l, r].forEach(b => b.onclick = () => { sfx.pop(); row.scrollBy({ left: +b.dataset.d * (row.clientWidth * .8), behavior: 'smooth' }); });
+    row.addEventListener('scroll', arrows); addEventListener('resize', arrows); arrows(); setTimeout(arrows, 300);
+  }
   const start = () => {
     const nm = cleanName($('#nm').value);
     if (!nm) { sfx.bad(); poli.oops('Escribe tu nombre para empezar.'); $('#nm').focus(); return; }
@@ -728,6 +748,8 @@ function viewWelcome() {
     askGender(save.name, g => { save.g = g; persist(); go('map'); });
   });
   if ($('#bAdd')) $('#bAdd').onclick = () => { sfx.pop(); $('.welcome .field').hidden = false; $('#nm').focus(); poli.say('¡Hola! Escribe tu nombre y comencemos.', false); };
+  $('#bNews').onclick = () => go('news', { from: 'welcome' });
+  maybeShowNews();
   poli.say(root.order.length ? '¡Hola! Soy Poli. ¿Quién va a jugar hoy? Toca tu nombre.' : '¡Hola! Soy Poli y vamos a aprender jugando. Escribe tu nombre y comencemos.', false);
 }
 
@@ -802,6 +824,7 @@ function viewMap() {
   poli.say(!cu ? `¡Increíble, ${save.name}! Completaste todo este capítulo.`
     : isIntro(cu.id) ? CH[ch].hello(save.name)
       : `Muy bien, ${save.name}. Sigamos con la isla que está saltando.`);
+  if (!demoMode && !tourOn && tourSeen(TOURKEY) < TOURVER) setTimeout(() => cur.name === 'map' && !tourOn && startMapTour(() => go('map')), 500);
 }
 
 /* ---------- Isla (hub) ---------- */
@@ -1356,6 +1379,7 @@ function initBg() {
 }
 function updateVoiceIcon() {
   const on = save.voice || save.fx;
+  $('#btnVoice').setAttribute('aria-label', on ? 'Silenciar' : 'Activar sonido');
   $('#icoVoice').innerHTML = on
     ? '<path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 010 7M18.5 6a8.5 8.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>'
     : '<path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>';
@@ -1370,6 +1394,31 @@ addEventListener('resize', () => {
   clearTimeout(rsT);
   rsT = setTimeout(() => { const v = isVertical(); if (v !== lastVert) { lastVert = v; if (cur.name === 'map') viewMap(); } }, 250);
 });
+(() => {
+  const SEL = '.round[aria-label],.warr[aria-label],#replay';
+  let timer = 0, fired = false, tip = null;
+  const hide = () => { clearTimeout(timer); if (tip) { tip.remove(); tip = null; } };
+  addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse') return;
+    const b = e.target.closest(SEL); if (!b) return;
+    fired = false; hide();
+    timer = setTimeout(() => {
+      fired = true;
+      const r = b.getBoundingClientRect(), label = b.getAttribute('aria-label');
+      tip = document.createElement('div'); tip.className = 'ptip'; tip.textContent = label; document.body.appendChild(tip);
+      const below = r.bottom + 60 < innerHeight;
+      tip.style.left = Math.min(innerWidth - 8 - tip.offsetWidth, Math.max(8, r.left + r.width / 2 - tip.offsetWidth / 2)) + 'px';
+      tip.style.top = (below ? r.bottom + 10 : r.top - 10 - tip.offsetHeight) + 'px';
+      if (navigator.vibrate) navigator.vibrate(12);
+      speak(label);
+    }, 500);
+  }, true);
+  addEventListener('pointerup', () => { clearTimeout(timer); if (tip) setTimeout(hide, 1100); }, true);
+  addEventListener('pointercancel', hide, true);
+  addEventListener('click', e => { if (fired && e.target.closest(SEL)) { e.stopPropagation(); e.preventDefault(); fired = false; } }, true);
+  addEventListener('contextmenu', e => { if (e.target.closest(SEL)) e.preventDefault(); });
+})();
+
 /* arranca cuando ya cargaron todos los scripts (js/numeros.js agrega el capítulo 3) */
 const boot = () => {
   initBg(); updateVoiceIcon(); render();
