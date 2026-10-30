@@ -6,6 +6,9 @@ Lo que ven los apoderados dentro de la app está en `js/novedades.js` (*Novedade
 Formato de versión **X.Y.Z**: X = cambio grande (nueva materia o rediseño) · Y = capítulo o función nueva · Z = ajustes y arreglos.
 La versión de los archivos (`?v=` en `index.html` y `VERSION` en `sw.js`) es un número interno aparte.
 
+## 2.3.1 — 2026-10-30 (archivos v23)
+- Recorrido en celular: en los pasos de Repaso, Álbum, Mi avance y Ajustes se abre el menú de los 4 puntitos y se ilumina la opción de la que habla Poli; se cierra al pasar al paso del sonido.
+
 ## 2.3.0 — 2026-10-30 (archivos v22)
 - **Novedades:** ventana que aparece una vez por dispositivo al actualizarse, con lo nuevo de la versión; historial en la portada (botón ✨ junto al volumen) y en Ajustes. Quien instala por primera vez no la ve. `js/novedades.js`.
 - **Recorrido con Poli** (`js/recorrido.js`): 10 pasos sobre un mapa de muestra que no se guarda (`demoMode`); se avanza tocando la varita; "Saltar". Aparece la primera vez que se entra al mapa y se repite desde la portada ("🧭 Recorrido con Poli"), también sin perfiles. `TOURVER` permite volver a mostrarlo cuando cambie la estructura.

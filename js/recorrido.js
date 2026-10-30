@@ -43,6 +43,7 @@ function runTour(steps, onEnd) {
   };
   const show = async () => {
     const s = steps[i];
+    setMenu(false); // el menú de celular solo se abre en los pasos que hablan de sus opciones
     target = s.target ? s.target() : null;
     wand.classList.remove('go');
     if (target) { target.scrollIntoView({ block: 'center', inline: 'nearest' }); await sleep(380); }
@@ -52,7 +53,7 @@ function runTour(steps, onEnd) {
     adult.hidden = !s.adult; adult.textContent = s.adult || '';
     if (s.final) { confetti(110); sfx.win(); poli.cheer(s.say); } else poli.say(s.say);
   };
-  const end = () => { if (!ov.isConnected) return; ov.remove(); tourOn = false; $('#app').classList.remove('touring'); removeEventListener('resize', place); onEnd(); };
+  const end = () => { if (!ov.isConnected) return; setMenu(false); ov.remove(); tourOn = false; $('#app').classList.remove('touring'); removeEventListener('resize', place); onEnd(); };
   wand.onclick = () => {
     sfx.star(); wand.classList.add('go');
     setTimeout(() => { i++; i < steps.length ? show() : end(); }, 260);
@@ -71,7 +72,8 @@ function startMapTour(after) {
   root.cur = root.cur || '__demo';
   go('map');
   const wide = () => getComputedStyle($('.mbtns')).display !== 'none';
-  const btn = g => () => wide() ? $(`.mbtns [data-go=${g}]`) : $('#bMenu');
+  // en celular, Repaso, Álbum, Mi avance y Ajustes están dentro del menú: se abre y se ilumina la opción
+  const btn = g => () => { if (wide()) return $(`.mbtns [data-go=${g}]`); setMenu(true); return $(`#menu [data-go=${g}]`); };
   setTimeout(() => runTour([
     { target: () => $('.chapters'), say: '¡Hola! Aquí eliges qué quieres aprender y jugar hoy. ¡Toca la varita para seguir!' },
     { target: () => $('.node.current'), say: '¡El Gran Desafío te llama! Salta de isla en isla y sigue a la que se mueve… ¡ahí empieza la diversión!' },
