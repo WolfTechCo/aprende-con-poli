@@ -69,3 +69,4 @@ GitHub Pages: *Settings → Pages → Deploy from a branch → `main` / `/ (root
 - `js/recorrido.js`: recorrido con Poli (`TOURVER`)
 - `CHANGELOG.md`: historial técnico de versiones
 - `PENDIENTES.md`: ideas anotadas para más adelante
+- `CLAUDE.md`: reglas del proyecto para las sesiones con Claude
