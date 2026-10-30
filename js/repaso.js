@@ -75,13 +75,17 @@ const ago = t => { if (!t) return 'nunca'; const d = Math.round((dayStart(Date.n
 function viewParent() {
   // entrada: una multiplicación que una niña de 2° básico aún no sabe (protege de la niña, no de un adulto)
   if (!cur.ok) {
-    const a = rnd(6, 9), b = rnd(6, 9);
-    frame(`<div class="stepbody"><div class="col pgate"><h2>Solo para adultos</h2><span class="sub">¿Cuánto es ${a} × ${b}?</span>
+    frame(`<div class="stepbody"><div class="col pgate"><h2>Solo para adultos</h2><span class="sub" id="pq"></span>
       <div class="field"><input id="pg" type="text" inputmode="numeric" maxlength="3" autocomplete="off" placeholder="Respuesta"><button class="btn gold" id="pgo">Entrar</button></div></div></div>`);
+    let ans = 0, tries = 0;
+    const ask = () => { const a = rnd(6, 9), b = rnd(6, 9); ans = a * b; $('#pq').textContent = `¿Cuánto es ${a} × ${b}?`; $('#pg').value = ''; $('#pg').focus(); };
     const tryIt = () => {
-      if (+$('#pg').value.trim() === a * b) return go('parent', { ok: true });
-      sfx.bad(); poli.oops('Esa no es. Esta parte es para adultos.'); setTimeout(() => cur.name === 'parent' && go('map'), 1400);
+      if (+$('#pg').value.trim() === ans) return go('parent', { ok: true });
+      sfx.bad(); tries++;
+      if (tries >= 3) { poli.oops('Esta parte es para adultos.'); setTimeout(() => cur.name === 'parent' && go('map'), 1400); return; }
+      poli.oops('Esa no es. Prueba con esta.'); ask();
     };
+    ask();
     $('#pgo').onclick = tryIt;
     $('#pg').onkeydown = e => { if (e.key === 'Enter') tryIt(); };
     poli.say('Esta parte es para adultos.', false);
@@ -89,17 +93,20 @@ function viewParent() {
   }
   const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   const el = frame(`<div class="pwrap">
+    <div class="pbtns ajtop"><button class="tourbtn" id="bTourAj">🧭 Recorrido de Ajustes</button></div>
     <h3 class="sec">Niños y niñas</h3>
-    <div class="pbox"><div class="pkids">${root.order.map(id => `<button class="pkid ${id === root.cur ? 'on' : ''}" data-id="${id}">${root.profiles[id].name || '?'}</button>`).join('')}</div>
+    <div class="pbox" id="ajKids"><div class="pkids">${root.order.map(id => `<button class="pkid ${id === root.cur ? 'on' : ''}" data-id="${id}">${root.profiles[id].name || '?'}</button>`).join('')}</div>
       <p>Ajustes de <b>${save.name}</b>. Toca otro nombre para cambiar los suyos.</p>
       <div class="pbtns gsel"><button class="pkid ${save.g === 'a' ? 'on' : ''}" data-gs="a">👧 Niña</button><button class="pkid ${save.g === 'o' ? 'on' : ''}" data-gs="o">👦 Niño</button></div>
       <div class="pbtns"><input id="pName" maxlength="14" value="${save.name}" autocomplete="off" aria-label="Nombre"><button class="btn sm ghost" id="bRen">Cambiar nombre</button><button class="btn sm danger" id="bDel">Borrar este perfil</button></div></div>
+    <h3 class="sec">Novedades</h3>
+    <div class="pbox" id="ajNews"><p>Lo nuevo de cada versión de la app.</p><div class="pbtns"><button class="btn sm ghost" id="bNewsP">✨ Ver novedades</button></div></div>
     <h3 class="sec">Respaldo del progreso</h3>
-    <div class="pbox"><p>Guarda un archivo con el progreso de todos los niños y niñas de este dispositivo (estrellas, aciertos y temas elegidos). Sirve para pasarlo a otro dispositivo o recuperarlo si se borran los datos del navegador.</p>
+    <div class="pbox" id="ajBackup"><p>Guarda un archivo con el progreso de todos los niños y niñas de este dispositivo (estrellas, aciertos y temas elegidos). Sirve para pasarlo a otro dispositivo o recuperarlo si se borran los datos del navegador.</p>
       <div class="pbtns"><button class="btn sm green" id="bSave">Guardar respaldo</button><button class="btn sm ghost" id="bLoad">Cargar respaldo</button>
       <input type="file" id="fLoad" accept=".json,application/json" hidden></div></div>
     <h3 class="sec">Instalar la app</h3>
-    <div class="pbox">${installed ? '<p><b>✓ La app ya está instalada en este dispositivo.</b> Funciona sin internet.</p>'
+    <div class="pbox" id="ajInstall">${installed ? '<p><b>✓ La app ya está instalada en este dispositivo.</b> Funciona sin internet.</p>'
       : `<p>Al instalarla queda con su ícono en la pantalla de inicio y funciona sin internet. También se puede seguir usando desde el link.</p>
         ${installPrompt ? '<div class="pbtns"><button class="btn sm gold" id="bInst">Instalar app</button></div>' : ''}
         <ul class="psteps"><li><b>Android (Chrome):</b> menú ⋮ → <i>Instalar app</i> o <i>Agregar a la pantalla principal</i>.</li>
@@ -117,6 +124,7 @@ function viewParent() {
     deleteProfile(root.cur); sfx.pop();
     root.cur ? go('parent', { ok: true }) : go('welcome');
   };
+  $('#bNewsP', el).onclick = () => go('news', { from: 'parent' });
   $('#bSave', el).onclick = () => { sfx.pop(); downloadBackup(); poli.say('Listo. Guarda el archivo en un lugar seguro.', false); };
   $('#bLoad', el).onclick = () => $('#fLoad', el).click();
   $('#fLoad', el).onchange = async e => {
@@ -132,7 +140,9 @@ function viewParent() {
     go('parent', { ok: true }); poli.cheer('¡Progreso cargado!');
   };
   if ($('#bInst', el)) $('#bInst', el).onclick = async () => { installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; go('parent', { ok: true }); };
+  $('#bTourAj', el).onclick = () => { sfx.pop(); startAjustesTour(); };
   poli.say('Aquí están los ajustes: perfiles, respaldo e instalación.', false);
+  if (tourSeen(TOURAJKEY) < TOURVER_AJ) setTimeout(() => cur.name === 'parent' && !tourOn && startAjustesTour(), 500);
 }
 
 /* ---------- Mi avance: cómo le va en cada tema (sin clave, solo para mirar) ---------- */
