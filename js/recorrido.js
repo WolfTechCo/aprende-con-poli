@@ -6,7 +6,7 @@
    - TOURVER: si la estructura de la app cambia harto (secciones nuevas, botones que se mueven),
      se sube este número y el recorrido vuelve a aparecer una vez. Lo mismo con TOURVER_AJ para Ajustes.
    ========================================================= */
-const TOURVER = 1, TOURVER_AJ = 1;
+const TOURVER = 1, TOURVER_AJ = 2;
 const TOURKEY = 'poli-recorrido-visto', TOURAJKEY = 'poli-recorrido-ajustes-visto';
 const tourSeen = key => { try { return +localStorage.getItem(key) || 0; } catch (e) { return 99; } };
 const tourDone = (key, v) => { try { localStorage.setItem(key, v); } catch (e) { } };
@@ -98,6 +98,7 @@ function startAjustesTour() {
     { target: () => $('#ajKids'), say: 'Aquí agregas niños y niñas, cambias su nombre, indicas niña o niño o borras un perfil.' },
     { target: () => $('#ajNews'), say: 'Aquí está lo nuevo de cada versión de la app.' },
     { target: () => $('#ajBackup'), say: 'Guarda un archivo con el progreso para pasarlo a otro equipo o recuperarlo si se borra.' },
+    { target: () => $('#ajFeedback'), say: 'Si la app te gusta, cuéntanos con estrellas y un comentario. El reporte no lleva nombres y tú decides si lo compartes.' },
     { target: () => $('#ajInstall'), say: 'Instala la app en el inicio del equipo para usarla sin internet.' },
     { final: true, say: '¡Listo! Puedes repetir este recorrido cuando quieras con el botón de arriba.' },
   ], () => { tourDone(TOURAJKEY, TOURVER_AJ); $('.pwrap')?.scrollTo({ top: 0 }); });

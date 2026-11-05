@@ -4,8 +4,13 @@
    ese está en CHANGELOG.md). Al actualizarse, se muestra una vez en la portada.
    Para publicar una versión con novedades: subir APPVER y agregar su entrada arriba de NEWS.
    ========================================================= */
-const APPVER = '2.3.0';
+const APPVER = '2.4.0';
 const NEWS = [
+  { v: '2.4.0', date: '2026-11-05', items: [
+    ['⭐', 'Cuéntanos qué te parece', 'En <b>Ajustes</b> puedes dar de 0,5 a 5 estrellas y dejar un comentario. Tú ves todo lo que se comparte y no lleva nombres.'],
+    ['👋', 'Poli te saluda', 'Según la hora del día. Y si hace días que no practicas, te invita a repasar 5 minutos.'],
+    ['🗣️', 'Mejor voz', 'Poli elige la mejor voz en español que tenga tu equipo.'],
+  ] },
   { v: '2.3.0', date: '2026-10-30', items: [
     ['🧭', 'Recorrido con Poli', 'Poli te muestra todo lo que puedes hacer. Está en la portada cuando quieras.'],
     ['📈', 'Elige qué repasa', 'En <b>Mi avance</b> personalizas el Repaso del día, con candado para adultos.'],

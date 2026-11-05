@@ -24,6 +24,8 @@ function track(topic, ok) {
   if (!TOP[topic]) return;
   const st = (save.stats ||= {})[topic] ||= { n: 0, h: '' };
   st.n++; st.h = (st.h + (ok ? '1' : '0')).slice(-20); st.last = Date.now();
+  const hoy = new Date().toISOString().slice(0, 10), days = (save.days ||= []); // días en que practicó (para el reporte de uso)
+  if (days[days.length - 1] !== hoy) { days.push(hoy); if (days.length > 90) days.shift(); }
   persist();
 }
 const pctOf = st => st && st.h.length ? Math.round(100 * [...st.h].filter(c => c === '1').length / st.h.length) : null;
@@ -105,6 +107,13 @@ function viewParent() {
     <div class="pbox" id="ajBackup"><p>Guarda un archivo con el progreso de todos los niños y niñas de este dispositivo (estrellas, aciertos y temas elegidos). Sirve para pasarlo a otro dispositivo o recuperarlo si se borran los datos del navegador.</p>
       <div class="pbtns"><button class="btn sm green" id="bSave">Guardar respaldo</button><button class="btn sm ghost" id="bLoad">Cargar respaldo</button>
       <input type="file" id="fLoad" accept=".json,application/json" hidden></div></div>
+    <h3 class="sec">Ayúdanos a mejorar</h3>
+    <div class="pbox" id="ajFeedback"><p>¿Te gusta Aprende con Poli? Cuéntanos qué tanto la recomendarías. El reporte <b>no lleva nombres</b> y nada se envía solo: tú decides si lo compartes.</p>
+      <div class="rate" id="rate" role="slider" tabindex="0" aria-label="Recomendación de 0,5 a 5 estrellas" aria-valuemin="0.5" aria-valuemax="5" aria-valuenow="0">${[1, 2, 3, 4, 5].map(i => `<span class="rs" data-i="${i}"><i class="rbg">★</i><i class="rfg">★</i></span>`).join('')}<b id="rval"></b></div>
+      <textarea id="fbText" maxlength="300" rows="2" placeholder="¿Quieres contarnos algo más? (opcional)" aria-label="Comentario opcional"></textarea>
+      <p class="fbhint">Esto es lo que se compartiría:</p>
+      <textarea id="fbRep" readonly rows="6" aria-label="Reporte que se compartiría"></textarea>
+      <div class="pbtns">${FEEDBACK_MAIL ? '<button class="btn sm gold" id="bFbMail">Enviar por correo</button>' : ''}<button class="btn sm green" id="bFbCopy">Copiar reporte</button><button class="btn sm ghost" id="bFbFile">Guardar archivo</button></div></div>
     <h3 class="sec">Instalar la app</h3>
     <div class="pbox" id="ajInstall">${installed ? '<p><b>✓ La app ya está instalada en este dispositivo.</b> Funciona sin internet.</p>'
       : `<p>Al instalarla queda con su ícono en la pantalla de inicio y funciona sin internet. También se puede seguir usando desde el link.</p>
@@ -140,6 +149,7 @@ function viewParent() {
     go('parent', { ok: true }); poli.cheer('¡Progreso cargado!');
   };
   if ($('#bInst', el)) $('#bInst', el).onclick = async () => { installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; go('parent', { ok: true }); };
+  setupFeedback(el);
   $('#bTourAj', el).onclick = () => { sfx.pop(); startAjustesTour(); };
   poli.say('Aquí están los ajustes: perfiles, respaldo e instalación.', false);
   if (tourSeen(TOURAJKEY) < TOURVER_AJ) setTimeout(() => cur.name === 'parent' && !tourOn && startAjustesTour(), 500);
@@ -219,6 +229,7 @@ function cleanProfile(src) {
     if (id.test(k) && v && typeof v === 'object') { out.prog[k] = {}; for (const [a, b] of Object.entries(v)) if (id.test(a) && b === true) out.prog[k][a] = true; }
   if (src.stats && typeof src.stats === 'object') for (const [k, v] of Object.entries(src.stats))
     if (TOP[k] && v && /^[01]{0,20}$/.test(v.h) && Number.isFinite(v.n)) out.stats[k] = { n: Math.max(0, Math.round(v.n)), h: v.h, last: Number.isFinite(v.last) ? v.last : 0 };
+  if (Array.isArray(src.days)) out.days = src.days.filter(d => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)).slice(-90);
   if (Array.isArray(src.repasoOff)) out.repasoOff = src.repasoOff.filter(k => TOP[k]);
   return migrate(out);
 }

@@ -518,11 +518,15 @@ const sfx = {
 let voice = null;
 function pickVoice() {
   if (!('speechSynthesis' in window)) return;
-  const vs = speechSynthesis.getVoices();
-  for (const p of ['es-cl', 'es-419', 'es-us', 'es-mx', 'es-ar', 'es-co', 'es-es']) {
-    const v = vs.find(v => v.lang.replace('_', '-').toLowerCase() === p); if (v) { voice = v; return; }
-  }
-  voice = vs.find(v => v.lang.toLowerCase().startsWith('es')) || null;
+  /* la mejor voz en español de cada dispositivo: primero el acento (Chile y Latinoamérica),
+     luego la calidad (voces "naturales", "neuronales" o "online" suenan mucho mejor que las básicas) */
+  const accent = ['es-cl', 'es-419', 'es-us', 'es-mx', 'es-ar', 'es-co', 'es-es'];
+  const score = v => {
+    const lang = v.lang.replace('_', '-').toLowerCase(), i = accent.indexOf(lang), nm = v.name.toLowerCase();
+    return (i < 0 ? 0 : 20 - i * 2) + (/natural|neural|premium|enhanced|online|google/.test(nm) ? 40 : 0) + (/compact|espeak/.test(nm) ? -30 : 0);
+  };
+  const es = speechSynthesis.getVoices().filter(v => v.lang.toLowerCase().startsWith('es'));
+  voice = es.sort((a, b) => score(b) - score(a))[0] || null;
 }
 if ('speechSynthesis' in window) { speechSynthesis.onvoiceschanged = pickVoice; pickVoice(); }
 function speak(text) {
@@ -776,6 +780,15 @@ const MENU_ITEMS = `
             <button data-go="parent"><span class="mi"><svg viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z" fill="none" stroke="#7c5cff" stroke-width="2.4"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="#7c5cff" stroke-width="2.4" stroke-linecap="round"/></svg></span><span><b>Ajustes</b><small>Para adultos 🔒</small></span></button>`;
 const setMenu = open => { const m = $('#menu'); if (!m) return; m.hidden = !open; $('#bMenu').setAttribute('aria-expanded', open); };
 addEventListener('click', e => { if (!e.target.closest('#menu,#bMenu')) setMenu(false); });
+/* saludo según la hora, una sola vez por visita; si hace días que no practica, invita al Repaso */
+let greeted = false;
+function greeting() {
+  if (greeted || demoMode || tourOn) return '';
+  greeted = true;
+  const h = new Date().getHours(), last = Math.max(0, ...Object.values(save.stats || {}).map(x => x.last || 0));
+  const away = last && Date.now() - last > 3 * 864e5 && typeof repasoTopics === 'function' && repasoTopics().length;
+  return `¡${h < 12 ? 'Buenos días' : h < 20 ? 'Buenas tardes' : 'Buenas noches'}, ${save.name}! ` + (away ? 'Hace días que no practicas. ¿Repasamos 5 minutos? ' : '');
+}
 function viewMap() {
   if (!root.cur) return go('welcome');
   const ch = CH[save.ch] ? +save.ch : 1, vert = isVertical();
@@ -821,9 +834,9 @@ function viewMap() {
   $$('#barSlot [data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
   $('#bMenu').onclick = e => { e.stopPropagation(); sfx.pop(); setMenu(!!$('#menu').hidden); };
   const cu = ns.find(n => n.current);
-  poli.say(!cu ? `¡Increíble, ${save.name}! Completaste todo este capítulo.`
+  poli.say(greeting() + (!cu ? `¡Increíble, ${save.name}! Completaste todo este capítulo.`
     : isIntro(cu.id) ? CH[ch].hello(save.name)
-      : `Muy bien, ${save.name}. Sigamos con la isla que está saltando.`);
+      : `Muy bien, ${save.name}. Sigamos con la isla que está saltando.`));
   if (!demoMode && !tourOn && tourSeen(TOURKEY) < TOURVER) setTimeout(() => cur.name === 'map' && !tourOn && startMapTour(() => go('map')), 500);
 }
 

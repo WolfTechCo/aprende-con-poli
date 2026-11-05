@@ -6,6 +6,13 @@ Lo que ven los apoderados dentro de la app está en `js/novedades.js` (*Novedade
 Formato de versión **X.Y.Z**: X = cambio grande (nueva materia o rediseño) · Y = capítulo o función nueva · Z = ajustes y arreglos.
 La versión de los archivos (`?v=` en `index.html` y `VERSION` en `sw.js`) es un número interno aparte.
 
+## 2.4.0 — 2026-11-05 (archivos v24)
+- **Reporte de uso y opinión** (`js/opinion.js`, sección "Ayúdanos a mejorar" en Ajustes): estrellas de 0,5 a 5 (mitad izquierda = media estrella; también con teclado) y comentario opcional de hasta 300 caracteres. Arma un reporte anónimo ("Perfil 1", "Perfil 2"…, código al azar por dispositivo) con estrellas ganadas, temas, días de uso, respuestas y % a la primera. El adulto lo ve completo y lo comparte con "Copiar reporte" o "Guardar archivo". Nada sale solo: la CSP no cambia. Para recibirlo por correo, escribir el correo del proyecto en `FEEDBACK_MAIL` (`js/opinion.js`): aparece "Enviar por correo".
+- `save.days`: días en que practicó (últimos 90), se guarda en `track()` y se limpia en `cleanProfile`.
+- **Saludo según el momento** en el mapa (buenos días / tardes / noches, una vez por visita) y, si hace más de 3 días que no practica, invita al Repaso.
+- **Mejor voz en español**: `pickVoice` puntúa acento y calidad (natural/neural/online/Google) y evita las voces básicas.
+- Recorrido de Ajustes: paso nuevo para "Ayúdanos a mejorar" (`TOURVER_AJ` 2).
+
 ## 2.3.1 — 2026-10-30 (archivos v23)
 - Recorrido en celular: en los pasos de Repaso, Álbum, Mi avance y Ajustes se abre el menú de los 4 puntitos y se ilumina la opción de la que habla Poli; se cierra al pasar al paso del sonido.
 
