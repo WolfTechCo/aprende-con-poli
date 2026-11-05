@@ -6,6 +6,9 @@ Lo que ven los apoderados dentro de la app está en `js/novedades.js` (*Novedade
 Formato de versión **X.Y.Z**: X = cambio grande (nueva materia o rediseño) · Y = capítulo o función nueva · Z = ajustes y arreglos.
 La versión de los archivos (`?v=` en `index.html` y `VERSION` en `sw.js`) es un número interno aparte.
 
+## 2.6.0 — 2026-11-05 (archivos v26)
+- **Diploma de Poli** (`js/diploma.js`): botón en Mi avance que abre un diploma con el nombre (insertado como texto), estrellas, medallas y mejor racha. "Imprimir o guardar PDF" usa `window.print()` y `@media print` deja solo el diploma, en horizontal. Cierra con Escape o tocando afuera.
+
 ## 2.5.0 — 2026-11-05 (archivos v25)
 - **Racha y medallas** (`js/medallas.js`): racha de días seguidos (desde `save.days`) y 9 medallas calculadas con lo ya guardado (respuestas, estrellas, temas, puntería). Se muestran en **Mi avance**; Poli las anuncia en el mapa con confeti (una vez, `save.badges`) y menciona la racha. Agregar una medalla = una línea en `MEDALS`.
 

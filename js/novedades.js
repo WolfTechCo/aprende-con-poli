@@ -4,8 +4,11 @@
    ese está en CHANGELOG.md). Al actualizarse, se muestra una vez en la portada.
    Para publicar una versión con novedades: subir APPVER y agregar su entrada arriba de NEWS.
    ========================================================= */
-const APPVER = '2.5.0';
+const APPVER = '2.6.0';
 const NEWS = [
+  { v: '2.6.0', date: '2026-11-05', items: [
+    ['🎓', 'Diploma de Poli', 'En <b>Mi avance</b> hay un diploma con el nombre, las estrellas y las medallas. Se puede imprimir o guardar como PDF.'],
+  ] },
   { v: '2.5.0', date: '2026-11-05', items: [
     ['🔥', 'Racha de días', 'Poli cuenta cuántos días seguidos practicas. ¡No la pierdas!'],
     ['🏅', 'Medallas', 'Se ganan practicando: rachas, respuestas, estrellas y más. Están en <b>Mi avance</b>.'],

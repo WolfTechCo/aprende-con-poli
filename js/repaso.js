@@ -175,10 +175,12 @@ function viewAvance() {
       : `<p>✓ = el tema entra al <b>Repaso del día</b>. Para cambiarlos, desbloquea.</p><button class="btn sm ghost" id="bUnlock">🔒 Desbloquear</button>
         <div class="rgate" hidden><span id="rq"></span><input id="rg" type="text" inputmode="numeric" maxlength="3" autocomplete="off" aria-label="Respuesta"><button class="btn sm gold" id="rgo">OK</button></div>`}</div>
     ${medalsHtml()}
+    <div class="pbtns"><button class="btn sm gold" id="bDip">🎓 Diploma de ${save.name}</button></div>
     ${weakL.length ? `<p class="pintro">⭐ <b>Para reforzar:</b> ${weakL.map(T => T.name).join(', ')}. El Repaso del día le da más preguntas de estos temas.</p>` : ''}
     ${Object.keys(CH).map(ch => `<h3 class="sec">Capítulo ${CH[ch].label}</h3><div class="plist">${TOPICS.filter(T => T.ch === +ch).map(row).join('')}</div>`).join('')}
     <p class="pnote">El porcentaje considera las últimas 20 respuestas de cada tema, en juegos, repaso y desafíos. Bajo 70 % aparece como ⭐ para reforzar.</p></div>`, 'fill');
   $$('.pkid', el).forEach(b => b.onclick = () => { sfx.pop(); switchProfile(b.dataset.id); go('avance', { edit }); });
+  $('#bDip', el).onclick = openDiploma;
   $$('input[data-t]', el).forEach(cb => cb.onchange = () => {
     const off = new Set(save.repasoOff || []);
     cb.checked ? off.delete(cb.dataset.t) : off.add(cb.dataset.t);
