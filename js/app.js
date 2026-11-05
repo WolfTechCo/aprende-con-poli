@@ -834,7 +834,7 @@ function viewMap() {
   $$('#barSlot [data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
   $('#bMenu').onclick = e => { e.stopPropagation(); sfx.pop(); setMenu(!!$('#menu').hidden); };
   const cu = ns.find(n => n.current);
-  poli.say(greeting() + (!cu ? `¡Increíble, ${save.name}! Completaste todo este capítulo.`
+  poli.say(greeting() + (typeof medalNews === 'function' ? medalNews() : '') + (!cu ? `¡Increíble, ${save.name}! Completaste todo este capítulo.`
     : isIntro(cu.id) ? CH[ch].hello(save.name)
       : `Muy bien, ${save.name}. Sigamos con la isla que está saltando.`));
   if (!demoMode && !tourOn && tourSeen(TOURKEY) < TOURVER) setTimeout(() => cur.name === 'map' && !tourOn && startMapTour(() => go('map')), 500);

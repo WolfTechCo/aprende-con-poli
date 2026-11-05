@@ -174,6 +174,7 @@ function viewAvance() {
       ? `<p>🔓 Marca los temas que <b>${save.name}</b> practicará en el <b>Repaso del día</b> ✓.</p><button class="btn sm green" id="bLock">Listo 🔒</button>`
       : `<p>✓ = el tema entra al <b>Repaso del día</b>. Para cambiarlos, desbloquea.</p><button class="btn sm ghost" id="bUnlock">🔒 Desbloquear</button>
         <div class="rgate" hidden><span id="rq"></span><input id="rg" type="text" inputmode="numeric" maxlength="3" autocomplete="off" aria-label="Respuesta"><button class="btn sm gold" id="rgo">OK</button></div>`}</div>
+    ${medalsHtml()}
     ${weakL.length ? `<p class="pintro">⭐ <b>Para reforzar:</b> ${weakL.map(T => T.name).join(', ')}. El Repaso del día le da más preguntas de estos temas.</p>` : ''}
     ${Object.keys(CH).map(ch => `<h3 class="sec">Capítulo ${CH[ch].label}</h3><div class="plist">${TOPICS.filter(T => T.ch === +ch).map(row).join('')}</div>`).join('')}
     <p class="pnote">El porcentaje considera las últimas 20 respuestas de cada tema, en juegos, repaso y desafíos. Bajo 70 % aparece como ⭐ para reforzar.</p></div>`, 'fill');
@@ -231,6 +232,7 @@ function cleanProfile(src) {
   if (src.stats && typeof src.stats === 'object') for (const [k, v] of Object.entries(src.stats))
     if (TOP[k] && v && /^[01]{0,20}$/.test(v.h) && Number.isFinite(v.n)) out.stats[k] = { n: Math.max(0, Math.round(v.n)), h: v.h, last: Number.isFinite(v.last) ? v.last : 0 };
   if (Array.isArray(src.days)) out.days = src.days.filter(d => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)).slice(-90);
+  if (Array.isArray(src.badges)) out.badges = src.badges.filter(b => typeof b === 'string' && /^[\w-]{1,20}$/.test(b)).slice(0, 40);
   if (Array.isArray(src.repasoOff)) out.repasoOff = src.repasoOff.filter(k => TOP[k]);
   return migrate(out);
 }

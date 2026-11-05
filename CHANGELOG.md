@@ -6,6 +6,9 @@ Lo que ven los apoderados dentro de la app está en `js/novedades.js` (*Novedade
 Formato de versión **X.Y.Z**: X = cambio grande (nueva materia o rediseño) · Y = capítulo o función nueva · Z = ajustes y arreglos.
 La versión de los archivos (`?v=` en `index.html` y `VERSION` en `sw.js`) es un número interno aparte.
 
+## 2.5.0 — 2026-11-05 (archivos v25)
+- **Racha y medallas** (`js/medallas.js`): racha de días seguidos (desde `save.days`) y 9 medallas calculadas con lo ya guardado (respuestas, estrellas, temas, puntería). Se muestran en **Mi avance**; Poli las anuncia en el mapa con confeti (una vez, `save.badges`) y menciona la racha. Agregar una medalla = una línea en `MEDALS`.
+
 ## 2.4.0 — 2026-11-05 (archivos v24)
 - **Reporte de uso y opinión** (`js/opinion.js`, sección "Ayúdanos a mejorar" en Ajustes): estrellas de 0,5 a 5 (mitad izquierda = media estrella; también con teclado) y comentario opcional de hasta 300 caracteres. Arma un reporte anónimo ("Perfil 1", "Perfil 2"…, código al azar por dispositivo) con estrellas ganadas, temas, días de uso, respuestas y % a la primera. El adulto lo ve completo y lo comparte con "Copiar reporte" o "Guardar archivo". Nada sale solo: la CSP no cambia. Para recibirlo por correo, escribir el correo del proyecto en `FEEDBACK_MAIL` (`js/opinion.js`): aparece "Enviar por correo".
 - `save.days`: días en que practicó (últimos 90), se guarda en `track()` y se limpia en `cleanProfile`.
