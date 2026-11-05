@@ -291,7 +291,7 @@ function numIcon(id, white) {
 
 /* ---------- isla (hub) ---------- */
 function islandNum(F) {
-  save.ch = 3; persist();
+  save.ch = F.ch || 3; persist();
   const p = prog(F.id);
   const ico = {
     lesson: `<svg viewBox="0 0 24 24"><path d="M3 6l9-3 9 3v11l-9 3-9-3z" fill="${F.c}"/><path d="M12 3v17" stroke="#fff" stroke-width="2"/></svg>`,

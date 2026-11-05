@@ -6,6 +6,11 @@ Lo que ven los apoderados dentro de la app está en `js/novedades.js` (*Novedade
 Formato de versión **X.Y.Z**: X = cambio grande (nueva materia o rediseño) · Y = capítulo o función nueva · Z = ajustes y arreglos.
 La versión de los archivos (`?v=` en `index.html` y `VERSION` en `sw.js`) es un número interno aparte.
 
+## 2.8.0 — 2026-11-05 (archivos v28)
+- **Capítulo 4: Patrones** (`js/patrones.js`): lección de inicio ("¿Qué es un patrón?"), 3 islas (colores, figuras, patrones que crecen con torres de cubos), cada una con lección y 2 juegos, y Gran Desafío (`challengePat`). Se enchufa al motor del capítulo 3 (islas tipo `num`, `NQ`, `NUMLESSON`, `NUMGAME`, `quizGame`); preguntas al azar con `freshQ`. Seguir el patrón, completar el que falta y "qué parte se repite" (las opciones equivocadas llevan una ficha de afuera para que nunca haya dos respuestas válidas; probado con 24.000 preguntas).
+- Los 3 temas entran al **Repaso del día** y a **Mi avance** (`TOPICS`, `N_TOPIC`). `challengePat` se respalda en `cleanProfile`. `islandNum` ahora usa `F.ch` para recordar el capítulo.
+- No se subió `TOURVER`: el recorrido no cambia, solo aparece una pestaña más de capítulo.
+
 ## 2.7.0 — 2026-11-05 (archivos v27)
 - **Guardarropa de Poli** (`js/guardarropa.js`): 7 accesorios (lazo, gafas, capa, gorro de fiesta, corona, aureola, sombrero de mago), uno por medalla de `MEDALS`. Se elige en Mi avance (se guarda en `save.acc`, validado en `cleanProfile`) y `poliSvg()` lo dibuja sobre `POLI_SVG` sin modificarlo; `refreshPoli()` solo toca a Poli si el accesorio cambió (no corta su animación) y se llama desde `go()`. Agregar uno = una línea en `ACCS`.
 

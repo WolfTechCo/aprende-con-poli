@@ -229,7 +229,7 @@ function cleanProfile(src) {
   out.name = cleanName(src.name);
   if (src.g === 'a' || src.g === 'o') out.g = src.g;
   for (const k of ['fx', 'voice']) if (typeof src[k] === 'boolean') out[k] = src[k];
-  for (const k of ['challenge', 'challenge3d', 'challengeNum']) if (Number.isFinite(src[k])) out[k] = Math.max(0, Math.min(3, Math.round(src[k])));
+  for (const k of ['challenge', 'challenge3d', 'challengeNum', 'challengePat']) if (Number.isFinite(src[k])) out[k] = Math.max(0, Math.min(3, Math.round(src[k])));
   if (CH[src.ch]) out.ch = +src.ch;
   if (src.prog && typeof src.prog === 'object') for (const [k, v] of Object.entries(src.prog))
     if (id.test(k) && v && typeof v === 'object') { out.prog[k] = {}; for (const [a, b] of Object.entries(v)) if (id.test(a) && b === true) out.prog[k][a] = true; }

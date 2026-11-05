@@ -659,7 +659,7 @@ function titleFor() {
   if (F && F.kind === 'num') return cur.name === 'lesson' ? `Aprende: ${F.short}` : cur.name === 'game' ? F.acts.find(a => a.k === cur.k).t : F.title;
   switch (cur.name) {
     case 'island': return `Isla ${del(F)}`;
-    case 'lesson': return { intro: '¿Qué es un polígono?', intro3d: '¿2D o 3D?', intro123: '¿Cómo contamos?' }[cur.id] || `Aprende: ${F.name}`;
+    case 'lesson': return { intro: '¿Qué es un polígono?', intro3d: '¿2D o 3D?', intro123: '¿Cómo contamos?', intro4: '¿Qué es un patrón?' }[cur.id] || `Aprende: ${F.name}`;
     case 'build': return `Construye ${F.art} ${F.name}`;
     case 'paint': return 'Pinta sus caras';
     case 'hunt': return 'Caza en la vida real';
@@ -935,6 +935,7 @@ function viewLesson() {
   if (cur.id === 'intro') return lessonIntro();
   if (cur.id === 'intro3d') return lessonIntro3D();
   if (cur.id === 'intro123') return lessonIntroNum();
+  if (cur.id === 'intro4') return lessonIntroPat();
   const F = FIG[cur.id];
   return F.kind === 'num' ? NUMLESSON[F.id](F) : F.kind === '3d' ? lessonSolid(F) : lessonShape(F);
 }

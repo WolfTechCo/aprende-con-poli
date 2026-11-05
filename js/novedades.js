@@ -4,8 +4,11 @@
    ese está en CHANGELOG.md). Al actualizarse, se muestra una vez en la portada.
    Para publicar una versión con novedades: subir APPVER y agregar su entrada arriba de NEWS.
    ========================================================= */
-const APPVER = '2.7.0';
+const APPVER = '2.8.0';
 const NEWS = [
+  { v: '2.8.0', date: '2026-11-05', items: [
+    ['🔁', 'Capítulo 4: Patrones', 'Colores, figuras y torres de cubos que crecen. Con lección, juegos y un Gran Desafío. ¡Y también entra al Repaso del día!'],
+  ] },
   { v: '2.7.0', date: '2026-11-05', items: [
     ['👑', 'Guardarropa de Poli', 'Cada medalla desbloquea un accesorio: gafas, corona, capa, gorro de fiesta… Se eligen en <b>Mi avance</b> y Poli los lleva puestos.'],
   ] },
