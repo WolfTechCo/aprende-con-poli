@@ -22,7 +22,7 @@ const fbSave = f => { try { localStorage.setItem(FBKEY, JSON.stringify(f)); } ca
 const fbNum = n => String(n).replace('.', ',');
 
 function buildReport(f) {
-  const keep = save, L = ['APRENDE CON POLI · reporte anónimo (sin nombres)', `Código: ${f.id}`, `Versión: ${APPVER}`, `Fecha: ${new Date().toISOString().slice(0, 10)}`, ''];
+  const keep = save, L = ['APRENDE CON POLI · reporte anónimo (sin nombres)', `Código: ${f.id}`, `Versión: ${APPVER}`, `Fecha: ${dayKey()}`, ''];
   root.order.forEach((id, i) => {
     save = id === root.cur ? keep : loadProfile(id);
     const sts = Object.values(save.stats || {}), last = Math.max(0, ...sts.map(x => x.last || 0));

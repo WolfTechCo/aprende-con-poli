@@ -20,11 +20,12 @@ const TOP = Object.fromEntries(TOPICS.map(T => [T.id, T]));
 const N_TOPIC = { blocks: 'udc', value: 'valor', place: 'valor', which: 'valor', sum: 'valor', missing: 'valor', nota: 'nota', notaDesafio: 'nota', notaRev: 'nota', next: 'secu', rule: 'secu', table: 'tabla' };
 const topicOf = t => t.startsWith('n:') ? N_TOPIC[t.slice(2)] : CH[1].types.includes(t) ? 'poli' : 'fig3d';
 
+const dayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 function track(topic, ok) {
   if (!TOP[topic]) return;
   const st = (save.stats ||= {})[topic] ||= { n: 0, h: '' };
   st.n++; st.h = (st.h + (ok ? '1' : '0')).slice(-20); st.last = Date.now();
-  const hoy = new Date().toISOString().slice(0, 10), days = (save.days ||= []); // días en que practicó (para el reporte de uso)
+  const hoy = dayKey(), days = (save.days ||= []); // días en que practicó (hora local; para el reporte y la racha)
   if (days[days.length - 1] !== hoy) { days.push(hoy); if (days.length > 90) days.shift(); }
   persist();
 }
