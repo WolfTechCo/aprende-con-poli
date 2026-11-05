@@ -176,11 +176,13 @@ function viewAvance() {
         <div class="rgate" hidden><span id="rq"></span><input id="rg" type="text" inputmode="numeric" maxlength="3" autocomplete="off" aria-label="Respuesta"><button class="btn sm gold" id="rgo">OK</button></div>`}</div>
     ${medalsHtml()}
     <div class="pbtns"><button class="btn sm gold" id="bDip">🎓 Diploma de ${save.name}</button></div>
+    ${closetHtml()}
     ${weakL.length ? `<p class="pintro">⭐ <b>Para reforzar:</b> ${weakL.map(T => T.name).join(', ')}. El Repaso del día le da más preguntas de estos temas.</p>` : ''}
     ${Object.keys(CH).map(ch => `<h3 class="sec">Capítulo ${CH[ch].label}</h3><div class="plist">${TOPICS.filter(T => T.ch === +ch).map(row).join('')}</div>`).join('')}
     <p class="pnote">El porcentaje considera las últimas 20 respuestas de cada tema, en juegos, repaso y desafíos. Bajo 70 % aparece como ⭐ para reforzar.</p></div>`, 'fill');
   $$('.pkid', el).forEach(b => b.onclick = () => { sfx.pop(); switchProfile(b.dataset.id); go('avance', { edit }); });
   $('#bDip', el).onclick = openDiploma;
+  wireCloset(el);
   $$('input[data-t]', el).forEach(cb => cb.onchange = () => {
     const off = new Set(save.repasoOff || []);
     cb.checked ? off.delete(cb.dataset.t) : off.add(cb.dataset.t);
@@ -235,6 +237,7 @@ function cleanProfile(src) {
     if (TOP[k] && v && /^[01]{0,20}$/.test(v.h) && Number.isFinite(v.n)) out.stats[k] = { n: Math.max(0, Math.round(v.n)), h: v.h, last: Number.isFinite(v.last) ? v.last : 0 };
   if (Array.isArray(src.days)) out.days = src.days.filter(d => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)).slice(-90);
   if (Array.isArray(src.badges)) out.badges = src.badges.filter(b => typeof b === 'string' && /^[\w-]{1,20}$/.test(b)).slice(0, 40);
+  if (typeof src.acc === 'string' && /^[a-z]{1,12}$/.test(src.acc)) out.acc = src.acc;
   if (Array.isArray(src.repasoOff)) out.repasoOff = src.repasoOff.filter(k => TOP[k]);
   return migrate(out);
 }

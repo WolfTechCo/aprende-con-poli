@@ -633,7 +633,7 @@ let cur = { name: 'welcome' };
 const scr = () => $('#screen');
 const isIntro = id => Object.values(CH).some(C => C.intro === id);
 
-function go(name, params = {}) { sfx.pop(); cur = { name, ...params }; render(); }
+function go(name, params = {}) { sfx.pop(); cur = { name, ...params }; if (typeof refreshPoli === 'function') refreshPoli(); render(); }
 const backTarget = () => ({ island: ['map'], lesson: isIntro(cur.id) ? ['map'] : ['island', { id: cur.id }], build: ['island', { id: cur.id }], paint: ['island', { id: cur.id }], hunt: ['island', { id: cur.id }], game: ['island', { id: cur.id }], challenge: ['map'], album: ['map'], workshop: ['map'], repaso: ['map'], parent: ['map'], avance: ['map'], news: cur.from === 'parent' ? ['parent', { ok: true }] : [cur.from || 'welcome'] }[cur.name]);
 function setAction(label, fn, enabled = true, cls = '') {
   const b = $('#action');

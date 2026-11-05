@@ -6,6 +6,9 @@ Lo que ven los apoderados dentro de la app está en `js/novedades.js` (*Novedade
 Formato de versión **X.Y.Z**: X = cambio grande (nueva materia o rediseño) · Y = capítulo o función nueva · Z = ajustes y arreglos.
 La versión de los archivos (`?v=` en `index.html` y `VERSION` en `sw.js`) es un número interno aparte.
 
+## 2.7.0 — 2026-11-05 (archivos v27)
+- **Guardarropa de Poli** (`js/guardarropa.js`): 7 accesorios (lazo, gafas, capa, gorro de fiesta, corona, aureola, sombrero de mago), uno por medalla de `MEDALS`. Se elige en Mi avance (se guarda en `save.acc`, validado en `cleanProfile`) y `poliSvg()` lo dibuja sobre `POLI_SVG` sin modificarlo; `refreshPoli()` solo toca a Poli si el accesorio cambió (no corta su animación) y se llama desde `go()`. Agregar uno = una línea en `ACCS`.
+
 ## 2.6.0 — 2026-11-05 (archivos v26)
 - **Diploma de Poli** (`js/diploma.js`): botón en Mi avance que abre un diploma con el nombre (insertado como texto), estrellas, medallas y mejor racha. "Imprimir o guardar PDF" usa `window.print()` y `@media print` deja solo el diploma, en horizontal. Cierra con Escape o tocando afuera.
 

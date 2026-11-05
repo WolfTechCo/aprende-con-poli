@@ -4,8 +4,11 @@
    ese está en CHANGELOG.md). Al actualizarse, se muestra una vez en la portada.
    Para publicar una versión con novedades: subir APPVER y agregar su entrada arriba de NEWS.
    ========================================================= */
-const APPVER = '2.6.0';
+const APPVER = '2.7.0';
 const NEWS = [
+  { v: '2.7.0', date: '2026-11-05', items: [
+    ['👑', 'Guardarropa de Poli', 'Cada medalla desbloquea un accesorio: gafas, corona, capa, gorro de fiesta… Se eligen en <b>Mi avance</b> y Poli los lleva puestos.'],
+  ] },
   { v: '2.6.0', date: '2026-11-05', items: [
     ['🎓', 'Diploma de Poli', 'En <b>Mi avance</b> hay un diploma con el nombre, las estrellas y las medallas. Se puede imprimir o guardar como PDF.'],
   ] },

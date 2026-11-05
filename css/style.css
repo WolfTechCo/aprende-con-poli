@@ -600,6 +600,13 @@ svg.join{width:var(--board);max-width:100%;height:auto}
   .dcard{width:100%;max-height:none;box-shadow:none;min-height:90vh;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   @page{size:landscape;margin:10mm}
 }
+.closet{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;margin:4px 0 8px}
+.acc{background:#fff;border:3px solid transparent;border-radius:18px;padding:8px 6px;text-align:center;box-shadow:0 4px 0 #c7c9f0;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit;cursor:pointer}
+.acc span{font-size:clamp(28px,4vw,38px);line-height:1.1}
+.acc b{font-size:clamp(13px,1.6vw,16px);color:var(--violet-d);line-height:1.15}
+.acc small{font-weight:700;color:var(--ink2);font-size:clamp(11px,1.3vw,13px);line-height:1.2}
+.acc.on{border-color:var(--gold);background:#fff8e1;box-shadow:0 4px 0 #e09a00}
+.acc.lock{filter:grayscale(1);opacity:.5;cursor:default}
 .medals{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin:4px 0 8px}
 .medal{background:#fff;border-radius:18px;padding:8px 6px;text-align:center;box-shadow:0 4px 0 #c7c9f0;display:flex;flex-direction:column;align-items:center;gap:2px;filter:grayscale(1);opacity:.5}
 .medal.on{filter:none;opacity:1;box-shadow:0 4px 0 #e09a00;background:#fff8e1}
