@@ -6,6 +6,11 @@ Lo que ven los apoderados dentro de la app está en `js/novedades.js` (*Novedade
 Formato de versión **X.Y.Z**: X = cambio grande (nueva materia o rediseño) · Y = capítulo o función nueva · Z = ajustes y arreglos.
 La versión de los archivos (`?v=` en `index.html` y `VERSION` en `sw.js`) es un número interno aparte.
 
+## 2.8.1 — 2026-11-06 (archivos v29)
+- **Mi avance:** el avance por tema va primero; después las medallas, el diploma y el guardarropa. "Desbloquear" más chico y en la misma fila que su texto (en celular gana filas); al desbloquear, la multiplicación cabe en una fila.
+- **Ajustes y secciones de adultos:** botones más chicos y formato "texto + botón" cuando cabe (Novedades, Respaldo, Instalar, Diploma). El nombre, "Cambiar" y "🗑️ Borrar" van en una sola fila.
+- Clases nuevas `.split` / `.splitrow` / `.stack` en `css/style.css` (no usar `.col`: ya existe y pone en columna).
+
 ## 2.8.0 — 2026-11-05 (archivos v28)
 - **Capítulo 4: Patrones** (`js/patrones.js`): lección de inicio ("¿Qué es un patrón?"), 3 islas (colores, figuras, patrones que crecen con torres de cubos), cada una con lección y 2 juegos, y Gran Desafío (`challengePat`). Se enchufa al motor del capítulo 3 (islas tipo `num`, `NQ`, `NUMLESSON`, `NUMGAME`, `quizGame`); preguntas al azar con `freshQ`. Seguir el patrón, completar el que falta y "qué parte se repite" (las opciones equivocadas llevan una ficha de afuera para que nunca haya dos respuestas válidas; probado con 24.000 preguntas).
 - Los 3 temas entran al **Repaso del día** y a **Mi avance** (`TOPICS`, `N_TOPIC`). `challengePat` se respalda en `cleanProfile`. `islandNum` ahora usa `F.ch` para recordar el capítulo.

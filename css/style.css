@@ -567,6 +567,16 @@ svg.join{width:var(--board);max-width:100%;height:auto}
 .pbox{background:#fff;border-radius:18px;padding:12px 16px;box-shadow:0 5px 0 #c7c9f0;font-weight:600;font-size:clamp(14px,1.7vw,17px);line-height:1.35}
 .pbox p{margin:0 0 8px}
 .pbtns{display:flex;gap:10px;flex-wrap:wrap;margin:4px 0}
+/* botones de las secciones de adultos: más chicos y, cuando se puede, junto al texto (texto + botón) */
+.pbox .btn.sm,.rlock .btn.sm{font-size:15px;padding:6px 14px}
+.pbox.split,.splitrow{display:flex;align-items:center;gap:12px}
+.pbox.split>p,.splitrow>p{flex:1 1 0;min-width:0;margin:0}
+.pbox.split>.pbtns,.splitrow>.btn{flex:none;margin:0}
+.pbox.split.stack>.pbtns{flex-direction:column;align-items:stretch;gap:6px}
+.nmrow{flex-wrap:nowrap;align-items:center}
+.nmrow .btn{flex:none}
+.pbtns #pName{flex:1 1 90px;width:auto;min-width:0;font-size:16px;padding:6px 14px}
+.pbox+.pbox{margin-top:8px}
 .pkids{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 .pkid{font-weight:800;font-size:16px;background:#f2f4ff;color:var(--ink);border-radius:99px;padding:5px 16px;border:3px solid transparent}
 .pkid.on{background:var(--violet);color:#fff;box-shadow:0 4px 0 var(--violet-d)}
@@ -635,9 +645,9 @@ svg.join{width:var(--board);max-width:100%;height:auto}
 .abar span{position:absolute;right:10px;top:0;line-height:22px;font-weight:800;font-size:14px;color:var(--ink)}
 .rlock{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border-radius:18px;padding:8px 14px;margin:0 0 8px;box-shadow:0 5px 0 #c7c9f0;border:3px solid transparent}
 .rlock.open{border-color:var(--good);background:#e9fff5}
-.rlock p{margin:0;flex:1 1 220px;font-weight:600;font-size:clamp(14px,1.7vw,16px)}
-.rlock .btn{margin:0}
-.rgate{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:800}
+.rlock p{margin:0;flex:1 1 0;min-width:140px;font-weight:600;font-size:clamp(13px,1.7vw,16px)}
+.rlock .btn{margin:0;flex:none}
+.rgate{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:800;flex:none}
 .rgate[hidden]{display:none}
 .rgate input{font:700 18px var(--font);width:84px;padding:5px 12px;border-radius:99px;border:3px solid #dfe3ff;outline:0;text-align:center}
 .rgate input:focus{border-color:var(--gold)}

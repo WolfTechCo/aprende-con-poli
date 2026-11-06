@@ -101,11 +101,11 @@ function viewParent() {
     <div class="pbox" id="ajKids"><div class="pkids">${root.order.map(id => `<button class="pkid ${id === root.cur ? 'on' : ''}" data-id="${id}">${root.profiles[id].name || '?'}</button>`).join('')}</div>
       <p>Ajustes de <b>${save.name}</b>. Toca otro nombre para cambiar los suyos.</p>
       <div class="pbtns gsel"><button class="pkid ${save.g === 'a' ? 'on' : ''}" data-gs="a">👧 Niña</button><button class="pkid ${save.g === 'o' ? 'on' : ''}" data-gs="o">👦 Niño</button></div>
-      <div class="pbtns"><input id="pName" maxlength="14" value="${save.name}" autocomplete="off" aria-label="Nombre"><button class="btn sm ghost" id="bRen">Cambiar nombre</button><button class="btn sm danger" id="bDel">Borrar este perfil</button></div></div>
+      <div class="pbtns nmrow"><input id="pName" maxlength="14" value="${save.name}" autocomplete="off" aria-label="Nombre"><button class="btn sm ghost" id="bRen" aria-label="Cambiar nombre">Cambiar</button><button class="btn sm danger" id="bDel" aria-label="Borrar este perfil">🗑️ Borrar</button></div></div>
     <h3 class="sec">Novedades</h3>
-    <div class="pbox" id="ajNews"><p>Lo nuevo de cada versión de la app.</p><div class="pbtns"><button class="btn sm ghost" id="bNewsP">✨ Ver novedades</button></div></div>
+    <div class="pbox split" id="ajNews"><p>Lo nuevo de cada versión de la app.</p><div class="pbtns"><button class="btn sm ghost" id="bNewsP">✨ Ver novedades</button></div></div>
     <h3 class="sec">Respaldo del progreso</h3>
-    <div class="pbox" id="ajBackup"><p>Guarda un archivo con el progreso de todos los niños y niñas de este dispositivo (estrellas, aciertos y temas elegidos). Sirve para pasarlo a otro dispositivo o recuperarlo si se borran los datos del navegador.</p>
+    <div class="pbox split stack" id="ajBackup"><p>Guarda un archivo con el progreso de todos los niños y niñas de este dispositivo. Sirve para pasarlo a otro dispositivo o recuperarlo si se borran los datos del navegador.</p>
       <div class="pbtns"><button class="btn sm green" id="bSave">Guardar respaldo</button><button class="btn sm ghost" id="bLoad">Cargar respaldo</button>
       <input type="file" id="fLoad" accept=".json,application/json" hidden></div></div>
     <h3 class="sec">Ayúdanos a mejorar</h3>
@@ -117,8 +117,8 @@ function viewParent() {
       <div class="pbtns">${FEEDBACK_MAIL ? '<button class="btn sm gold" id="bFbMail">Enviar por correo</button>' : ''}<button class="btn sm green" id="bFbCopy">Copiar reporte</button><button class="btn sm ghost" id="bFbFile">Guardar archivo</button></div></div>
     <h3 class="sec">Instalar la app</h3>
     <div class="pbox" id="ajInstall">${installed ? '<p><b>✓ La app ya está instalada en este dispositivo.</b> Funciona sin internet.</p>'
-      : `<p>Al instalarla queda con su ícono en la pantalla de inicio y funciona sin internet. También se puede seguir usando desde el link.</p>
-        ${installPrompt ? '<div class="pbtns"><button class="btn sm gold" id="bInst">Instalar app</button></div>' : ''}
+      : `<div class="splitrow"><p>Al instalarla queda con su ícono en la pantalla de inicio y funciona sin internet. También se puede seguir usando desde el link.</p>
+        ${installPrompt ? '<button class="btn sm gold" id="bInst">Instalar app</button>' : ''}</div>
         <ul class="psteps"><li><b>Android (Chrome):</b> menú ⋮ → <i>Instalar app</i> o <i>Agregar a la pantalla principal</i>.</li>
         <li><b>iPad o iPhone (Safari):</b> botón Compartir → <i>Agregar a inicio</i>. En Apple la app instalada guarda su progreso aparte de Safari: usa el respaldo para pasarlo.</li></ul>`}</div>
   </div>`, 'fill');
@@ -174,12 +174,12 @@ function viewAvance() {
       ? `<p>🔓 Marca los temas que <b>${save.name}</b> practicará en el <b>Repaso del día</b> ✓.</p><button class="btn sm green" id="bLock">Listo 🔒</button>`
       : `<p>✓ = el tema entra al <b>Repaso del día</b>. Para cambiarlos, desbloquea.</p><button class="btn sm ghost" id="bUnlock">🔒 Desbloquear</button>
         <div class="rgate" hidden><span id="rq"></span><input id="rg" type="text" inputmode="numeric" maxlength="3" autocomplete="off" aria-label="Respuesta"><button class="btn sm gold" id="rgo">OK</button></div>`}</div>
-    ${medalsHtml()}
-    <div class="pbtns"><button class="btn sm gold" id="bDip">🎓 Diploma de ${save.name}</button></div>
-    ${closetHtml()}
     ${weakL.length ? `<p class="pintro">⭐ <b>Para reforzar:</b> ${weakL.map(T => T.name).join(', ')}. El Repaso del día le da más preguntas de estos temas.</p>` : ''}
     ${Object.keys(CH).map(ch => `<h3 class="sec">Capítulo ${CH[ch].label}</h3><div class="plist">${TOPICS.filter(T => T.ch === +ch).map(row).join('')}</div>`).join('')}
-    <p class="pnote">El porcentaje considera las últimas 20 respuestas de cada tema, en juegos, repaso y desafíos. Bajo 70 % aparece como ⭐ para reforzar.</p></div>`, 'fill');
+    <p class="pnote">El porcentaje considera las últimas 20 respuestas de cada tema, en juegos, repaso y desafíos. Bajo 70 % aparece como ⭐ para reforzar.</p>
+    ${medalsHtml()}
+    <div class="pbox split" id="avDip"><p>🎓 Un diploma con las estrellas y medallas de <b>${save.name}</b>, para imprimir o guardar.</p><button class="btn sm gold" id="bDip">Ver diploma</button></div>
+    ${closetHtml()}</div>`, 'fill');
   $$('.pkid', el).forEach(b => b.onclick = () => { sfx.pop(); switchProfile(b.dataset.id); go('avance', { edit }); });
   $('#bDip', el).onclick = openDiploma;
   wireCloset(el);
