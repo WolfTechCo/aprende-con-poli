@@ -70,6 +70,12 @@ Son retoques de diseño que no dependen de la reestructura; se hacen con **Sonne
 1. Decidir la estructura con la dueña a partir de la investigación y 2-3 bocetos con capturas (**Sonnet**).
 2. Diseñar el detalle: pantallas, navegación, migración del guardado si cambia algo (**Opus**).
 3. Construir en una rama `entrega-2` y probar tablet → celular → PC (**Opus** construye; **Sonnet** prueba).
+   Se construye **en bloques**, y al terminar cada uno se detiene y se avisa a la dueña para que revise su uso disponible (la IA no puede ver el uso):
+   - **3a · Mapa y entrada:** menú «+» único en todos los tamaños (sin segunda fila), casita con aviso suave, contador de estrellas que se toca, portada con «🔒 Adultos», abrir según cantidad de jugadores.
+   - **3b · Mis premios:** tarjetas animadas con fondo con contenido; pasar medallas, diploma y guardarropa desde `integrada-2.8.6` (`cherry-pick`).
+   - **3c · Mi avance:** sección grande y siempre visible, tema con dibujo animado + porcentaje pequeño, mensajes de Poli (general y al tocar un tema).
+   - **3d · Rincón de adultos:** candado (multiplicación con tablas altas), jugadores (crear, renombrar, borrar), ajustes, respaldo, novedades, instalar, opinión, casillas del Repaso; migración del guardado si cambia algo.
+   - Después de cada bloque, probar tablet → celular → PC (**Sonnet**).
 4. Novedades curadas, recorrido (`TOURVER`) y changelog; Pull Request (**Sonnet**).
 
 ## 5. Entrega 3: voz neuronal
