@@ -15,6 +15,13 @@ Documento para retomar el proyecto en una conversación nueva. Léelo completo j
 - **Textos:** el nombre se dice al saludar y al celebrar; no repetirlo dentro de una frase ni en pantallas seguidas.
 - **Reporte por correo:** `FEEDBACK_MAIL` (`js/opinion.js`) se llena **al final**, cuando todo esté en la app final.
 - **Cuando la dueña pida "solo informa" o "modo plan":** no cambiar nada, solo explicar y mostrar capturas.
+- **Cómo planear y probar los espacios (regla de la dueña tras la entrega 3, 21-11-2026).** El error repetido en varias sesiones fue construir primero y comprobar después solo que «no se pase». Ahora:
+  1. **Planear antes de construir:** para cada pantalla nueva, decidir cómo se reparte en **tablet (de pie y acostada), celular de pie, celular acostado, celulares bajos y PC**: qué va al lado de qué, qué tamaño tiene lo principal y cuántas columnas. Mostrarlo con boceto o capturas (2 o 3 opciones y una recomendada) cuando haya dudas.
+  2. **«Que no se deslice» no basta:** el contenido debe **llenar bien el alto y el ancho**, con dibujos y textos grandes y bien ordenados. Si hay espacio, se ve más grande o se reordena. En **celular acostado** no dejar todo en una sola línea (mejor dibujo a un lado y respuestas al otro, o en dos filas); en **celular de pie** no dejar todo chico y espaciado.
+  3. **Mirar las capturas desde la primera pasada**, no solo medir desbordes. Medir también cuánto del espacio útil usa el contenido.
+  4. **Repetir solo los tamaños que fallan** y dejar una sola pasada completa al final (una pasada de 888 pantallas en 8 tamaños tarda 8 a 15 minutos).
+  5. No cerrar un mensaje anunciando una tarea («ahora reviso…») sin hacerla.
+
 
 ## 2. Modelos: cuándo usar Sonnet y cuándo Opus
 Quien lleve la conversación **debe avisar a la dueña, al empezar cada etapa, qué modelo conviene y esperar su confirmación** (ella cambia el modelo; la IA no puede). Regla:
@@ -135,6 +142,12 @@ Son retoques de diseño que no dependen de la reestructura; se hacen con **Sonne
 
 ## 5. Pendientes menores (pool, sin número de entrega)
 *Aquí va lo que no es una entrega numerada. Las entregas actuales son la 3 (capítulo 5) y la 4 (incentivos y Poli con género). La entrega 1 y la 1.1 ya están en la app final, y la 2 también.*
+- **Entrega 3.1 · Ajuste de espacios del capítulo 5 y revisión completa de los 3 dispositivos (pedido de la dueña, 21-11-2026; va justo después de que ella pruebe el capítulo 5).** El capítulo 5 ya está en la app final (3.1.0) y **no se pasa de la pantalla**, pero **no ocupa bien el espacio**: en **celular** los dibujos y números se ven pequeños y muy separados; en **celular de pie** está mejor pero aún sobra espacio; en **celular acostado** todo queda en una sola línea; y en **tablet** quedan vacíos arriba y abajo. Hacer un **plan afinado** antes de tocar nada:
+  1. **Medir la ocupación:** agregar a la prueba de Playwright el porcentaje del alto y del ancho útiles que usa el contenido (meta orientativa: 60 a 70 % o más en pantallas con poco contenido) y guardar capturas de todos los tamaños para mirarlas.
+  2. **Un diseño por tipo de pantalla y dispositivo:** pregunta con dibujo y 3 respuestas, lección con paneles, tabla, parte y suma, cuentos, isla. Por cada una: tablet de pie, tablet acostada, celular de pie, celular acostado (844×390), celulares bajos (667×375 y 740×360) y PC. Ideas a evaluar: en acostado, dibujo a la izquierda y respuestas a la derecha (en columna o en 2 filas); dibujos y números que crezcan con el alto sobrante; menos espacio entre elementos; reglas claras de tamaño mínimo compartidas por los 3 dispositivos.
+  3. **Proponer 2 o 3 opciones con capturas** para los casos difíciles (sobre todo celular acostado) y decidirlas con la dueña.
+  4. **Construir y pasar una sola vez** la prueba completa de tamaños. Después revisar los capítulos 3 y 4 con el mismo criterio.
+  - Modelo: **Opus** para el diseño y los ajustes de CSS; **Sonnet** para las pruebas y el Pull Request. Avisar a la dueña y esperar su confirmación al empezar.
 - **Limpieza de ramas viejas (pedido de la dueña, 21-11-2026; va DESPUÉS de lo ya pedido: capítulo 5, entrega 4 y los pendientes de abajo).** Hacer una lista de las ramas de los dos repositorios (las de conversaciones `ccr-…` y `claude/…`, `main-9no2u0`, `feature/*`, `entrega-N`) y decidir **juntas** cuáles se borran. **No borrar** `respaldo-2.4.1`, `integrada-2.8.6` ni `produccion`. Solo se borra con permiso de la dueña, nunca por cuenta propia.
 - ✅ *Hecho el 21-11-2026:* **README.md** y la línea de archivos de `CLAUDE.md` puestos al día con la versión 3.0.0. **Mantenerlos al día al cerrar cada entrega** (capítulos, secciones, archivos nuevos). El README del repositorio de pruebas lleva además un aviso arriba de que es el ambiente de pruebas (solo ahí).
 - **Candado del Rincón de adultos: opciones para cambiarlo después (anotado 21-11-2026; hoy no es un problema).** El capítulo 5 enseña las tablas del 2, 5 y 10 (hasta × 10), así que las del 6 al 9 siguen sirviendo por ahora; en 3° básico el niño las aprende todas.
