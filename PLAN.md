@@ -1,7 +1,7 @@
 # Plan de trabajo de Aprende con Poli
 
 Documento para retomar el proyecto en una conversación nueva. Léelo completo junto con `CLAUDE.md`.
-Última actualización: 21-11-2026 (entrega 2 en la app final; la dueña la revisa. Prioridad nueva: capítulo 5 de Multiplicación, ver sección 4.1. Respaldo de antes: rama `respaldo-2.4.1`).
+Última actualización: 21-11-2026 (entrega 2 en la app final; la dueña la revisa. Prioridad nueva: entrega 3 (capítulo 5 de Multiplicación), ver sección 4.1; después la entrega 4. Respaldo de antes: rama `respaldo-2.4.1`).
 
 ## 1. Cómo trabajamos (acordado con la dueña)
 - **Dos repositorios que comparten historia:**
@@ -28,16 +28,15 @@ Quien lleve la conversación **debe avisar a la dueña, al empezar cada etapa, q
 | **1 · 2.4.0** (`entrega-1`) | Reporte con estrellas y comentario, capítulo 4 Patrones, saludo según la hora, mejor voz, campana en Novedades, "+" en el menú del mapa, volver a la portada, "Recorrido" en Ajustes, botones compactos, pestañas de capítulos en una fila, textos sin nombre repetido | **Mergeada en la app final** (Pull Request #11, 21-11-2026) |
 | **1.1 · 2.4.1** | Ajustes visuales (ver sección 3.1) | Puntos 1 a 3 en 2.4.1; el punto 4 se hizo junto con la entrega 2 (3.0.0) |
 | **2 · 3.0.0** | Estructura nueva (ver sección 4) | **Construida y en la app final** (21-11-2026, rama `entrega-2`). Excepción acordada: Opus hizo también pruebas, novedades, recorrido y el Merge, porque la dueña revisa en la mañana. Si algo no convence, se vuelve a `respaldo-2.4.1` |
-| **2.1** | **Capítulo 5: Multiplicación** (método de la editorial SM) y barra de capítulos que crece | **Prioridad actual** (ver sección 4.1) |
-| **2.2** | **Incentivos con sinergia** (stickers, medallas, ropa, racha) y **Poli niño o niña** | Después de la 2.1 (ver sección 4.2) |
-| **3** | Voz neuronal pregrabada | Después de la 2.2 (ver `docs/plan-audio-tts.md`) |
+| **3** | **Capítulo 5: Multiplicación** (método de la editorial SM) y barra de capítulos que crece | **Prioridad actual** (ver sección 4.1) |
+| **4** | **Incentivos con sinergia** (stickers, medallas, ropa, racha) y **Poli niño o niña** | Después de la entrega 3 (ver sección 4.2) |
 
 ## 3.1 Entrega 1.1 · 2.4.1: ajustes visuales (pedidos por la dueña tras probar la entrega 1)
 Son retoques de diseño que no dependen de la reestructura; se hacen con **Sonnet**, en una rama aparte y un Pull Request propio, **antes** de la entrega 2. Aplican a los 3 aparatos (tablet, celular y PC) en vertical y horizontal. **Orden y por qué:**
 1. ✅ *Hecho en 2.4.1.* **Presentación de la isla** (todas las islas). *Causa: la clase `.hero` de la portada (ancho fijo y proporción cuadrada) también se aplicaba a las islas.* Hoy en vertical la figura y su texto quedan alineados a la izquierda con un hueco en medio, y sobra espacio entre ese grupo y las tarjetas de actividades; en horizontal el hueco entre la figura con su texto y los botones se nota más. Cambio pedido: **centrar** el grupo en vertical; en horizontal, **poner el texto al lado de la figura** (figura a la izquierda, título y recuadros a su derecha) en la mayoría de los casos, para ganar altura y que no haya que deslizar. *Va primero porque afecta a todas las islas y además resuelve el desborde más grande de la revisión de las unidades 1 a 3 (isla de Unidad, decena y centena, 29-38 px).*
 2. ✅ *Hecho en 2.4.1, opción B elegida por la dueña.* **Pantalla de felicitaciones** ("¡Juego completo!" y "¡Lección completa!"). Es un componente compartido por todas las unidades. En horizontal reparte el título, la estrella y el mensaje por todo el ancho y el ojo tiene que recorrerlo; en vertical se ve agrupado y centrado. Cambio pedido: igual que en vertical (grupo centrado), o un formato distinto, por ejemplo **estrella a la izquierda y, a su lado, el título y el mensaje en 2 líneas**. Proponer 2 o 3 opciones con capturas y que la dueña elija.
 3. ✅ *Hecho en 2.4.1.* **"Patrones que crecen"** (juegos y lección). Las torres siguen viéndose chicas y queda un espacio largo entre ellas y el texto (el tamaño del texto está bien). Agrandar las torres y acercarlas al texto, usando el espacio que sobra.
-4. ✅ *Hecho en 3.0.0 (ver changelog).* **Ajustes menores de las unidades 1 a 3** (lista en la sección 6): vacíos arriba y abajo, textos chicos junto a dibujos grandes, títulos que repiten la pregunta y desbordes de pocos píxeles en celulares acostados bajos.
+4. ✅ *Hecho en 3.0.0 (ver changelog).* **Ajustes menores de las unidades 1 a 3** (lista en la sección 5): vacíos arriba y abajo, textos chicos junto a dibujos grandes, títulos que repiten la pregunta y desbordes de pocos píxeles en celulares acostados bajos.
 
 ## 4. Entrega 2: estructura nueva (por decidir con la dueña)
 **Problemas que resuelve (dichos por la dueña):**
@@ -100,7 +99,7 @@ Son retoques de diseño que no dependen de la reestructura; se hacen con **Sonne
 **Para revisar en la mañana (entrega 2):** probar en el celular y la tablet de la casa: casita, estrellas → Mis premios, medallas, ropa, diploma (también impreso), Mi avance, Rincón de adultos (candado, crear y borrar jugador, respaldo) y la instalación sin internet. Si algo no convence: se corrige en una rama nueva o se vuelve a `respaldo-2.4.1`.
 - **App final y pruebas separadas (3.0.0):** compartían el progreso porque están en la misma dirección base. Ahora pruebas usa su propia clave (`js/pruebas-clave.js`, solo de pruebas; la primera vez copia el progreso de la final) y cada una guarda sus archivos sin internet aparte.
 
-## 4.1 Entrega 2.1: capítulo 5 de Multiplicación (prioridad, pedido de la dueña 21-11-2026)
+## 4.1 Entrega 3: capítulo 5 de Multiplicación (prioridad, pedido de la dueña 21-11-2026)
 **Qué pidió:** un capítulo nuevo de multiplicación que siga la **metodología del libro de la editorial SM**; la dueña pasará las páginas del libro. Ahora que habrá varios capítulos, la **barra de capítulos** debe pensarse para que quepa; no tocar mucho esa parte, solo agregar el capítulo.
 **Reglas para trabajarlo:**
 - **Las páginas del libro son referencia de método, no para copiar:** se leen para entender cómo enseña (orden, tipo de actividades, lenguaje, materiales) y se crean ejercicios, textos y dibujos propios, con ejercicios al azar (`freshQ`) y siempre una sola respuesta correcta. Los dibujos y textos del libro tienen derechos de autor.
@@ -112,7 +111,7 @@ Son retoques de diseño que no dependen de la reestructura; se hacen con **Sonne
 2. **Opus:** construir el capítulo (motor de preguntas, dibujos de grupos, tablas, migración si cambia el guardado) y adaptar la barra y las pestañas de Mis stickers y Mi avance.
 3. **Sonnet:** pruebas (tablet → celular → PC, vertical y horizontal, y celulares bajos), correcciones, novedades, recorrido (`TOURVER` si cambia la barra), changelog y Pull Request.
 
-## 4.2 Entrega 2.2: incentivos con sinergia y Poli niño o niña (siguiente después del capítulo 5; pedido de la dueña 21-11-2026)
+## 4.2 Entrega 4: incentivos con sinergia y Poli niño o niña (siguiente después del capítulo 5; pedido de la dueña 21-11-2026)
 **1. Stickers, medallas, ropa y racha: que trabajen juntos.**
 - **Problema:** con las medallas, los **stickers valen poco** (hoy solo se ven y se cuentan; no dan nada). Y la **ropa de Poli depende solo de medallas, y varias de esas son de racha**: un niño que estudia para una prueba y no vuelve en semanas no suma racha y no gana ropa.
 - **Principios acordados:** (a) **regalos por contenido** (terminar una isla o un capítulo, dominar un tema, ganar un Gran Desafío), no solo por constancia; (b) **el regalo por racha debe ser mejor** (más especial) que los demás; (c) **sinergia:** cada sistema (stickers, medallas, racha, ropa, rango, diploma) debe aportar a los otros y no repetirse; (d) **no hay que temer eliminar o cambiar uno** si otro lo mejora. La racha como sistema está bien y se mantiene.
@@ -124,10 +123,9 @@ Son retoques de diseño que no dependen de la reestructura; se hacen con **Sonne
 - Decidir con la dueña: qué cambia en el cuerpo (cara, pelo, ropa base), cómo se llama cada Poli, y si hay accesorios compartidos. Proponer opciones con dibujos antes de construir. **Opus** (diseño y construcción); **Sonnet** prueba.
 - **Orden:** va **después del capítulo 5**. Primero definir Poli con género (cambia los accesorios) y luego los incentivos, o los dos juntos en una sola conversación.
 
-## 5. Entrega 3: voz neuronal
-Plan de la dueña en `docs/plan-audio-tts.md`. Observaciones al revisarlo: los textos de la app **no son fijos** (muchos llevan nombre, números o ejercicios al azar, ver `poli.say(...)` y las preguntas generadas), no existe el marcador `{nombre}`, `afterSay` depende de `speechSynthesis.speaking`, y la cuenta de Azure y su llave las maneja la dueña en su máquina. Primer paso: inventariar y clasificar los textos.
-
-## 6. Pendientes menores
+## 5. Pendientes menores (pool, sin número de entrega)
+*Aquí va lo que no es una entrega numerada. Las entregas actuales son la 3 (capítulo 5) y la 4 (incentivos y Poli con género). La entrega 1 y la 1.1 ya están en la app final, y la 2 también.*
+- **Voz neuronal pregrabada (antes «entrega 3»; la dueña la sacó de las entregas el 21-11-2026 y quedó como pendiente).** Plan de la dueña en `docs/plan-audio-tts.md`. Observaciones al revisarlo: los textos de la app **no son fijos** (muchos llevan nombre, números o ejercicios al azar, ver `poli.say(...)` y las preguntas generadas), no existe el marcador `{nombre}`, `afterSay` depende de `speechSynthesis.speaking`, y la cuenta de Azure y su llave las maneja la dueña en su máquina. Primer paso: inventariar y clasificar los textos.
 - **Respaldo más seguro (pedido de la dueña, 21-11-2026; protege el progreso hasta que la app esté en línea con base de datos).** Hoy «Cargar respaldo» **reemplaza a todos los jugadores del dispositivo** por los del archivo (`restoreFrom` en `js/repaso.js`, `wireBackup` en `js/adultos.js`): un niño que solo estaba en el aparato se pierde y el avance más nuevo puede borrarse sin aviso. Lo recomendado y decidido: **unir en vez de reemplazar.** Hay que pulirlo al máximo (**Opus**):
   - **Los jugadores del dispositivo se mantienen** (hasta el máximo de 6); el respaldo solo agrega o actualiza.
   - **Comparar por contenido y versión:** estrellas, temas aprendidos, respuestas, días de uso, última vez que jugó y `ver` del guardado (la versión de la app que creó el respaldo; un respaldo de una versión más nueva que la app se avisa y se rechaza o se carga con cuidado). Mostrar al adulto, lado a lado, qué trae cada uno.
@@ -149,7 +147,7 @@ Plan de la dueña en `docs/plan-audio-tts.md`. Observaciones al revisarlo: los t
 - El aviso de ✨ → campana ya está; si se agrega un numerito de "novedades sin leer", definir cuándo.
 - Tamaños táctiles mínimos para niños (verificar 44 pt / 48 dp, Smashing sugiere 75 px).
 
-## 7. Datos útiles
+## 6. Datos útiles
 - La clave del progreso `poligonos-magicos-v1` no se cambia nunca. Cualquier cambio de forma del guardado necesita un paso en `MIGRATIONS` (`js/app.js`).
 - Al publicar: subir `?v=` en `index.html` y `VERSION` en `sw.js`; archivo JS nuevo → `FILES` en `sw.js`; `CHANGELOG.md`; `APPVER` y `NEWS` solo si es valioso para familias; `TOURVER` si cambian secciones o botones.
 - `.col` ya existe en el CSS y pone en columna: no usarlo como modificador.

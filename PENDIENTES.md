@@ -11,7 +11,7 @@
 ## App
 - **App Android (APK) gratis** con PWABuilder/Bubblewrap, para que Kids Space de Lenovo muestre el ícono de Poli. Necesita un sitio `wolftechco.github.io` con el archivo de verificación.
 - **Reporte por correo o formulario:** el reporte con estrellas ya existe en Ajustes; falta el correo del proyecto (`FEEDBACK_MAIL` en `js/opinion.js`), que se llena al final.
-- **Voz neuronal pregrabada** (entrega 3): ver `docs/plan-audio-tts.md` y `PLAN.md`.
+- **Voz neuronal pregrabada** (ya no es una entrega numerada): ver `docs/plan-audio-tts.md` y `PLAN.md`, sección 5.
 - **Estructura nueva de secciones** (entrega 2): perfiles en un solo lugar, premios, rincón de adultos, contador de estrellas, recordar dónde estaba. Ver `PLAN.md` y `docs/investigacion-mercado.md`.
 - En celular algunos textos del recorrido ocupan 3 líneas (caben completos); acortarlos si se quiere 2.
 
