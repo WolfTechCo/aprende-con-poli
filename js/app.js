@@ -829,7 +829,7 @@ function viewMap() {
   /* Repaso, Álbum, Mi avance y Ajustes: botones a la vista en pantallas anchas; en celular, en el Menú */
   $$('[data-go]', el).forEach(b => b.onclick = () => go(b.dataset.go));
   /* en celular, el botón Más va en la barra de arriba, al lado del título */
-  $('#barSlot').innerHTML = `<button class="round more" id="bMenu" aria-expanded="false" aria-label="Más opciones"><svg viewBox="0 0 24 24" class="plus"><path d="M12 4.5v15M4.5 12h15" stroke="#2b2d6e" stroke-width="4.2" stroke-linecap="round"/></svg></button>
+  $('#barSlot').innerHTML = `<button class="round more" id="bMenu" aria-expanded="false" aria-label="Más opciones"><svg viewBox="0 0 24 24" class="plus"><defs><linearGradient id="gmas" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff0bd"/></linearGradient></defs><path d="M12 6.5v11M6.5 12h11" stroke="#8a4b00" stroke-width="6" stroke-linecap="round"/><path d="M12 6.5v11M6.5 12h11" stroke="url(#gmas)" stroke-width="3.6" stroke-linecap="round"/></svg></button>
     <div class="menu" id="menu" hidden>${MENU_ITEMS}</div>`;
   $$('#barSlot [data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
   $('#bMenu').onclick = e => { e.stopPropagation(); sfx.pop(); setMenu(!!$('#menu').hidden); };

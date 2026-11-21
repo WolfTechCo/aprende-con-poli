@@ -66,7 +66,7 @@ function towerSvg(vals, hole = -1, tail = false) {
     if (v) for (let k = 0; k < v; k++) svg.push(`<rect x="${x}" y="${H - 6 - (k + 1) * C}" width="${W - 10}" height="${C - 2}" rx="3" fill="#4ea8ff" stroke="#2a7fd6" stroke-width="2"/>`);
     else svg.push(`<rect x="${x}" y="${H - 6 - 4 * C}" width="${W - 10}" height="${4 * C - 2}" rx="5" fill="none" stroke="#9b6bff" stroke-width="3" stroke-dasharray="6 5"/><text x="${x + (W - 10) / 2}" y="${H - 6 - 2 * C + 6}" text-anchor="middle" font-size="22" font-weight="800" fill="#7447e0">?</text>`);
   }
-  return `<svg viewBox="0 0 ${n * W + 6} ${H}" class="towers" style="width:min(${n * 44}px,86vw)">${svg.join('')}</svg>`;
+  return `<svg viewBox="0 0 ${n * W + 6} ${H}" class="towers" style="--n:${n}">${svg.join('')}</svg>`;
 }
 const smallChoices = (right, say, hint) => {
   const w = pick([right + 1, right - 1, right + 2, right - 2].filter(v => v > 0 && v !== right), 2);
@@ -95,15 +95,21 @@ Object.assign(N_TOPIC, { pc_next: 'pcolor', pc_miss: 'pcolor', pc_core: 'pcolor'
 const PATS = [
   { id: 'pcolor', title: 'Patrones de colores', short: 'Colores', isle: 'los patrones de colores', c: '#ff6b6b', d: '#d94646', l: '#ffd6d6',
     chips: ['Rojo, azul, rojo, azul…', 'Se repite'],
-    acts: [{ k: 'lesson', t: 'Aprende', sub: 'Descubre qué se repite' }, { k: 'g1', t: '¿Qué color sigue?', sub: 'Continúa el patrón' }, { k: 'g2', t: 'Completa el patrón', sub: 'Encuentra la parte que falta' }] },
+    acts: [{ k: 'lesson', t: 'Aprende', sub: 'Descubre qué se repite' }, { k: 'g1', t: 'Sigue el patrón', sub: 'Elige el color que viene' }, { k: 'g2', t: 'Completa el patrón', sub: 'Encuentra la parte que falta' }] },
   { id: 'pfigura', title: 'Patrones de figuras', short: 'Figuras', isle: 'los patrones de figuras', c: '#9b6bff', d: '#7447e0', l: '#e0d3ff',
     chips: ['Círculo, cuadrado…', 'Se repite'],
-    acts: [{ k: 'lesson', t: 'Aprende', sub: 'Las figuras también se repiten' }, { k: 'g1', t: '¿Qué figura sigue?', sub: 'Continúa el patrón' }, { k: 'g2', t: 'Completa el patrón', sub: 'Encuentra la parte que falta' }] },
+    acts: [{ k: 'lesson', t: 'Aprende', sub: 'Las figuras también se repiten' }, { k: 'g1', t: 'Sigue el patrón', sub: 'Elige la figura que viene' }, { k: 'g2', t: 'Completa el patrón', sub: 'Encuentra la parte que falta' }] },
   { id: 'pcrece', title: 'Patrones que crecen', short: 'Que crecen', isle: 'los patrones que crecen', c: '#22c58b', d: '#169a6a', l: '#d2f7e8',
     chips: ['1, 2, 3 cubos…', 'Cada vez más'],
-    acts: [{ k: 'lesson', t: 'Aprende', sub: 'Torres que van creciendo' }, { k: 'g1', t: '¿Cuántos cubos siguen?', sub: 'Mira cuánto crece' }, { k: 'g2', t: 'La torre que falta', sub: 'Encuentra el número' }] },
+    acts: [{ k: 'lesson', t: 'Aprende', sub: 'Torres que van creciendo' }, { k: 'g1', t: 'Las torres crecen', sub: 'Cuenta los cubos que siguen' }, { k: 'g2', t: 'Completa las torres', sub: 'Encuentra el número que falta' }] },
 ].map(T => ({ ...T, kind: 'num', name: T.title, ch: 4 }));
-PATS.forEach(T => { FIG[T.id] = T; });
+/* ícono de la tarjeta del juego 1 de cada isla (en vez del de los bloques de las unidades) */
+const PICO = {
+  pcolor: '<svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="4.2" fill="#ff6b6b"/><circle cx="12" cy="12" r="4.2" fill="#4ea8ff"/><circle cx="18.5" cy="12" r="4.2" fill="#ff6b6b"/></svg>',
+  pfigura: '<svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="4.4" fill="#9b6bff"/><polygon points="14,7 19.5,17 8.5,17" fill="#9b6bff" transform="translate(3 0)"/></svg>',
+  pcrece: '<svg viewBox="0 0 24 24"><rect x="3" y="15" width="5" height="5" rx="1" fill="#22c58b"/><rect x="9.5" y="10" width="5" height="5" rx="1" fill="#22c58b"/><rect x="9.5" y="15" width="5" height="5" rx="1" fill="#22c58b"/><rect x="16" y="5" width="5" height="5" rx="1" fill="#22c58b"/><rect x="16" y="10" width="5" height="5" rx="1" fill="#22c58b"/><rect x="16" y="15" width="5" height="5" rx="1" fill="#22c58b"/></svg>',
+};
+PATS.forEach(T => { FIG[T.id] = T; T.ico = { g1: PICO[T.id] }; });
 CH[4] = {
   nodes: ['intro4', ...PATS.map(T => T.id), 'challengePat'], intro: 'intro4', chal: 'challengePat', figs: PATS, label: '<span class="cn">4 · </span>Patrones',
   introLabel: 'Patrones', sticker: () => ['Detective', 'Descubrir patrones'], chalTitle: 'Gran Desafío de Patrones', champ: () => gx('una campeona', 'un campeón') + ' de los patrones',
@@ -113,9 +119,9 @@ CH[4] = {
 
 /* íconos (en el mapa, en la isla y en el álbum) */
 const PICON = {
-  pcolor: white => [0, 1, 0, 1].map((k, i) => `<circle cx="${17 + i * 22}" cy="50" r="10" fill="${white ? '#fff' : PCOL[k][1]}" ${white ? '' : `stroke="${PCOL[k][2]}" stroke-width="3"`}/>`).join(''),
-  pfigura: white => { const f = white ? 'fill="#fff"' : 'fill="#9b6bff" stroke="#7447e0" stroke-width="3" stroke-linejoin="round"'; return `<circle cx="20" cy="50" r="11" ${f}/><polygon points="50,38 62,62 38,62" ${f}/><circle cx="80" cy="50" r="11" ${f}/>`; },
-  pcrece: white => [1, 2, 3].map((n, i) => Array.from({ length: n }, (_, k) => `<rect x="${12 + i * 27}" y="${70 - k * 17}" width="22" height="15" rx="3" fill="${white ? '#fff' : '#22c58b'}" ${white ? '' : 'stroke="#169a6a" stroke-width="2.5"'}/>`).join('')).join(''),
+  pcolor: white => [[28, 28, 0], [72, 28, 1], [28, 72, 1], [72, 72, 0]].map(([x, y, k]) => `<circle cx="${x}" cy="${y}" r="21" fill="${white ? '#fff' : PCOL[k][1]}" ${white ? '' : `stroke="${PCOL[k][2]}" stroke-width="4"`}/>`).join(''),
+  pfigura: white => { const f = white ? 'fill="#fff"' : 'fill="#9b6bff" stroke="#7447e0" stroke-width="4" stroke-linejoin="round"'; return `<circle cx="28" cy="28" r="21" ${f}/><polygon points="72,6 94,46 50,46" ${f}/><polygon points="28,54 50,94 6,94" ${f}/><circle cx="72" cy="72" r="21" ${f}/>`; },
+  pcrece: white => [1, 2, 3, 4].map((n, i) => Array.from({ length: n }, (_, k) => `<rect x="${6 + i * 23}" y="${76 - k * 21}" width="19" height="18" rx="3.5" fill="${white ? '#fff' : '#22c58b'}" ${white ? '' : 'stroke="#169a6a" stroke-width="2.5"'}/>`).join('')).join(''),
 };
 const _numIcon = numIcon;
 numIcon = (id, white) => PICON[id] ? `<svg viewBox="0 0 100 100">${PICON[id](white)}</svg>` : _numIcon(id, white);

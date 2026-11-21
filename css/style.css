@@ -879,10 +879,25 @@ svg.join{width:var(--board);max-width:100%;height:auto}
   .qwrap:has(.pat){grid-template-columns:1fr;grid-template-areas:"q" "s" "o"}
   .qwrap:has(.pat)>.nshape{grid-area:s}
   .qwrap:has(.pat)>.opts{grid-area:o;grid-column:auto;flex-wrap:nowrap}
-  .pat .pt,.ptq{width:min(9vh,38px)}
-  .opt .pt{width:min(11vh,44px)}
-  .opt .pat.sm .pt{width:min(7vh,26px)}
+  .pat .pt,.ptq{width:min(6.2vw,13vh,56px)}
+  .opt .pt{width:min(9vw,17vh,68px)}
+  .opt .pat.sm .pt{width:min(5vw,9vh,34px)}
   .opt.txt{padding:5px 10px}
   .reptag{margin:0 0 2px;line-height:1}.reptag span{font-size:12px;padding:0 10px;box-shadow:0 2px 0 #c7c9f0}
-  .progress{padding:0 0 3px}.progress i{height:9px}
+  .progress{padding:0 0 1px}.progress i{height:8px}
 }
+/* torres de cubos: el ancho sale de --n (cuántas torres hay); en celular acostado se agrandan para llenar el espacio */
+.towers{width:min(calc(var(--n,5) * 44px),86vw)}
+@media (max-height:500px){
+  .towers{width:min(calc(var(--n,5) * 64px),62vw);max-height:clamp(105px,calc(100vh - 235px),215px)}
+  /* lecciones de patrones: la fila de fichas arriba y el título abajo, centrados (antes: todo en una fila pegado arriba) */
+  .col:has(>.pat),.col:has(>.towers){flex-direction:column;justify-content:center;gap:10px}
+  .col>.pat .pt,.col>.pat .ptq{width:min(7vw,16vh,64px)}
+}
+/* botón "+" del mapa: dorado con relieve, borde blanco y brillo (antes era plano) */
+#bMenu.more{background:linear-gradient(#ffdc6b,#ffb300);border:3px solid #fff;box-shadow:0 5px 0 #d98f00,0 9px 16px rgba(43,45,110,.28),inset 0 3px 0 rgba(255,255,255,.6)}
+#bMenu.more:active{box-shadow:0 1px 0 #d98f00,inset 0 2px 0 rgba(255,255,255,.4)}
+#bMenu{animation:glowmas 2.4s ease-in-out infinite}
+#bMenu[aria-expanded=true]{animation:none}
+@keyframes glowmas{0%,100%{box-shadow:0 5px 0 #d98f00,0 9px 16px rgba(43,45,110,.28),inset 0 3px 0 rgba(255,255,255,.6),0 0 0 0 rgba(255,194,51,.6)}50%{box-shadow:0 5px 0 #d98f00,0 9px 16px rgba(43,45,110,.28),inset 0 3px 0 rgba(255,255,255,.6),0 0 0 10px rgba(255,194,51,0)}}
+#bMenu .plus{width:24px;height:24px;filter:drop-shadow(0 2px 0 rgba(138,75,0,.35))}

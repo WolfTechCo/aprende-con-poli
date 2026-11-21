@@ -298,6 +298,7 @@ function islandNum(F) {
     g1: `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2" fill="${PV.c.c}"/><rect x="13" y="3" width="3" height="18" rx="1" fill="${PV.d.c}"/><rect x="18" y="16" width="4" height="4" rx="1" fill="${PV.u.c}"/><rect x="3" y="13" width="8" height="8" rx="2" fill="${PV.c.c}"/></svg>`,
     g2: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="${F.c}"/><text x="12" y="17" text-anchor="middle" font-family="Baloo 2,Arial" font-weight="800" font-size="15" fill="#fff">?</text></svg>`,
   };
+  if (F.ico) Object.assign(ico, F.ico); // íconos propios de la isla (capítulo 4)
   const el = frame(`<div class="hub" style="--d:${F.d}">
     <div class="hero">${numIcon(F.id)}<h2 class="${F.title.length > 12 ? 'long' : ''}">${F.title}</h2>
       <div class="chips">${F.chips.map(c => `<span class="chip">${c}</span>`).join('')}</div></div>
