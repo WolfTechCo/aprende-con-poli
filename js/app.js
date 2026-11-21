@@ -633,7 +633,7 @@ let cur = { name: 'welcome' };
 const scr = () => $('#screen');
 const isIntro = id => Object.values(CH).some(C => C.intro === id);
 
-function go(name, params = {}) { sfx.pop(); cur = { name, ...params }; render(); }
+function go(name, params = {}) { sfx.pop(); cur = { name, ...params }; refreshPoli(); render(); }
 /* a dónde lleva la flecha ‹ de cada pantalla. El mapa no tiene flecha: tiene la casita (askHome).
    Lo del niño vuelve al mapa; los detalles de premios (stickers, medallas, ropa) vuelven a Mis premios */
 const backTarget = () => ({ island: ['map'], lesson: isIntro(cur.id) ? ['map'] : ['island', { id: cur.id }], build: ['island', { id: cur.id }], paint: ['island', { id: cur.id }], hunt: ['island', { id: cur.id }], game: ['island', { id: cur.id }], challenge: ['map'], workshop: ['map'], repaso: ['map'],
@@ -698,7 +698,7 @@ function render() {
   refreshStars();
   scr().innerHTML = '';
   ({ welcome: viewWelcome, map: viewMap, island: viewIsland, lesson: viewLesson, build: viewBuild, paint: viewPaint, hunt: viewHunt, game: viewGame, challenge: viewChallenge, album: viewAlbum, workshop: viewWorkshop, repaso: viewRepaso, avance: viewAvance, news: viewNews,
-    premios: window.viewPremios || viewAlbum, medallas: window.viewMedallas || viewAlbum, ropa: window.viewRopa || viewAlbum, adultos: window.viewAdultos || viewParent })[cur.name]();
+    premios: viewPremios, medallas: viewMedallas, ropa: viewRopa, adultos: window.viewAdultos || viewParent })[cur.name]();
 }
 
 /* =========================================================
@@ -852,7 +852,7 @@ function viewMap() {
   $('#bHome').onclick = () => { sfx.pop(); askHome(); };
   const cu = ns.find(n => n.current);
   /* si Poli ya saludó con el nombre ("¡Buenos días, Ana!"), el resto va sin repetirlo */
-  const g = greeting(), bare = t => t.replace(`¡Hola, ${save.name}! `, '').replace(`, ${save.name}`, '');
+  const g = greeting() + medalNews(), bare = t => t.replace(`¡Hola, ${save.name}! `, '').replace(`, ${save.name}`, '');
   poli.say(g + (!cu ? (g ? '¡Increíble! Completaste todo este capítulo.' : `¡Increíble, ${save.name}! Completaste todo este capítulo.`)
     : isIntro(cu.id) ? (g ? bare(CH[ch].hello(save.name)) : CH[ch].hello(save.name))
       : (g ? 'Sigamos con la isla que está saltando.' : `Muy bien, ${save.name}. Sigamos con la isla que está saltando.`)));
@@ -1332,25 +1332,6 @@ function viewChallenge() {
     poli.cheer(stars === 3 ? `¡Perfecto, ${save.name}! Eres ${CH[ch].champ()}.` : `¡Buen trabajo, ${save.name}! Puedes volver a jugar para ganar más estrellas.`);
   };
   show();
-}
-
-/* ---------- Álbum ---------- */
-function viewAlbum() {
-  const total = totalStars(), max = maxStars();
-  const rank = total >= max ? `¡${gx('Reina', 'Rey')} de las formas y los números!` : total >= 40 ? gx('Maestra', 'Maestro') : total >= 15 ? gx('Exploradora', 'Explorador') : 'Aprendiz';
-  const stk = (on, art, name, sub) => `<div class="stk ${on ? 'on' : 'off'}">${art}<b>${name}</b><small>${sub}</small></div>`;
-  const starIco = c => `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z" fill="${c}" stroke="#1b9f72" stroke-width="1.4" stroke-linejoin="round"/></svg>`;
-  const trophy = `<svg viewBox="0 0 24 24"><path d="${trophyPath}" fill="#ffc233" stroke="#e09a00" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
-  const section = ch => {
-    const C = CH[ch];
-    return `<h3 class="sec">Capítulo ${C.label}</h3>` + [
-      stk(prog(C.intro).lesson, starIco('#34d399'), ...C.sticker()),
-      ...C.figs.map(F => { const on = figStars(F.id) === 3; return stk(on, figSvg(F), F.short || cap(F.name), on ? '¡Completo!' : '3 estrellas'); }),
-      stk((save[C.chal] || 0) >= 3, trophy, gx('Campeona', 'Campeón'), 'Desafío perfecto'),
-    ].join('');
-  };
-  const el = frame(`<p class="rank"><span>${save.name ? save.name + ' · ' : ''}${rank} · ${total}/${max} ★</span></p><div class="album">${Object.keys(CH).map(section).join('')}</div>`);
-  poli.say(`¡Mira tu álbum, ${save.name}! Completa las tres estrellas de cada isla para ganar sus stickers.`);
 }
 
 /* ---------- Taller libre ---------- */
