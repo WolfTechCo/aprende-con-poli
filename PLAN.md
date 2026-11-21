@@ -1,7 +1,7 @@
 # Plan de trabajo de Aprende con Poli
 
 Documento para retomar el proyecto en una conversación nueva. Léelo completo junto con `CLAUDE.md`.
-Última actualización: 21-11-2026 (entrega 2 construida, probada y pasada a la app final por pedido excepcional de la dueña; la revisa en la mañana. Respaldo de antes: rama `respaldo-2.4.1`).
+Última actualización: 21-11-2026 (entrega 2 en la app final; la dueña la revisa. Prioridad nueva: capítulo 5 de Multiplicación, ver sección 4.1. Respaldo de antes: rama `respaldo-2.4.1`).
 
 ## 1. Cómo trabajamos (acordado con la dueña)
 - **Dos repositorios que comparten historia:**
@@ -28,7 +28,8 @@ Quien lleve la conversación **debe avisar a la dueña, al empezar cada etapa, q
 | **1 · 2.4.0** (`entrega-1`) | Reporte con estrellas y comentario, capítulo 4 Patrones, saludo según la hora, mejor voz, campana en Novedades, "+" en el menú del mapa, volver a la portada, "Recorrido" en Ajustes, botones compactos, pestañas de capítulos en una fila, textos sin nombre repetido | **Mergeada en la app final** (Pull Request #11, 21-11-2026) |
 | **1.1 · 2.4.1** | Ajustes visuales (ver sección 3.1) | Puntos 1 a 3 en 2.4.1; el punto 4 se hizo junto con la entrega 2 (3.0.0) |
 | **2 · 3.0.0** | Estructura nueva (ver sección 4) | **Construida y en la app final** (21-11-2026, rama `entrega-2`). Excepción acordada: Opus hizo también pruebas, novedades, recorrido y el Merge, porque la dueña revisa en la mañana. Si algo no convence, se vuelve a `respaldo-2.4.1` |
-| **3** | Voz neuronal pregrabada | Después de la entrega 2 (ver `docs/plan-audio-tts.md`) |
+| **2.1** | **Capítulo 5: Multiplicación** (método de la editorial SM) y barra de capítulos que crece | **Prioridad actual** (ver sección 4.1) |
+| **3** | Voz neuronal pregrabada | Después de la 2.1 (ver `docs/plan-audio-tts.md`) |
 
 ## 3.1 Entrega 1.1 · 2.4.1: ajustes visuales (pedidos por la dueña tras probar la entrega 1)
 Son retoques de diseño que no dependen de la reestructura; se hacen con **Sonnet**, en una rama aparte y un Pull Request propio, **antes** de la entrega 2. Aplican a los 3 aparatos (tablet, celular y PC) en vertical y horizontal. **Orden y por qué:**
@@ -98,10 +99,30 @@ Son retoques de diseño que no dependen de la reestructura; se hacen con **Sonne
 **Para revisar en la mañana (entrega 2):** probar en el celular y la tablet de la casa: casita, estrellas → Mis premios, medallas, ropa, diploma (también impreso), Mi avance, Rincón de adultos (candado, crear y borrar jugador, respaldo) y la instalación sin internet. Si algo no convence: se corrige en una rama nueva o se vuelve a `respaldo-2.4.1`.
 - **App final y pruebas separadas (3.0.0):** compartían el progreso porque están en la misma dirección base. Ahora pruebas usa su propia clave (`js/pruebas-clave.js`, solo de pruebas; la primera vez copia el progreso de la final) y cada una guarda sus archivos sin internet aparte.
 
+## 4.1 Entrega 2.1: capítulo 5 de Multiplicación (prioridad, pedido de la dueña 21-11-2026)
+**Qué pidió:** un capítulo nuevo de multiplicación que siga la **metodología del libro de la editorial SM**; la dueña pasará las páginas del libro. Ahora que habrá varios capítulos, la **barra de capítulos** debe pensarse para que quepa; no tocar mucho esa parte, solo agregar el capítulo.
+**Reglas para trabajarlo:**
+- **Las páginas del libro son referencia de método, no para copiar:** se leen para entender cómo enseña (orden, tipo de actividades, lenguaje, materiales) y se crean ejercicios, textos y dibujos propios, con ejercicios al azar (`freshQ`) y siempre una sola respuesta correcta. Los dibujos y textos del libro tienen derechos de autor.
+- **Se construye como el capítulo 4 (Patrones):** se enchufa al motor del capítulo 3 (islas tipo `num`, `NQ`, `NUMLESSON`, `NUMGAME`, `quizGame`), 3 temas nuevos entran a `TOPICS`/`N_TOPIC` (Repaso y Mi avance) y se suma a Mis stickers, Mis premios y los conteos de estrellas (`maxStars`). Revisar medallas, diploma y `stickersOf`.
+- **El candado del Rincón de adultos usa multiplicación (tablas del 6 al 9):** si el capítulo enseña esas tablas, hay que cambiar el candado (por ejemplo, números más grandes) para que un niño no lo resuelva.
+- **Barra de capítulos (mapa):** hoy son 4 pestañas en una fila y **la misma fila de pestañas está en Mis stickers y Mi avance** (`.ctabs` con 4 columnas fijas, `js/premios.js`): al llegar a 5 o más, las tres pantallas deben adaptarse. Principio de la dueña: que quepa en el espacio actual o, si no, que **se deslice** de lado, o un **selector** que el niño toca para ver todos los capítulos, **pensado para el niño** (que despierte curiosidad: por ejemplo, el siguiente capítulo asomándose, candado con pista, marca «¡Nuevo!»). Por la regla de aprovechar el espacio, **proponer 2 o 3 opciones con capturas y una recomendada** antes de construir, cambiando lo mínimo.
+**Pasos y modelo (cada paso en una conversación nueva si hace falta):**
+1. **Sonnet:** leer las páginas del libro; resumir el método SM (secuencia, tipos de actividad, vocabulario); proponer el plan del capítulo (islas, lección, 2 juegos por isla, Gran Desafío), con el currículo de 2° básico en Chile como guía; y proponer las 2 o 3 opciones de la barra, con capturas. La dueña decide.
+2. **Opus:** construir el capítulo (motor de preguntas, dibujos de grupos, tablas, migración si cambia el guardado) y adaptar la barra y las pestañas de Mis stickers y Mi avance.
+3. **Sonnet:** pruebas (tablet → celular → PC, vertical y horizontal, y celulares bajos), correcciones, novedades, recorrido (`TOURVER` si cambia la barra), changelog y Pull Request.
+
 ## 5. Entrega 3: voz neuronal
 Plan de la dueña en `docs/plan-audio-tts.md`. Observaciones al revisarlo: los textos de la app **no son fijos** (muchos llevan nombre, números o ejercicios al azar, ver `poli.say(...)` y las preguntas generadas), no existe el marcador `{nombre}`, `afterSay` depende de `speechSynthesis.speaking`, y la cuenta de Azure y su llave las maneja la dueña en su máquina. Primer paso: inventariar y clasificar los textos.
 
 ## 6. Pendientes menores
+- **Respaldo más seguro (pedido de la dueña, 21-11-2026; protege el progreso hasta que la app esté en línea con base de datos).** Hoy «Cargar respaldo» **reemplaza a todos los jugadores del dispositivo** por los del archivo (`restoreFrom` en `js/repaso.js`, `wireBackup` en `js/adultos.js`): un niño que solo estaba en el aparato se pierde y el avance más nuevo puede borrarse sin aviso. Lo recomendado y decidido: **unir en vez de reemplazar.** Hay que pulirlo al máximo (**Opus**):
+  - **Los jugadores del dispositivo se mantienen** (hasta el máximo de 6); el respaldo solo agrega o actualiza.
+  - **Comparar por contenido y versión:** estrellas, temas aprendidos, respuestas, días de uso, última vez que jugó y `ver` del guardado (la versión de la app que creó el respaldo; un respaldo de una versión más nueva que la app se avisa y se rechaza o se carga con cuidado). Mostrar al adulto, lado a lado, qué trae cada uno.
+  - **Si un jugador del archivo se parece a uno del dispositivo** (mismo nombre): preguntar qué hacer: quedarse con el del dispositivo, con el del respaldo, o con el que tenga más avance; y **poder cambiarle el nombre al cargar** para tener los dos (pueden existir dos «Luis»: dos niños distintos).
+  - **No se pierde nada por accidente:** antes de cargar, descargar o guardar automáticamente un respaldo de lo que hay; permitir deshacer; un resumen final de lo que pasó.
+  - Dejar claro en el nombre del archivo de qué app viene (por ejemplo «pruebas» en el de pruebas, solo ahí). Hoy los nombres son iguales: `poli-progreso-NOMBRE-AAAA-MM-DD.json` (un solo jugador) o `poli-progreso-familia-AAAA-MM-DD.json` (varios); el respaldo guarda a todos los jugadores juntos.
+  - Probar a fondo: mismos nombres, más de 6 jugadores, archivos de versiones antiguas, archivos dañados o editados a mano (el archivo viene de afuera: se sigue limpiando con `cleanProfile`).
+- **Recordar la pantalla en que estaba** al minimizar o volver tras un rato (hoy solo se recuerdan el jugador y el capítulo; al abrir siempre parte en el mapa o en la portada). Propuesta: recordar pantallas seguras (mapa, Mis premios, Mi avance, la isla) y volver a la isla si estaba en un juego o una lección. **Opus** (toca el guardado).
 - **Ajustes menores de las unidades 1 a 3 en celular acostado** (revisión del 21-11-2026 en 6 tamaños: 844×390, 667×375, 740×360, 915×412 y celulares verticales 390×844 y 360×640; en vertical no hay hallazgos ni errores). Dejar para una etapa posterior, junto con la reestructura:
   - *Se pasan unos píxeles y habría que deslizar* (solo en celulares acostados muy bajos, 667×375 y 740×360): lección del cubo (8-12 px), "Caza en la vida real" del capítulo 1 y 2 (7 px), juego "Suma por columnas" (10 px), Gran Desafío del capítulo 3 (10 px) y Repaso (19 px en 740×360).
   - *(La isla de Unidad, decena y centena, que se pasaba 29-38 px, ya quedó resuelta en 2.4.1 con la nueva presentación de la isla.)*
