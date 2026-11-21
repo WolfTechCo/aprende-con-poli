@@ -41,5 +41,6 @@ Contexto general en `README.md`, historial técnico en `CHANGELOG.md`, ideas en 
 
 ## Archivos
 - `js/app.js`: base (guardado y perfiles, navegación, Poli, voz, mapa, portada) y capítulos 1–2.
-- `js/numeros.js`: capítulo 3 · `js/patrones.js`: capítulo 4 · `js/repaso.js`: Repaso, Mi avance, Ajustes, respaldo · `js/opinion.js`: reporte de uso y opinión · `js/novedades.js` · `js/recorrido.js`.
+- `js/numeros.js`: capítulo 3 · `js/patrones.js`: capítulo 4 · `js/premios.js`: Mis premios y stickers · `js/medallas.js`: racha y medallas · `js/guardarropa.js`: ropa de Poli · `js/diploma.js`
+- `js/repaso.js`: Repaso, Mi avance, respaldo y `cleanProfile` · `js/adultos.js`: Rincón de adultos · `js/opinion.js`: reporte de uso y opinión · `js/novedades.js` · `js/recorrido.js`.
 - `css/style.css`: estilos; las reglas por tamaño de pantalla están al final.
