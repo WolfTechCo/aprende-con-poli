@@ -4,7 +4,7 @@
    - Al publicar una versión nueva: subir VERSION aquí y el ?v= en index.html (deben coincidir).
      El navegador detecta el cambio, guarda la versión nueva y borra la anterior.
    - El progreso (localStorage) NO se toca: está en otro lugar del dispositivo. */
-const VERSION = 'v33';
+const VERSION = 'v34';
 const CACHE = 'poli-' + VERSION; // el ambiente de pruebas usa otro prefijo ('pruebas-poli-'): así ninguna borra los archivos de la otra
 const FILES = [
   './', './index.html', './manifest.webmanifest',

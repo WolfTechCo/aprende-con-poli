@@ -14,7 +14,7 @@
    ========================================================= */
 
 /* el signo de la multiplicación: el punto, como en los libros del colegio (Poli dice «por») */
-const ex = (a, b) => `${a}<i class="por">·</i>${b}`;
+const ex = (a, b) => `<span class="ex">${a}<i class="por">·</i>${b}</span>`;
 const exV = (a, b) => `${a} por ${b}`;
 const sumH = (n, g) => Array(g).fill(n).join(' + ');
 const vez = (g, n) => `${g} ${g === 1 ? 'vez' : 'veces'} ${n}`;
@@ -45,7 +45,7 @@ function grpSvg(sizes, th, { cols = Math.min(sizes.length, 5), cls = '', tap = f
   const rows = Math.ceil(sizes.length / cols);
   const g = sizes.map((n, i) => { const cx = GW / 2 + (i % cols) * GW, cy = GH / 2 + 4 + Math.floor(i / cols) * GH;
     return `<g class="pl" data-i="${i}" transform="translate(${cx} ${cy})">${contSvg(th.cont)}${mSpots(n).map(([x, y]) => itemSvg(th.k, x, y)).join('')}${tap ? '<text class="plc" y="-33" text-anchor="middle"></text><rect x="-52" y="-36" width="104" height="72" fill="transparent"/>' : ''}</g>`; }).join('');
-  return `<svg viewBox="0 ${tap ? -26 : 0} ${cols * GW} ${rows * GH + 8 + (tap ? 26 : 0)}" class="grp mg ${cls}">${g}</svg>`;
+  return `<svg viewBox="0 ${tap ? -26 : 0} ${cols * GW} ${rows * GH + 8 + (tap ? 26 : 0)}" class="grp mg ${cls}" style="--vw:${cols * GW}">${g}</svg>`;
 }
 /* filas de puntos (arreglos): r filas de c */
 function arrSvg(r, c, { band = false, col = '#ff8a3d', dk = '#e0651a' } = {}) {
@@ -60,18 +60,17 @@ function bikeSvg(k) {
   const one = (x, y, c) => `<g transform="translate(${x} ${y})" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="13" cy="28" r="10.5" fill="#fff" stroke="#2b2d6e" stroke-width="3.2"/><circle cx="47" cy="28" r="10.5" fill="#fff" stroke="#2b2d6e" stroke-width="3.2"/>
     <path d="M13 28L24 13H41L47 28M24 13L30 28H13M30 28L41 13" fill="none" stroke="${c}" stroke-width="3.6"/><path d="M20 9h8M41 13l-2 -6h6" fill="none" stroke="#2b2d6e" stroke-width="3"/></g>`;
-  return `<svg viewBox="0 0 ${cols * W} ${Math.ceil(k / cols) * H}" class="grp mg bikes">${Array.from({ length: k }, (_, i) => one((i % cols) * W, Math.floor(i / cols) * H, COLORS[i % 6])).join('')}</svg>`;
+  return `<svg viewBox="0 0 ${cols * W} ${Math.ceil(k / cols) * H}" class="grp mg bikes" style="--vw:${cols * W}">${Array.from({ length: k }, (_, i) => one((i % cols) * W, Math.floor(i / cols) * H, COLORS[i % 6])).join('')}</svg>`;
 }
 /* sobres de láminas: t = 5 (una fila) o 10 (dos filas de 5, como la decena) */
 function sobreSvg(k, t, cols = Math.min(k, 5)) {
   const W = 86, h = t === 10 ? 46 : 28, H = h + 10;
   const one = (x, y, c) => `<g transform="translate(${x} ${y})"><rect x="2" y="2" width="78" height="${h}" rx="9" fill="${c}" opacity=".22"/><rect x="2" y="2" width="78" height="${h}" rx="9" fill="none" stroke="${c}" stroke-width="2.6"/>
     ${Array.from({ length: t }, (_, i) => `<rect x="${8 + (i % 5) * 14.5}" y="${7 + Math.floor(i / 5) * 18}" width="11" height="14" rx="2.5" fill="#ffc233" stroke="#e09a00" stroke-width="1.6"/>`).join('')}</g>`;
-  return `<svg viewBox="0 0 ${cols * W} ${Math.ceil(k / cols) * H}" class="grp mg sobres">${Array.from({ length: k }, (_, i) => one((i % cols) * W, Math.floor(i / cols) * H, COLORS[(i + 3) % 6])).join('')}</svg>`;
+  return `<svg viewBox="0 0 ${cols * W} ${Math.ceil(k / cols) * H}" class="grp mg sobres" style="--vw:${cols * W}">${Array.from({ length: k }, (_, i) => one((i % cols) * W, Math.floor(i / cols) * H, COLORS[(i + 3) % 6])).join('')}</svg>`;
 }
 /* «parte y suma»: t · k = t · a + t · b */
-const partHtml = (t, k, a, { miss = false, sums = false } = {}) => `<div class="ptree"><b>${ex(t, k)}</b><span class="parr">↓</span>
-  <span class="prow">${ex(t, a)} <i>+</i> ${ex(t, miss ? '<span class="mq">?</span>' : k - a)}</span>${sums ? `<span class="parr">↓</span><span class="prow">${t * a} <i>+</i> ${t * (k - a)} <i>=</i> <span class="mq">?</span></span>` : ''}</div>`;
+const partHtml = (t, k, a, { miss = false, sums = false, show = false } = {}) => `<div class="ptree"><span class="ptr">${ex(t, k)} <i>=</i> ${ex(t, a)} <i>+</i> ${ex(t, miss ? '<span class="mq">?</span>' : k - a)}</span>${sums ? `<span class="ptr">${t * a} <i>+</i> ${t * (k - a)} <i>=</i> ${show ? `<b>${t * k}</b>` : '<span class="mq">?</span>'}</span>` : ''}</div>`;
 const bigQ = (html, sub = '') => `<div class="nshape"><div class="mbig">${html}</div>${sub ? `<span class="mcap">${sub}</span>` : ''}</div>`;
 const capOf = txt => `<span class="mcap">${txt}</span>`;
 
@@ -290,7 +289,7 @@ NUMLESSON.mtabla2 = F => runSteps([
   { say: 'Esta es la tabla del 2: 2, 4, 6, 8, 10… Se escribe 2 por 1, 2 por 2, 2 por 3. Como viste en las filas, el orden no cambia el resultado.',
     render: b => b.innerHTML = `<div class="ttab">${Array.from({ length: 10 }, (_, i) => `<span>${ex(2, i + 1)} <i>=</i> <b>${2 * (i + 1)}</b></span>`).join('')}</div>` },
   { say: '¿No recuerdas 2 por 4? Parte el 4 en 3 y 1. 2 por 3 es 6 y 2 por 1 es 2. Suma 6 más 2: ¡8! Esto se llama parte y suma.',
-    render: b => b.innerHTML = `<div class="col">${partHtml(2, 4, 3).replace('</div>', '<span class="parr">↓</span><span class="prow">6 <i>+</i> 2 <i>=</i> <b>8</b></span></div>')}</div>` },
+    render: b => b.innerHTML = `<div class="col">${partHtml(2, 4, 3, { sums: true, show: true })}</div>` },
   { say: 'Los números que multiplicas se llaman factores. El resultado se llama producto.',
     render: b => b.innerHTML = `<div class="col"><div class="mbig fp"><span><span class="mv">2</span><small>factor</small></span><i class="por">·</i><span><span class="mn">4</span><small>factor</small></span><i>=</i><span><b>8</b><small>producto</small></span></div></div>` },
   askStep('Ahora tú. ¿Cuántas ruedas hay?', NQ.m2_bike),

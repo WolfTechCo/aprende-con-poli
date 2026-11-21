@@ -3,7 +3,7 @@
 App educativa gratuita para niños de educación básica, guiada por Poli: aprende jugando paso a paso, con ejercicios
 distintos cada vez, repaso diario, premios y un rincón para adultos. Sin cuentas ni publicidad: el progreso se queda en el dispositivo.
 
-**App:** https://wolftechco.github.io/aprende-con-poli/ · Versión actual: **3.0.0** (ver `CHANGELOG.md`)
+**App:** https://wolftechco.github.io/aprende-con-poli/ · Versión actual: **3.1.0** (ver `CHANGELOG.md`)
 
 ## Matemáticas · Mundo de Formas y Números (2° básico)
 1. **Polígonos:** qué es un polígono, lados y vértices; triángulo, cuadrado, rectángulo, pentágono, hexágono y octágono.
@@ -19,6 +19,9 @@ distintos cada vez, repaso diario, premios y un rincón para adultos. Sin cuenta
    - **Secuencias numéricas:** descubrir la regla (+2, +5, +10, +100, −10…) y completar el número que falta.
 4. **Patrones:** qué es un patrón; patrones de colores, de figuras y patrones que crecen (con torres de cubos). Cada isla tiene
    lección y 2 juegos, y el capítulo cierra con un Gran Desafío.
+
+5. **Multiplicación:** contar de a grupos, sumas que se repiten y el signo «·» (se lee «por»); cuándo sí es multiplicación y las filas;
+   la tabla del 2 con «parte y suma» y las tablas del 5 y del 10. Lección y 2 juegos por isla, y Gran Desafío.
 
 Cada capítulo empieza con una lección de inicio, sus islas tienen lección y juegos, y termina con un **Gran Desafío**.
 Los ejercicios se generan al azar: cada vez que se entra a una sección son distintos y no se repiten en la misma sesión.
@@ -90,7 +93,7 @@ GitHub Pages: *Settings → Pages → Deploy from a branch → `main` / `/ (root
 - `index.html`: página base · `manifest.webmanifest` e `icons/`: instalación · `sw.js`: modo sin internet
 - `css/style.css`: diseño (las reglas por tamaño de pantalla están al final) · `fonts/`: letra de la app
 - `js/app.js`: base de la app (guardado y perfiles, navegación, Poli, voz, mapa y portada) y capítulos 1 y 2, sin librerías externas
-- `js/numeros.js`: capítulo 3 (números) · `js/patrones.js`: capítulo 4 (patrones)
+- `js/numeros.js`: capítulo 3 (números) · `js/patrones.js`: capítulo 4 (patrones) · `js/multiplicacion.js`: capítulo 5 (multiplicación)
 - `js/premios.js`: Mis premios (tarjetas y stickers) · `js/medallas.js`: racha y medallas · `js/guardarropa.js`: ropa de Poli · `js/diploma.js`: diploma
 - `js/repaso.js`: Repaso del día, Mi avance, respaldo y limpieza de lo guardado
 - `js/adultos.js`: Rincón de adultos · `js/opinion.js`: reporte de uso y opinión

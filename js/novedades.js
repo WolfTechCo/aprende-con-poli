@@ -4,8 +4,13 @@
    ese está en CHANGELOG.md). Al actualizarse, se muestra una vez en la portada.
    Para publicar una versión con novedades: subir APPVER y agregar su entrada arriba de NEWS.
    ========================================================= */
-const APPVER = '3.0.0';
+const APPVER = '3.1.0';
 const NEWS = [
+  { v: '3.1.0', date: '2026-11-21', items: [
+    ['✖️', 'Capítulo 5: Multiplicación', 'Se empieza contando de a grupos y se llega a las tablas del <b>2, 5 y 10</b>, con lección, juegos y un Gran Desafío. También entra al Repaso del día y a Mi avance.'],
+    ['🖼️', 'Capítulos con dibujito', 'Cada capítulo tiene su ícono, y si no caben todos la fila se desliza. El capítulo nuevo trae la marca <b>¡Nuevo!</b>'],
+    ['🏅', 'Lo ganado se queda', 'Las medallas y el rango que ya ganó no se pierden cuando llegan capítulos nuevos.'],
+  ] },
   { v: '3.0.0', date: '2026-11-21', items: [
     ['🏆', 'Mis premios', 'Toca las estrellas del mapa: ahí están los stickers, <b>9 medallas</b>, la <b>ropa de Poli</b> que se gana con ellas y un <b>diploma</b> para imprimir.'],
     ['📈', 'Nuevo Mi avance', 'Un camino de colores por tema, para que el niño o la niña vea cómo va. Arriba, lo que practicó hoy.'],
