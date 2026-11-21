@@ -1,0 +1,51 @@
+/* pestañas de capítulos con resumen */
+.tabwrap{display:flex;flex-direction:column;gap:clamp(8px,1.6vh,14px);flex:1;min-height:0;width:100%;max-width:1040px;margin:0 auto}
+.ctabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;flex:none}
+.ctab{display:flex;flex-direction:column;align-items:center;gap:2px;background:#ffffffc0;border-radius:18px;padding:6px 6px 7px;box-shadow:0 4px 0 #c7c9f0;color:var(--ink2);min-width:0}
+.ctab .ct{font-weight:800;font-size:clamp(14px,1.8vw,19px);line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ctab .cs{display:flex;align-items:center;gap:4px;font-weight:800;font-size:clamp(12px,1.4vw,14px);color:var(--ink2);min-height:16px}
+.ctab.on{background:var(--violet);color:#fff;box-shadow:0 4px 0 var(--violet-d)}
+.ctab.on .cs{color:#fff}
+.ctab.done .cs{color:var(--good-d)}
+.ctab.done.on .cs{color:#c9ffe9}
+.mroad{display:flex;gap:3px}
+.mroad i{width:12px;height:7px;border-radius:9px;background:#dfe2f3}
+.mroad i.on{background:hsl(calc(10 + var(--i) * 38) 90% 60%)}
+.ctab.on .mroad i:not(.on){background:#ffffff55}
+.stkgrid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(10px,1.6vw,20px);align-content:center}
+.stkgrid .stk svg{width:clamp(48px,min(9vw,13vh),110px)}
+@media (max-width:640px){
+  .ctab .cn{display:none}
+  .ctab{border-radius:14px;padding:5px 3px}
+  .mroad i{width:8px}
+  .stkgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+}
+@media (max-width:820px) and (min-width:641px) and (orientation:portrait){.stkgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-height:500px) and (orientation:landscape){
+  .ctab{flex-direction:row;justify-content:center;gap:8px;padding:4px 6px}
+  .ctab .cn{display:none}
+  .stkgrid{gap:6px}
+  .stkgrid .stk{padding:4px}
+  .stkgrid .stk small{display:none}
+  .stkgrid .stk svg{width:clamp(30px,13vh,60px)}
+  .tcard{padding:6px 10px}
+  .tcard .temo{width:38px;height:38px;font-size:22px}
+}
+.avwrap .pnote{display:none}
+.avwrap .avfoot{margin-top:0}
+.famline{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:640px){
+  .tgrid{gap:7px}
+  .tcard{padding:6px 10px;border-radius:18px}
+  .tcard .temo{width:38px;height:38px;font-size:22px;border-radius:12px}
+  .famline{white-space:normal}
+}
+@media (max-height:500px) and (orientation:landscape){
+  .tgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .tbody b{font-size:14px}
+  .road{height:14px}
+  .road i{height:9px}
+  .road em{width:20px;height:20px}
+  .tabwrap{gap:6px}
+  .famline{padding:3px 12px;margin:0}
+}

@@ -17,8 +17,14 @@ Contexto general en `README.md`, historial técnico en `CHANGELOG.md`, ideas en 
 - **Modelos:** al empezar cada etapa, avisar a la dueña si conviene Sonnet u Opus y esperar su confirmación (reglas en `PLAN.md`, sección 2).
 
 ## Reglas de la app
-- **Todo debe caber en pantalla sin deslizar** (notebook, tablet y celular, vertical y horizontal). Solo se desliza lo
-  largo por naturaleza (álbum, Mi avance, Ajustes, historial de novedades, mapa en celular). Probar con Playwright en varios tamaños.
+- **Todo debe caber en pantalla sin deslizar** (notebook, tablet y celular, vertical y horizontal). Solo se desliza el mapa
+  en celular, el Rincón de adultos (Ajustes) y el historial de novedades. Probar con Playwright en varios tamaños.
+- **Aprovechar el espacio** (regla de la dueña): la app va a crecer y siempre faltará espacio. Antes de dejar que algo se
+  deslice, **crear y proponer ideas** para que quepa (con capturas, 2 o 3 opciones y una recomendada) y decidirlas junto
+  con la dueña. Sus ideas son punto de partida, no la única forma: si hay una mejor, proponerla. Ejemplo ya usado:
+  pestañas por capítulo con un resumen en cada una (Mis stickers y Mi avance). Otras posibles: agrupar en tarjetas que
+  abren su detalle, columnas según el tamaño, mostrar menos y ampliar al tocar. El contenido debe llenar bien el alto,
+  sin vacíos grandes, y los textos deben ser proporcionales a los dibujos.
 - Los ejercicios son **al azar** y no se repiten en la sesión (`freshQ`).
 - Al acertar, **no cortar a Poli**: avanzar con `afterSay`.
 - Conteos de caras/aristas/vértices salen de `stats(id)` (mallas 3D en `MESH`), para que todas las pantallas digan lo mismo.

@@ -1,7 +1,7 @@
 # Plan de trabajo de Aprende con Poli
 
 Documento para retomar el proyecto en una conversación nueva. Léelo completo junto con `CLAUDE.md`.
-Última actualización: 21-11-2026 (después de cerrar la entrega 1).
+Última actualización: 21-11-2026 (etapa 2 de la entrega 2 diseñada y aprobada; sigue construir con Opus).
 
 ## 1. Cómo trabajamos (acordado con la dueña)
 - **Dos repositorios que comparten historia:**
@@ -11,6 +11,7 @@ Documento para retomar el proyecto en una conversación nueva. Léelo completo j
 - **Cada entrega se construye limpia en una rama `entrega-N`** (desde `main` de la app final), se prueba en el ambiente de pruebas y de ahí pasa por Pull Request. Ramas de respaldo en el repositorio de pruebas: `integrada-2.8.6` (todo lo hecho antes de reordenar, incluye diploma, medallas y guardarropa), `produccion` (copia de `main` final al sembrar) y `feature/*`.
 - **Pruebas, siempre en este orden: tablet → celular → PC**, con Playwright y en varios tamaños (vertical y horizontal). Verificar que todo cabe sin deslizar (salvo álbum, Mi avance, Ajustes, novedades y el mapa en celular). La dueña prueba rápido en su celular y confía en los resultados de tablet y PC.
 - **Novedades (`js/novedades.js`):** solo lo importante o valioso para las familias. Lo interno va solo en `CHANGELOG.md`.
+- **Aprovechar el espacio (regla de la dueña):** la app crecerá y siempre faltará espacio. Antes de dejar que algo se deslice, la IA **crea y propone ideas** (2 o 3 opciones con capturas y una recomendada) y las decide con la dueña; las ideas de ella son punto de partida, no la única forma. Primer caso: pestañas por capítulo con resumen (Mis stickers y Mi avance). También quedó en `CLAUDE.md`.
 - **Textos:** el nombre se dice al saludar y al celebrar; no repetirlo dentro de una frase ni en pantallas seguidas.
 - **Reporte por correo:** `FEEDBACK_MAIL` (`js/opinion.js`) se llena **al final**, cuando todo esté en la app final.
 - **Cuando la dueña pida "solo informa" o "modo plan":** no cambiar nada, solo explicar y mostrar capturas.
@@ -26,7 +27,7 @@ Quien lleve la conversación **debe avisar a la dueña, al empezar cada etapa, q
 |---|---|---|
 | **1 · 2.4.0** (`entrega-1`) | Reporte con estrellas y comentario, capítulo 4 Patrones, saludo según la hora, mejor voz, campana en Novedades, "+" en el menú del mapa, volver a la portada, "Recorrido" en Ajustes, botones compactos, pestañas de capítulos en una fila, textos sin nombre repetido | **Mergeada en la app final** (Pull Request #11, 21-11-2026) |
 | **1.1 · 2.4.1** | Ajustes visuales (ver sección 3.1) | Puntos 1 a 3 hechos y probados (rama `entrega-1-1`); falta el punto 4 |
-| **2 · 3.0.0** | Estructura nueva (ver sección 4) | Por diseñar. Investigación hecha |
+| **2 · 3.0.0** | Estructura nueva (ver sección 4) | Etapas 1 y 2 decididas (estructura y diseño de detalle). Sigue la etapa 3: construir con Opus |
 | **3** | Voz neuronal pregrabada | Después de la entrega 2 (ver `docs/plan-audio-tts.md`) |
 
 ## 3.1 Entrega 1.1 · 2.4.1: ajustes visuales (pedidos por la dueña tras probar la entrega 1)
@@ -54,6 +55,22 @@ Son retoques de diseño que no dependen de la reestructura; se hacen con **Sonne
 5. **Crear jugadores:** solo en el **Rincón de adultos**. En la portada solo aparece el formulario la primera vez, cuando no hay ningún jugador.
 6. **Al abrir la app:** con **2 o más jugadores** se ve la portada y cada niño toca su tarjeta (como hoy). Con **un solo jugador** entra directo al mapa con su saludo. La casita del mapa siempre permite cambiar de jugador (con aviso suave).
 
+**Diseño de detalle de la etapa 2 (aprobado por la dueña el 21-11-2026).** Página con capturas en los 5 tamaños: «Diseño de la entrega 2» (https://claude.ai/artifact/AtdTtaifkT7RteQXxx9f8G). El boceto que generó esas capturas está en `docs/boceto-entrega-2/` (sobrescribe vistas sobre la app; sirve de punto de partida, no es el código final).
+- **Abrir la app:** 0 jugadores → portada con formulario; 1 → directo al mapa con su saludo; 2 o más → portada. El jugador (`root.cur`) y el capítulo (`save.ch`) ya se guardan.
+- **Portada:** sin la tarjeta «Agregar». «🔒 Adultos» en la barra de arriba, junto a «🧭 Recorrido» (debajo de las tarjetas no cabe en celular acostado). La campana de novedades se queda en la portada y también está en el Rincón.
+- **Mapa:** una sola fila de capítulos en todos los tamaños. Arriba a la izquierda, casita + «+»; arriba a la derecha, estrellas con «›» (se mueven cada tanto para invitar; abren Mis premios) y volumen. En el mapa la flecha de volver se reemplaza por la casita. En celular de pie el título dice solo «Mapa».
+- **Casita:** ventana suave con Poli. 2 o más jugadores: «¿Cambiamos de jugador? Tu avance queda guardado.» (👋 Sí, cambiar / Seguir jugando). 1 jugador: «¿Volvemos a la portada? …».
+- **Menú «+»:** Repaso · Mis premios · Mi avance · (separado, gris y más chico) 🔒 Adultos.
+- **Mis premios:** rango y estrellas arriba («39 de 82 · Exploradora») y 4 tarjetas que flotan cada una a su ritmo y rebotan al tocarlas, sobre un fondo de estrellas y formas en movimiento: Mis stickers (n de N), Mis medallas (n de 9 y racha 🔥), Ropa de Poli (Poli con su ropa, n de 7), Mi diploma. 4 en fila en pantallas anchas y celular acostado; 2 × 2 de pie. El dibujo de cada tarjeta se ajusta al alto (`container-type:size`).
+- **Detalles:** Medallas (racha arriba, 5 + 4 o 3 × 3, ganadas en dorado y moviéndose; al tocar, Poli dice cómo se gana). Ropa (Poli grande al lado o arriba del ropero, 8 opciones en 4 × 2; bloqueadas dicen la medalla). Stickers y diploma como ya están aprobados. Volver: detalle → Mis premios → mapa.
+- **Pestañas de capítulos con resumen** en Mis stickers y Mi avance (idea de la dueña): iguales a las del mapa, abren en el capítulo que juega. Stickers: «3 de 10» o «✓ ¡Completo!». Mi avance: mini camino de 5 colores + 💪 si hay tema para practicar, 🔒 si no empieza. Con esto **ninguna pantalla del niño se desliza**.
+- **Mi avance (solo del jugador actual, sin candado):** línea para la familia arriba («Hoy: 9 respuestas · 67 % a la primera · Para practicar: …»; se necesita guardar respuestas por día). Cada tema: camino de 5 piedras de colores con una estrella que camina, estado con emoji y el % chico. Estados: 🔒 aún no lo aprende · 🌱 listo para empezar / empezando (< 5 respuestas) · 💪 ¡Vamos a practicar! (< 70 %, en naranjo, nunca rojo) · 🚀 avanzando · 🏆 ¡Lo dominas! (≥ 90 % con 10 o más) · 👋 vuelve tras más de 7 días. 🔁 marca los temas del Repaso; botón «🔒 Elegir temas del Repaso» lleva al Rincón (jugador abierto). Columnas: 2 en tablet y PC, 1 en celular de pie, 3 en celular acostado.
+- **Rincón de adultos:** candado (tablas del 6 al 9, distinta cada vez y sin repetir la anterior, 3 intentos y vuelve). Sobrio y **sin Poli** (avisos escritos en la pantalla). Tablet y PC: lista de secciones a la izquierda y detalle a la derecha; celular: lista → sección (‹ vuelve a la lista). Secciones: Jugadores (fila por jugador; «Editar» abre nombre, niña/niño, temas del Repaso y borrar con confirmación dentro de la app, sin `confirm()`; «+ Nuevo jugador», hasta 6) · **Avance de todos** (todos los niños de una vez) · Novedades · Respaldo · Instalar · Ayúdanos a mejorar · Recorridos.
+- **Textos de Poli:** tabla completa en la página del diseño. El nombre solo al saludar en el mapa y al celebrar (diploma); Mis premios y Mi avance no lo repiten.
+- **Medallas ya ganadas al actualizar:** Poli las celebra todas juntas una sola vez en el mapa, con confeti («¡Tienes 5 medallas nuevas! Toca tus estrellas para verlas»).
+- **Guardado:** `SAVEVER` 1 → 2 con un paso en `MIGRATIONS` que agrega `badges: []` y `acc: ''` (también en `NEWSAVE` y `cleanProfile`). No se renombra nada. Para la línea de la familia, guardar respuestas de hoy (por ejemplo `save.today = { d, n, ok }`), también limpiado en `cleanProfile`.
+- **Al cerrar la entrega:** `TOURVER` 3 (casita, estrellas que se tocan, menú nuevo), archivos nuevos en `FILES`, 3.0.0 en el changelog y novedades para familias.
+
 **Piezas ya hechas y aprobadas que esperan su lugar nuevo** (están en la rama `integrada-2.8.6` del repositorio de pruebas, v2.8.6; se pasan con `cherry-pick`):
 - **Racha y medallas** (`js/medallas.js`, 9 medallas calculadas con lo guardado; `save.badges`, `save.days`).
 - **Diploma** (`js/diploma.js`): documento aparte en un iframe `srcdoc`, medidas en `u`, imprime en A4 y carta en una página. Versión final aprobada: sin marco en el título, sin sección de capítulos, sin firma, con sello "¡BRAVO!", las 9 medallas y la próxima meta.
@@ -68,7 +85,7 @@ Son retoques de diseño que no dependen de la reestructura; se hacen con **Sonne
 
 **Etapas sugeridas para la entrega 2** (con el modelo que conviene):
 1. Decidir la estructura con la dueña a partir de la investigación y 2-3 bocetos con capturas (**Sonnet**).
-2. Diseñar el detalle: pantallas, navegación, migración del guardado si cambia algo (**Opus**).
+2. ✅ Diseñar el detalle: pantallas, navegación, migración del guardado si cambia algo (**Opus**). Hecho el 21-11-2026 (ver arriba).
 3. Construir en una rama `entrega-2` y probar tablet → celular → PC (**Opus** construye; **Sonnet** prueba).
    Se construye **en bloques**, y al terminar cada uno se detiene y se avisa a la dueña para que revise su uso disponible (la IA no puede ver el uso):
    - **3a · Mapa y entrada:** menú «+» único en todos los tamaños (sin segunda fila), casita con aviso suave, contador de estrellas que se toca, portada con «🔒 Adultos», abrir según cantidad de jugadores.
@@ -89,6 +106,7 @@ Plan de la dueña en `docs/plan-audio-tts.md`. Observaciones al revisarlo: los t
   - *Dibujo grande, textos chicos* (al revés del capítulo 4): lecciones de figuras 3D, por ejemplo "El cubo", con el título y los recuadros "6 caras · 12 aristas · 8 vértices" muy pequeños junto al dibujo.
   - *El título de la pantalla repite la pregunta* en algunos juegos del capítulo 3 ("¿Cuál es?" / "¿Cuál es el 532?"): usar el nombre de la actividad, como ya se hizo en el capítulo 4.
   - Un solo criterio para todas las unidades: el contenido debe ocupar bien el alto y los textos deben ser proporcionales al dibujo.
+- **Mejora posterior (idea de la dueña):** Poli en una esquina del Rincón de adultos (y de otras secciones) saludando y moviéndose, sin sonido.
 - Probar en aparatos reales: instalación, modo sin internet y voces.
 - Revisar el diploma impreso en papel.
 - El aviso de ✨ → campana ya está; si se agrega un numerito de "novedades sin leer", definir cuándo.
