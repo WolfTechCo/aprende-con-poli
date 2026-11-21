@@ -7,7 +7,11 @@
    - Poli no repite el nombre aquí (se acaba de decir en el mapa); solo lo dice el diploma, que celebra.
    ========================================================= */
 const kidColor = nm => COLORS[[...(nm || '?')].reduce((a, c) => a + c.codePointAt(0), 0) % COLORS.length];
-const rankOf = () => { const t = totalStars(), m = maxStars(); return t >= m ? gx('Reina', 'Rey') + ' de las formas' : t >= 40 ? gx('Maestra', 'Maestro') : t >= 15 ? gx('Exploradora', 'Explorador') : 'Aprendiz'; };
+/* el rango más alto no se pierde cuando llega un capítulo nuevo (queda anotado en save.badges como 'rey') */
+const rankOf = () => {
+  const t = totalStars(), m = maxStars(); keepEarned();
+  if (t >= m && !demoMode && !save.badges.includes('rey')) { save.badges.push('rey'); persist(); }
+  return t >= m || (save.badges || []).includes('rey') ? gx('Reina', 'Rey') + ' de las formas' : t >= 40 ? gx('Maestra', 'Maestro') : t >= 15 ? gx('Exploradora', 'Explorador') : 'Aprendiz'; };
 
 /* stickers de un capítulo: inicio, uno por isla con 3 estrellas y el del desafío perfecto */
 const STAR_ICO = c => `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z" fill="${c}" stroke="#1b9f72" stroke-width="1.4" stroke-linejoin="round"/></svg>`;
@@ -27,7 +31,7 @@ const stickerMax = () => Object.keys(CH).reduce((a, ch) => a + stickersOf(ch).le
 const chapOf = () => CH[cur.ch] ? +cur.ch : CH[save.ch] ? +save.ch : 1;
 function chapTabs(sel, sum) {
   return `<div class="ctabs" role="tablist">${Object.keys(CH).map(Number).map(k => { const s = sum(k);
-    return `<button role="tab" aria-selected="${k === sel}" class="ctab ${k === sel ? 'on' : ''} ${s.done ? 'done' : ''}" data-ch="${k}"><span class="ct">${CH[k].label}</span><span class="cs">${s.html}</span></button>`; }).join('')}</div>`;
+    return `<button role="tab" aria-selected="${k === sel}" aria-label="${chapName(k)}" class="ctab ${k === sel ? 'on' : ''} ${s.done ? 'done' : ''} ${chapNew(k) ? 'isnew' : ''}" data-ch="${k}" style="--i:${k}"><span class="ct">${chapInner(k)}</span><span class="cs">${s.html}</span></button>`; }).join('')}</div>`;
 }
 
 /* fondo con vida: estrellas y formas que flotan detrás de las tarjetas */
@@ -69,8 +73,9 @@ function viewAlbum() {
   const ch = chapOf(), list = stickersOf(ch), n = list.filter(s => s.on).length;
   const el = frame(`<div class="tabwrap">${chapTabs(ch, k => { const l = stickersOf(k), m = l.filter(s => s.on).length; return { done: m === l.length, html: m === l.length ? '✓ ¡Completo!' : `${m} de ${l.length}` }; })}
     <div class="stkgrid">${list.map((s, i) => `<div class="stk ${s.on ? 'on' : 'off'}" style="animation-delay:${i * .05}s">${s.art}<b>${s.name}</b><small>${s.sub}</small></div>`).join('')}</div></div>`, 'fill');
-  $$('.ctab', el).forEach(b => b.onclick = () => go('album', { ch: +b.dataset.ch }));
-  poli.say(n === list.length ? '¡Completaste todos los stickers de este capítulo!' : 'Completa las tres estrellas de cada isla para ganar su sticker.');
+  fitChapRow($('.ctabs', el));
+  $$('.ctab', el).forEach(b => b.onclick = () => { chapPicked = +b.dataset.ch; go('album', { ch: +b.dataset.ch }); });
+  poli.say(chapSay(ch) + (n === list.length ? '¡Completaste todos los stickers de este capítulo!' : 'Completa las tres estrellas de cada isla para ganar su sticker.'));
 }
 
 /* ---------- Mis medallas ---------- */

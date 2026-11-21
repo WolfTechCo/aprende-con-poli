@@ -127,10 +127,12 @@ const plural = F => F.pl || `${F.art === 'la' ? 'las' : 'los'} ${F.name}s`;
 
 /* capítulos: el 3 (números) se agrega desde js/numeros.js */
 const CH = {
-  1: { nodes: ['intro', 'tri', 'sq', 'rect', 'pent', 'hex', 'oct', 'challenge', 'taller'], intro: 'intro', chal: 'challenge', figs: SHAPES, label: '<span class="cn">1 · </span>Polígonos',
+  1: { nodes: ['intro', 'tri', 'sq', 'rect', 'pent', 'hex', 'oct', 'challenge', 'taller'], intro: 'intro', chal: 'challenge', figs: SHAPES, label: '<span class="cn">1 · </span>Polígonos', nm: 'Polígonos',
+    ico: '<svg viewBox="0 0 24 24"><polygon points="12,3 22,20 2,20" fill="#ffc233" stroke="#e09a00" stroke-width="2" stroke-linejoin="round"/></svg>',
     introLabel: 'Inicio', sticker: () => [gx('Exploradora', 'Explorador'), 'Qué es un polígono'], chalTitle: 'Gran Desafío', champ: () => gx('una campeona', 'un campeón') + ' de las formas',
     hello: n => `¡Hola, ${n}! Toca la isla verde para empezar.`, types: ['sides', 'sides', 'vert', 'vert', 'name', 'name', 'notpoly', 'poly'] },
-  2: { nodes: ['intro3d', ...SOLIDS.map(s => s.id), 'challenge3d'], intro: 'intro3d', chal: 'challenge3d', figs: SOLIDS, label: '<span class="cn">2 · </span><span class="lg">Figuras </span>2D y 3D',
+  2: { nodes: ['intro3d', ...SOLIDS.map(s => s.id), 'challenge3d'], intro: 'intro3d', chal: 'challenge3d', figs: SOLIDS, label: '<span class="cn">2 · </span><span class="lg">Figuras </span>2D y 3D', nm: 'Figuras 2D y 3D',
+    ico: '<svg viewBox="0 0 24 24"><path d="M12 2l9 5v10l-9 5-9-5V7z" fill="#4ea8ff" stroke="#2a7fd6" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 2l9 5-9 5-9-5z" fill="#9fd0ff"/><path d="M3 7l9 5 9-5M12 12v10" fill="none" stroke="#2a7fd6" stroke-width="1.6"/></svg>',
     introLabel: '¿2D o 3D?', sticker: () => ['Ojo 3D', '2D y 3D'], chalTitle: 'Gran Desafío 3D', champ: () => gx('una campeona', 'un campeón') + ' de las formas',
     hello: n => `¡${gx('Bienvenida', 'Bienvenido')} al capítulo de figuras 2D y 3D, ${n}! Toca la isla verde.`, types: ['is3d', 'name3d', 'print', 'rolls', 'count3d', 'count3d', 'count3d', 'name3d'] },
 };
@@ -675,7 +677,7 @@ function titleFor() {
   if (F && F.kind === 'num') return cur.name === 'lesson' ? `Aprende: ${F.short}` : cur.name === 'game' ? F.acts.find(a => a.k === cur.k).t : F.title;
   switch (cur.name) {
     case 'island': return `Isla ${del(F)}`;
-    case 'lesson': return { intro: '¿Qué es un polígono?', intro3d: '¿2D o 3D?', intro123: '¿Cómo contamos?', intro4: '¿Qué es un patrón?' }[cur.id] || `Aprende: ${F.name}`;
+    case 'lesson': return { intro: '¿Qué es un polígono?', intro3d: '¿2D o 3D?', intro123: '¿Cómo contamos?', intro4: '¿Qué es un patrón?', intro5: '¿Qué es multiplicar?' }[cur.id] || `Aprende: ${F.name}`;
     case 'build': return `Construye ${F.art} ${F.name}`;
     case 'paint': return 'Pinta sus caras';
     case 'hunt': return 'Caza en la vida real';
@@ -821,6 +823,43 @@ function greeting() {
   const away = last && Date.now() - last > 3 * 864e5 && typeof repasoTopics === 'function' && repasoTopics().length;
   return `¡${h < 12 ? 'Buenos días' : h < 20 ? 'Buenas tardes' : 'Buenas noches'}, ${save.name}! ` + (away ? 'Hace días que no practicas. ¿Repasamos 5 minutos? ' : '');
 }
+/* ---------- fila de capítulos (mapa, Mis stickers y Mi avance) ----------
+   Cada capítulo tiene un ícono (CH[k].ico) y su nombre. Si no caben, los no elegidos muestran solo el ícono (.compact);
+   si aun así no caben, la fila se desliza de lado y el siguiente se asoma en el borde (.slide). «¡Nuevo!» marca los
+   capítulos de NEWCH hasta que el niño hace su lección de inicio. Al tocar uno, Poli dice su nombre (chapSay). */
+const NEWCH = [5];
+const chapName = k => `Capítulo ${k}: ${CH[k].nm}`;
+const chapNew = k => NEWCH.includes(k) && !demoMode && !prog(CH[k].intro).lesson;
+const chapInner = k => `<span class="cico">${CH[k].ico}</span><span class="cnm">${CH[k].label}</span>${chapNew(k) ? '<i class="cnew">¡Nuevo!</i>' : ''}`;
+let chapPicked = 0;
+const chapSay = k => { if (chapPicked !== k) return ''; chapPicked = 0; return `${chapName(k)}. `; };
+let chapNudged = false;
+function fitChapRow(row) {
+  if (!row) return;
+  let lastW = 0, ro = null;
+  const edges = () => { row.classList.toggle('more', row.scrollLeft + row.clientWidth < row.scrollWidth - 4); row.classList.toggle('less', row.scrollLeft > 4); };
+  const fit = () => {
+    if (!row.isConnected) { if (ro) ro.disconnect(); return; }
+    if (row.clientWidth === lastW) return;
+    lastW = row.clientWidth;
+    row.classList.remove('compact', 'slide', 'more', 'less');
+    const over = () => row.scrollWidth > row.clientWidth + 2;
+    if (over()) row.classList.add('compact');
+    if (!over()) return;
+    row.classList.add('slide');
+    const on = row.querySelector(':scope > .on');
+    if (on) row.scrollLeft = Math.max(0, on.offsetLeft - (row.clientWidth - on.offsetWidth) / 2);
+    edges();
+    if (!chapNudged && row.scrollLeft + row.clientWidth < row.scrollWidth - 4) { // una vez por visita: la fila se asoma para mostrar que se desliza
+      chapNudged = true;
+      const x = row.scrollLeft;
+      setTimeout(() => { row.scrollTo({ left: x + 48, behavior: 'smooth' }); setTimeout(() => row.scrollTo({ left: x, behavior: 'smooth' }), 650); }, 700);
+    }
+  };
+  row.addEventListener('scroll', edges, { passive: true });
+  if ('ResizeObserver' in window) { ro = new ResizeObserver(fit); ro.observe(row); }
+  fit();
+}
 function viewMap() {
   if (!root.cur) return go('welcome');
   const ch = CH[save.ch] ? +save.ch : 1, vert = isVertical();
@@ -838,12 +877,13 @@ function viewMap() {
   }).join('');
   const el = frame(`<div class="mapwrap ${vert ? 'vert' : ''}">
       <div class="maptop">
-        <div class="chapters">${Object.keys(CH).map(Number).map(k => `<button class="chap ${k === ch ? 'on' : ''}" data-ch="${k}">${CH[k].label}</button>`).join('')}</div>
+        <div class="chapters">${Object.keys(CH).map(Number).map(k => `<button class="chap ${k === ch ? 'on' : ''} ${chapNew(k) ? 'isnew' : ''}" data-ch="${k}" aria-label="${chapName(k)}" style="--i:${k}">${chapInner(k)}</button>`).join('')}</div>
       </div>
       <div class="mapscroll"><div class="map ${!vert && ns.length > 8 ? 'dense' : ''}" ${vert ? `style="height:${ns.length * 132}px"` : ''}>
         <svg class="path" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="${d}"/></svg>${nodeHtml}</div></div></div>`, 'fill');
   if (vert) $('.node.current', el)?.scrollIntoView({ block: 'center' });
-  $$('.chap', el).forEach(b => b.onclick = () => { save.ch = +b.dataset.ch; persist(); go('map'); });
+  fitChapRow($('.chapters', el));
+  $$('.chap', el).forEach(b => b.onclick = () => { save.ch = +b.dataset.ch; persist(); chapPicked = +b.dataset.ch; go('map'); });
   $$('.node', el).forEach(b => b.onclick = () => {
     const id = b.dataset.id, n = ns.find(x => x.id === id);
     if (n.locked) { sfx.bad(); poli.oops(n.isChal ? 'Para el Gran Desafío, primero aprende todas las figuras de este capítulo.' : 'Esa isla todavía está cerrada. ¡Termina la anterior!'); return; }
@@ -860,7 +900,7 @@ function viewMap() {
   $('#bHome').onclick = () => { sfx.pop(); askHome(); };
   const cu = ns.find(n => n.current);
   /* si Poli ya saludó con el nombre ("¡Buenos días, Ana!"), el resto va sin repetirlo */
-  const g = greeting() + medalNews(), bare = t => t.replace(`¡Hola, ${save.name}! `, '').replace(`, ${save.name}`, '');
+  const g = chapSay(ch) + greeting() + medalNews(), bare = t => t.replace(`¡Hola, ${save.name}! `, '').replace(`, ${save.name}`, '');
   poli.say(g + (!cu ? (g ? '¡Increíble! Completaste todo este capítulo.' : `¡Increíble, ${save.name}! Completaste todo este capítulo.`)
     : isIntro(cu.id) ? (g ? bare(CH[ch].hello(save.name)) : CH[ch].hello(save.name))
       : (g ? 'Sigamos con la isla que está saltando.' : `Muy bien, ${save.name}. Sigamos con la isla que está saltando.`)));
@@ -979,6 +1019,7 @@ function viewLesson() {
   if (cur.id === 'intro3d') return lessonIntro3D();
   if (cur.id === 'intro123') return lessonIntroNum();
   if (cur.id === 'intro4') return lessonIntroPat();
+  if (cur.id === 'intro5') return lessonIntroMul();
   const F = FIG[cur.id];
   return F.kind === 'num' ? NUMLESSON[F.id](F) : F.kind === '3d' ? lessonSolid(F) : lessonShape(F);
 }

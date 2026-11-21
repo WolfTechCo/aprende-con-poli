@@ -263,7 +263,8 @@ const NUMS = [
 NUMS.forEach(T => { FIG[T.id] = T; });
 ACTS.num = ['lesson', 'g1', 'g2'];
 CH[3] = {
-  nodes: ['intro123', ...NUMS.map(T => T.id), 'challengeNum'], intro: 'intro123', chal: 'challengeNum', figs: NUMS, label: '<span class="cn">3 · </span>Números',
+  nodes: ['intro123', ...NUMS.map(T => T.id), 'challengeNum'], intro: 'intro123', chal: 'challengeNum', figs: NUMS, label: '<span class="cn">3 · </span>Números', nm: 'Números',
+  ico: '<svg viewBox="0 0 24 24"><rect x="1.5" y="4" width="21" height="16" rx="5" fill="#22c58b"/><text x="12" y="16.3" text-anchor="middle" font-size="10.5" font-weight="800" font-family="Baloo 2,Arial" fill="#fff">123</text></svg>',
   introLabel: 'Agrupar', sticker: () => [gx('Agrupadora', 'Agrupador'), 'Contar en grupos'], chalTitle: 'Gran Desafío de Números', champ: () => gx('una campeona', 'un campeón') + ' de los números',
   hello: n => `¡${gx('Bienvenida', 'Bienvenido')} al capítulo de los números, ${n}! Toca la isla verde.`,
   types: ['n:blocks', 'n:value', 'n:notaDesafio', 'n:sum', 'n:missing', 'n:next', 'n:rule', 'n:table'],

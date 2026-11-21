@@ -8,7 +8,7 @@ const VERSION = 'v33';
 const CACHE = 'poli-' + VERSION; // el ambiente de pruebas usa otro prefijo ('pruebas-poli-'): así ninguna borra los archivos de la otra
 const FILES = [
   './', './index.html', './manifest.webmanifest',
-  `./css/style.css?v=${VERSION.slice(1)}`, `./js/app.js?v=${VERSION.slice(1)}`, `./js/numeros.js?v=${VERSION.slice(1)}`, `./js/repaso.js?v=${VERSION.slice(1)}`, `./js/opinion.js?v=${VERSION.slice(1)}`, `./js/patrones.js?v=${VERSION.slice(1)}`, `./js/medallas.js?v=${VERSION.slice(1)}`, `./js/guardarropa.js?v=${VERSION.slice(1)}`, `./js/diploma.js?v=${VERSION.slice(1)}`, `./js/premios.js?v=${VERSION.slice(1)}`, `./js/adultos.js?v=${VERSION.slice(1)}`, `./js/novedades.js?v=${VERSION.slice(1)}`, `./js/recorrido.js?v=${VERSION.slice(1)}`,
+  `./css/style.css?v=${VERSION.slice(1)}`, `./js/app.js?v=${VERSION.slice(1)}`, `./js/numeros.js?v=${VERSION.slice(1)}`, `./js/repaso.js?v=${VERSION.slice(1)}`, `./js/opinion.js?v=${VERSION.slice(1)}`, `./js/patrones.js?v=${VERSION.slice(1)}`, `./js/multiplicacion.js?v=${VERSION.slice(1)}`, `./js/medallas.js?v=${VERSION.slice(1)}`, `./js/guardarropa.js?v=${VERSION.slice(1)}`, `./js/diploma.js?v=${VERSION.slice(1)}`, `./js/premios.js?v=${VERSION.slice(1)}`, `./js/adultos.js?v=${VERSION.slice(1)}`, `./js/novedades.js?v=${VERSION.slice(1)}`, `./js/recorrido.js?v=${VERSION.slice(1)}`,
   './fonts/baloo2-latin.woff2',
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png',
 ];
