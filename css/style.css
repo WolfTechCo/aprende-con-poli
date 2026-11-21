@@ -1093,3 +1093,67 @@ svg.join{width:var(--board);max-width:100%;height:auto}
   .prize .part{height:clamp(90px,20vh,240px)}
   .mirror{width:clamp(140px,28vh,300px)}
 }
+/* ---------- entrega 2 · Mi avance ----------
+   Camino de 5 piedras de colores por tema y una estrella que camina hasta donde va. Naranjo para practicar, nunca rojo.
+   Columnas: 2 en tablet y PC, 1 en celular de pie, 3 en celular acostado. */
+.famline{margin:0;flex:none;background:#ffffffd9;border-radius:16px;padding:6px 14px;font-weight:600;font-size:clamp(13px,1.5vw,16px);color:var(--ink2);box-shadow:0 3px 0 #c7c9f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.famline b{color:var(--ink)}
+.mroad{display:flex;gap:3px}
+.mroad i{width:12px;height:7px;border-radius:9px;background:#dfe2f3}
+.mroad i.on{background:hsl(calc(10 + var(--i) * 38) 90% 60%)}
+.ctab.on .mroad i:not(.on){background:#ffffff55}
+.tgrid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,1.6vh,14px);align-content:center}
+.tcard{display:flex;align-items:center;gap:12px;background:#fff;border-radius:22px;padding:clamp(8px,1.8vh,16px) 14px;box-shadow:0 5px 0 #c7c9f0;text-align:left;transition:transform .15s;animation:pop .4s backwards;min-width:0}
+.tcard:nth-child(2){animation-delay:.05s}.tcard:nth-child(3){animation-delay:.1s}.tcard:nth-child(4){animation-delay:.15s}.tcard:nth-child(5){animation-delay:.2s}
+.tcard.sel{outline:4px solid var(--gold);transform:scale(1.02)}
+.tcard .temo{flex:none;width:clamp(44px,7vh,60px);height:clamp(44px,7vh,60px);border-radius:16px;background:#f2f4ff;display:grid;place-items:center;font-size:clamp(26px,4vh,34px)}
+.tcard.top .temo{background:#fff3c4}.tcard.prac .temo{background:#ffe9d6}.tcard.go .temo{background:#e3f7ee}.tcard.back .temo{background:#e6f4ff}
+.tcard.top .temo{animation:shine 3s ease-in-out infinite}
+.tbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.tbody b{font-size:clamp(16px,1.9vw,21px);line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.road{position:relative;display:flex;gap:6px;height:20px;align-items:center;margin-right:12px}
+.road i{flex:1;height:12px;border-radius:99px;background:#e8eaf6}
+.road i.on{background:hsl(calc(10 + var(--i) * 38) 90% 60%);animation:fillin .5s calc(var(--i) * .12s) backwards}
+@keyframes fillin{from{transform:scaleX(0);transform-origin:left}}
+.road em{position:absolute;top:50%;left:calc(var(--to) * 20% - 13px);width:26px;height:26px;translate:0 -50%;animation:walk 1s cubic-bezier(.3,1.4,.5,1) backwards}
+.road em svg{width:100%;height:100%;animation:twirl 5s ease-in-out infinite}
+.tcard.off .road em,.tcard.new .road em{display:none}
+@keyframes walk{from{left:-12px}}
+.tbody small{display:flex;gap:8px;align-items:center;font-weight:700;font-size:clamp(12px,1.4vw,15px);color:var(--ink2)}
+.tw{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tcard.prac .tw{color:#c26a00}.tcard.top .tw{color:var(--good-d)}
+.tp{font-size:12px;color:#8a8db8;font-weight:700}
+.trep{font-size:13px}
+.tcard.off{background:#ffffffaa;box-shadow:0 4px 0 #dfe2f3}.tcard.off b,.tcard.off .temo{opacity:.55}
+.avfoot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:700;color:var(--ink2);font-size:14px}
+.avfoot .btn.sm{font-size:14px;padding:5px 14px;margin:0}
+@media (max-width:640px){
+  .tgrid{grid-template-columns:1fr;gap:7px}
+  .tcard{padding:6px 10px;border-radius:18px}
+  .tcard .temo{width:38px;height:38px;font-size:22px;border-radius:12px}
+  .famline{white-space:normal}
+  .mroad i{width:8px}
+  .avfoot{font-size:12px}.avfoot .btn.sm{font-size:13px;padding:4px 10px}
+}
+@media (max-height:500px) and (orientation:landscape){
+  .tgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .tcard{padding:6px 10px;gap:8px}
+  .tcard .temo{width:36px;height:36px;font-size:20px}
+  .tbody b{font-size:14px}
+  .road{height:14px}.road i{height:9px}.road em{width:20px;height:20px}
+  .famline{padding:3px 12px}
+  .avfoot{font-size:12px}.avfoot .btn.sm{font-size:13px;padding:3px 10px}
+}
+@media (min-height:700px) and (min-width:641px){
+  .tgrid{gap:clamp(10px,2.4vh,22px)}
+  .tcard{padding:clamp(12px,2.6vh,26px) 18px;border-radius:26px}
+  .tcard .temo{width:clamp(56px,8vh,76px);height:clamp(56px,8vh,76px);font-size:clamp(30px,4.6vh,42px);border-radius:20px}
+  .tbody{gap:6px}.tbody b{font-size:clamp(18px,2.4vw,26px)}
+  .road{height:26px}.road i{height:15px}.road em{width:32px;height:32px;left:calc(var(--to) * 20% - 16px)}
+}
+/* celulares de pie bajos (360 × 640): tarjetas más compactas para que el pie no quede bajo Poli */
+@media (max-width:640px) and (max-height:700px) and (orientation:portrait){
+  .tgrid{gap:5px}.tcard{padding:4px 10px}.tcard .temo{width:32px;height:32px;font-size:19px}
+  .road{height:14px}.road i{height:9px}.road em{width:20px;height:20px}
+  .avfoot>span{display:none}.avfoot{justify-content:flex-end}
+  .famline{font-size:12px;padding:3px 10px}
+}

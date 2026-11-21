@@ -25,6 +25,8 @@ function track(topic, ok) {
   if (!TOP[topic]) return;
   const st = (save.stats ||= {})[topic] ||= { n: 0, h: '' };
   st.n++; st.h = (st.h + (ok ? '1' : '0')).slice(-20); st.last = Date.now();
+  const t = save.today && save.today.d === dayKey() ? save.today : (save.today = { d: dayKey(), n: 0, ok: 0 }); // respuestas de hoy (línea de la familia en Mi avance)
+  t.n++; if (ok) t.ok++;
   const hoy = dayKey(), days = (save.days ||= []); // días en que practicó (hora local; para el reporte y la racha)
   if (days[days.length - 1] !== hoy) { days.push(hoy); if (days.length > 90) days.shift(); }
   persist();
@@ -157,44 +159,66 @@ function viewParent() {
   if (tourSeen(TOURAJKEY) < TOURVER_AJ) setTimeout(() => cur.name === 'adultos' && !tourOn && startAjustesTour(), 500);
 }
 
-/* ---------- Mi avance: cómo le va en cada tema (sin clave, solo para mirar) ---------- */
+/* ---------- Mi avance (entrega 2): sin candado, solo del jugador que está jugando ----------
+   Cada tema es un camino de 5 piedras de colores con una estrella que camina hasta donde va; el % va chico.
+   Si cuesta, dice «¡Vamos a practicar!» en naranjo (nunca rojo). Arriba, una línea para la familia con lo de hoy.
+   Pestañas de capítulos con resumen: así ningún capítulo necesita deslizar. Cambiar los temas del Repaso: Rincón de adultos. */
+function levelOf(T) {
+  const st = save.stats?.[T.id], p = pctOf(st), n = st ? st.h.length : 0;
+  if (!T.learned()) return { k: 'off', word: 'Aún no lo aprendes', emo: '🔒', stones: 0 };
+  if (!n) return { k: 'new', word: '¡Listo para empezar!', emo: '🌱', stones: 0 };
+  const days = (Date.now() - (st.last || 0)) / 864e5, stones = Math.max(1, Math.round(p / 20));
+  if (n < 5) return { k: 'start', word: 'Empezando', emo: '🌱', stones: 1, p };
+  if (days > 7) return { k: 'back', word: '¡Hace rato que no!', emo: '👋', stones, p };
+  if (p < 70) return { k: 'prac', word: '¡Vamos a practicar!', emo: '💪', stones, p };
+  if (p >= 90 && n >= 10) return { k: 'top', word: '¡Lo dominas!', emo: '🏆', stones: 5, p };
+  return { k: 'go', word: 'Avanzando', emo: '🚀', stones, p };
+}
+const TOPIC_SAYS = {
+  off: T => `${T.name} viene más adelante en el mapa.`,
+  new: T => `Ya aprendiste ${T.name}. ¡Juega para llenar tu camino!`,
+  start: T => `¡Buen comienzo en ${T.name}! Cada respuesta te acerca a la meta.`,
+  prac: T => `${T.name} cuesta un poquito. ¡Practiquemos juntos en el Repaso!`,
+  back: T => `¡Hace rato que no jugamos ${T.name}! ¿Lo repasamos?`,
+  go: T => `¡Vas muy bien en ${T.name}! Sigue así.`,
+  top: T => `¡Eres ${gx('experta', 'experto')} en ${T.name}!`,
+};
+/* resumen de un capítulo para su pestaña: cuántas piedras lleva en promedio y si hay algo para practicar */
+const chapStones = ch => {
+  const all = TOPICS.filter(T => T.ch === ch), L = all.filter(T => T.learned()).map(levelOf);
+  if (!L.length) return { k: 'off', s: 0 };
+  return { k: L.some(x => x.k === 'prac') ? 'prac' : 'ok', s: Math.round(L.reduce((a, x) => a + x.stones, 0) / all.length) };
+};
+const stonesHtml = (n, cls = '') => Array.from({ length: 5 }, (_, i) => `<i class="${i < n ? 'on' : ''}" style="--i:${i}"></i>`).join('');
 function viewAvance() {
-  const total = totalStars(), max = maxStars(), learned = TOPICS.filter(T => T.learned()), weakL = learned.filter(weak), edit = !!cur.edit;
-  const row = T => {
-    const st = save.stats?.[T.id], p = pctOf(st), L = T.learned(), on = L && !(save.repasoOff || []).includes(T.id);
-    return `<div class="arow ${L ? '' : 'off'}"><div class="atop"><label class="rck ${edit && L ? 'live' : ''}" title="Entra al Repaso"><input type="checkbox" data-t="${T.id}" ${on ? 'checked' : ''} ${edit && L ? '' : 'disabled'}></label><b>${T.name}</b>${weak(T) ? '<em class="pstar">⭐ Para reforzar</em>' : ''}</div>
-      ${L && st ? `<div class="abar"><i style="width:${Math.max(4, p)}%;background:${p >= 70 ? 'var(--good)' : '#ff8a3d'}"></i><span>${p} %</span></div>
-        <small>a la primera · ${st.n} ${st.n === 1 ? 'respuesta' : 'respuestas'} · ${ago(st.last)}</small>` : `<small>${L ? 'Sin práctica aún' : 'Aún no lo aprende'}</small>`}</div>`;
+  const ch = chapOf(), learned = TOPICS.filter(T => T.learned()), weakL = learned.filter(weak);
+  const t = save.today && save.today.d === dayKey() ? save.today : null;
+  const fam = (t && t.n ? `<b>Hoy:</b> ${t.n} ${t.n === 1 ? 'respuesta' : 'respuestas'} · ${Math.round(100 * t.ok / t.n)} % a la primera` : '<b>Hoy</b> aún no practica')
+    + (weakL.length ? ` · <b>Para practicar:</b> ${weakL.map(T => T.name).join(', ')}` : '');
+  const card = T => {
+    const L = levelOf(T), inRep = T.learned() && !(save.repasoOff || []).includes(T.id);
+    return `<button class="tcard ${L.k}" data-t="${T.id}"><span class="temo">${L.emo}</span><span class="tbody"><b>${T.name}</b>
+      <span class="road">${stonesHtml(L.stones)}<em style="--to:${L.stones}">${starSvg(true)}</em></span>
+      <small><span class="tw">${L.word}</span>${L.p != null ? `<span class="tp">${L.p} %</span>` : ''}${inRep ? '<span class="trep" title="Entra al Repaso del día">🔁</span>' : ''}</small></span></button>`;
   };
-  const el = frame(`<div class="pwrap">
-    ${root.order.length > 1 ? `<div class="pkids">${root.order.map(id => `<button class="pkid ${id === root.cur ? 'on' : ''}" data-id="${id}">${root.profiles[id].name}</button>`).join('')}</div>` : ''}
-    <div class="asum"><div class="acard"><b>★ ${total}</b><small>de ${max} estrellas</small></div>
-      <div class="acard"><b>${learned.length}</b><small>de ${TOPICS.length} temas aprendidos</small></div>
-      <div class="acard ${weakL.length ? 'warn' : 'good'}"><b>${weakL.length ? weakL.length : '✓'}</b><small>${weakL.length ? 'para reforzar' : 'todo bien'}</small></div></div>
-    <div class="rlock ${edit ? 'open' : ''}">${edit
-      ? `<p>🔓 Marca los temas que <b>${save.name}</b> practicará en el <b>Repaso del día</b> ✓.</p><button class="btn sm green" id="bLock">Listo 🔒</button>`
-      : `<p>✓ = el tema entra al <b>Repaso del día</b>. Para cambiarlos, desbloquea.</p><button class="btn sm ghost" id="bUnlock">🔒 Desbloquear</button>
-        <div class="rgate" hidden><span id="rq"></span><input id="rg" type="text" inputmode="numeric" maxlength="3" autocomplete="off" aria-label="Respuesta"><button class="btn sm gold" id="rgo">OK</button></div>`}</div>
-    ${weakL.length ? `<p class="pintro">⭐ <b>Para reforzar:</b> ${weakL.map(T => T.name).join(', ')}. El Repaso del día le da más preguntas de estos temas.</p>` : ''}
-    ${Object.keys(CH).map(ch => `<h3 class="sec">Capítulo ${CH[ch].label}</h3><div class="plist">${TOPICS.filter(T => T.ch === +ch).map(row).join('')}</div>`).join('')}
-    <p class="pnote">El porcentaje considera las últimas 20 respuestas de cada tema, en juegos, repaso y desafíos. Bajo 70 % aparece como ⭐ para reforzar.</p></div>`, 'fill');
-  $$('.pkid', el).forEach(b => b.onclick = () => { sfx.pop(); switchProfile(b.dataset.id); go('avance', { edit }); });
-  $$('input[data-t]', el).forEach(cb => cb.onchange = () => {
-    const off = new Set(save.repasoOff || []);
-    cb.checked ? off.delete(cb.dataset.t) : off.add(cb.dataset.t);
-    save.repasoOff = [...off]; persist(); sfx.pop();
+  const el = frame(`<div class="tabwrap avwrap">
+    <p class="famline">👪 ${fam}</p>
+    ${chapTabs(ch, k => { const c = chapStones(k); return { done: c.s === 5, html: c.k === 'off' ? '🔒' : `<span class="mroad">${stonesHtml(c.s)}</span>${c.k === 'prac' ? '<span>💪</span>' : ''}` }; })}
+    <div class="tgrid">${TOPICS.filter(T => T.ch === ch).map(card).join('')}</div>
+    <div class="avfoot"><span>🔁 = entra al Repaso del día</span><button class="btn sm ghost" id="bRepSel">🔒 Elegir temas del Repaso</button></div></div>`, 'fill');
+  $$('.ctab', el).forEach(b => b.onclick = () => go('avance', { ch: +b.dataset.ch, again: true }));
+  $$('.tcard', el).forEach(b => b.onclick = () => {
+    const T = TOP[b.dataset.t], L = levelOf(T); sfx.tap(2);
+    $$('.tcard', el).forEach(x => x.classList.toggle('sel', x === b));
+    L.k === 'top' ? poli.cheer(TOPIC_SAYS.top(T)) : poli.say(TOPIC_SAYS[L.k](T));
   });
-  if (edit) { $('#bLock', el).onclick = () => go('avance'); }
-  else {
-    // desbloquear: la misma multiplicación de Ajustes (protege de la niña, no de un adulto)
-    let ans = 0;
-    const ask = () => { const a = rnd(6, 9), b = rnd(6, 9); ans = a * b; $('#rq', el).textContent = `¿Cuánto es ${a} × ${b}?`; $('#rg', el).value = ''; };
-    const tryIt = () => { if (+$('#rg', el).value.trim() === ans) return go('avance', { edit: true }); sfx.bad(); poli.oops('Esa no es. Esta parte es para adultos.'); ask(); };
-    $('#bUnlock', el).onclick = () => { sfx.pop(); $('.rgate', el).hidden = false; $('#bUnlock', el).hidden = true; ask(); $('#rg', el).focus(); };
-    $('#rgo', el).onclick = tryIt;
-    $('#rg', el).onkeydown = e => { if (e.key === 'Enter') tryIt(); };
-  }
-  poli.say(weakL.length ? `Este es el avance de ${save.name}. Hay ${weakL.length === 1 ? 'un tema' : weakL.length + ' temas'} para reforzar.` : `Este es el avance de ${save.name}. ¡Va muy bien!`, false);
+  $('#bRepSel', el).onclick = () => go('adultos', { from: 'avance', sec: 'kids', edit: root.cur });
+  if (cur.again) return; // al cambiar de pestaña Poli no repite el saludo
+  const last = Math.max(0, ...Object.values(save.stats || {}).map(x => x.last || 0));
+  poli.say(!last ? '¡Aquí verás tu camino! Juega una isla y empieza a llenarlo.'
+    : Date.now() - last > 7 * 864e5 ? '¡Qué bueno verte de nuevo! Tu camino te estaba esperando.'
+      : weakL.length ? '¡Mira tu camino! Hay un tema para practicar un poquito. Toca un tema y te cuento.'
+        : '¡Mira cuánto has avanzado! Toca un tema y te cuento.');
 }
 
 /* ---------- respaldo del progreso ---------- */
