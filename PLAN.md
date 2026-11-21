@@ -25,8 +25,16 @@ Quien lleve la conversación **debe avisar a la dueña, al empezar cada etapa, q
 | Entrega | Contenido | Estado |
 |---|---|---|
 | **1 · 2.4.0** (`entrega-1`) | Reporte con estrellas y comentario, capítulo 4 Patrones, saludo según la hora, mejor voz, campana en Novedades, "+" en el menú del mapa, volver a la portada, "Recorrido" en Ajustes, botones compactos, pestañas de capítulos en una fila, textos sin nombre repetido | Probada en tablet, celular y PC. Pull Request a la app final |
+| **1.1 · 2.4.1** | Ajustes visuales (ver sección 3.1) | Por hacer, antes de la entrega 2 |
 | **2 · 3.0.0** | Estructura nueva (ver sección 4) | Por diseñar. Investigación hecha |
 | **3** | Voz neuronal pregrabada | Después de la entrega 2 (ver `docs/plan-audio-tts.md`) |
+
+## 3.1 Entrega 1.1 · 2.4.1: ajustes visuales (pedidos por la dueña tras probar la entrega 1)
+Son retoques de diseño que no dependen de la reestructura; se hacen con **Sonnet**, en una rama aparte y un Pull Request propio, **antes** de la entrega 2. Aplican a los 3 aparatos (tablet, celular y PC) en vertical y horizontal. **Orden y por qué:**
+1. **Presentación de la isla** (todas las islas). Hoy en vertical la figura y su texto quedan alineados a la izquierda con un hueco en medio, y sobra espacio entre ese grupo y las tarjetas de actividades; en horizontal el hueco entre la figura con su texto y los botones se nota más. Cambio pedido: **centrar** el grupo en vertical; en horizontal, **poner el texto al lado de la figura** (figura a la izquierda, título y recuadros a su derecha) en la mayoría de los casos, para ganar altura y que no haya que deslizar. *Va primero porque afecta a todas las islas y además resuelve el desborde más grande de la revisión de las unidades 1 a 3 (isla de Unidad, decena y centena, 29-38 px).*
+2. **Pantalla de felicitaciones** ("¡Juego completo!" y "¡Lección completa!"). Es un componente compartido por todas las unidades. En horizontal reparte el título, la estrella y el mensaje por todo el ancho y el ojo tiene que recorrerlo; en vertical se ve agrupado y centrado. Cambio pedido: igual que en vertical (grupo centrado), o un formato distinto, por ejemplo **estrella a la izquierda y, a su lado, el título y el mensaje en 2 líneas**. Proponer 2 o 3 opciones con capturas y que la dueña elija.
+3. **"Patrones que crecen"** (juegos y lección). Las torres siguen viéndose chicas y queda un espacio largo entre ellas y el texto (el tamaño del texto está bien). Agrandar las torres y acercarlas al texto, usando el espacio que sobra.
+4. **Ajustes menores de las unidades 1 a 3** (lista en la sección 6): vacíos arriba y abajo, textos chicos junto a dibujos grandes, títulos que repiten la pregunta y desbordes de pocos píxeles en celulares acostados bajos.
 
 ## 4. Entrega 2: estructura nueva (por decidir con la dueña)
 **Problemas que resuelve (dichos por la dueña):**
