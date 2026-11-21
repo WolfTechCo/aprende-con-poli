@@ -59,7 +59,7 @@ function patQ(kind, type) {
 
 /* ---------- patrones que crecen: torres de cubos ---------- */
 function towerSvg(vals, hole = -1, tail = false) {
-  const n = vals.length + (tail ? 1 : 0), W = 38, C = 15, H = 11 * C + 10, svg = [];
+  const n = vals.length + (tail ? 1 : 0), W = 38, C = 15, rows = Math.max(5, Math.max(...vals) + 1), H = rows * C + 10, svg = []; // filas = torre más alta + 1 (mínimo 5)
   const show = vals.map((v, i) => i === hole ? null : v);
   for (let i = 0; i < n; i++) {
     const x = 6 + i * W, v = show[i];
