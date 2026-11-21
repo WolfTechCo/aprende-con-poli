@@ -16,13 +16,19 @@ const ps = pts => pts.map(p => p.join(',')).join(' ');
 
 /* ---------- guardado ---------- */
 const KEY = 'poligonos-magicos-v1';
-const SAVEVER = 1;
-const NEWSAVE = () => ({ ver: SAVEVER, name: '', g: '', fx: true, voice: true, prog: {}, challenge: 0, challenge3d: 0, challengeNum: 0, ch: 1, stats: {}, repasoOff: [] });
+const SAVEVER = 2;
+/* badges: medallas que Poli ya anunció · acc: ropa que lleva Poli · today: respuestas de hoy { d, n, ok } (línea de la familia) */
+const NEWSAVE = () => ({ ver: SAVEVER, name: '', g: '', fx: true, voice: true, prog: {}, challenge: 0, challenge3d: 0, challengeNum: 0, ch: 1, stats: {}, repasoOff: [], badges: [], acc: '', today: null });
 /* el nombre se muestra dentro de la página: solo letras, números y espacios */
 const cleanName = s => String(s || '').replace(/[^\p{L}\p{N} .-]/gu, '').trim().slice(0, 14);
 /* traspaso del progreso entre versiones del guardado: si algún día se renombra, une o elimina
    una isla, se agrega aquí un paso { de: n, paso: s => {...} } que convierte el progreso antiguo */
-const MIGRATIONS = [{ de: 0, paso: s => s }]; // 0 → 1: guardados anteriores al número de versión, sin cambios
+const MIGRATIONS = [
+  { de: 0, paso: s => s }, // 0 → 1: guardados anteriores al número de versión, sin cambios
+  // 1 → 2 (entrega 2): no se renombra nada; se agregan las medallas ya anunciadas (vacías: Poli celebra una vez en el mapa
+  // las que ya tenía ganadas) y la ropa de Poli. Las medallas en sí no se guardan: se calculan con lo que ya hay
+  { de: 1, paso: s => { if (!Array.isArray(s.badges)) s.badges = []; if (typeof s.acc !== 'string') s.acc = ''; } },
+];
 function migrate(s) { s.ver ||= 0; for (const m of MIGRATIONS) if (s.ver === m.de) { m.paso(s); s.ver = m.de + 1; } return s; }
 /* perfiles: cada niño o niña tiene su propio progreso.
    Se guarda { profiles: {id: progreso}, order: [ids], cur: id }; save es el progreso del perfil que está jugando */
@@ -638,7 +644,7 @@ function go(name, params = {}) { sfx.pop(); cur = { name, ...params }; refreshPo
    Lo del niño vuelve al mapa; los detalles de premios (stickers, medallas, ropa) vuelven a Mis premios */
 const backTarget = () => ({ island: ['map'], lesson: isIntro(cur.id) ? ['map'] : ['island', { id: cur.id }], build: ['island', { id: cur.id }], paint: ['island', { id: cur.id }], hunt: ['island', { id: cur.id }], game: ['island', { id: cur.id }], challenge: ['map'], workshop: ['map'], repaso: ['map'],
   premios: ['map'], album: ['premios'], medallas: ['premios'], ropa: ['premios'], avance: ['map'],
-  adultos: typeof adultBack === 'function' ? adultBack() : [cur.from || 'map'], news: cur.from === 'adultos' ? ['adultos', { ok: true, sec: 'news' }] : [cur.from || 'welcome'] }[cur.name]);
+  adultos: adultBack(), news: cur.from === 'adultos' ? ['adultos', { ok: true, sec: 'news', from: cur.afrom }] : [cur.from || 'welcome'] }[cur.name]);
 function setAction(label, fn, enabled = true, cls = '') {
   const b = $('#action');
   if (!label) { b.hidden = true; return; }
@@ -698,7 +704,7 @@ function render() {
   refreshStars();
   scr().innerHTML = '';
   ({ welcome: viewWelcome, map: viewMap, island: viewIsland, lesson: viewLesson, build: viewBuild, paint: viewPaint, hunt: viewHunt, game: viewGame, challenge: viewChallenge, album: viewAlbum, workshop: viewWorkshop, repaso: viewRepaso, avance: viewAvance, news: viewNews,
-    premios: viewPremios, medallas: viewMedallas, ropa: viewRopa, adultos: window.viewAdultos || viewParent })[cur.name]();
+    premios: viewPremios, medallas: viewMedallas, ropa: viewRopa, adultos: viewAdultos })[cur.name]();
 }
 
 /* =========================================================
@@ -725,7 +731,7 @@ function viewWelcome() {
     ${root.order.length ? `<p class="who">¿Quién va a jugar?</p><div class="whowrap who"><button class="warr off" data-d="-1" aria-label="Anteriores">‹</button><div class="whorow">${root.order.map(id => { const nm = root.profiles[id].name || '?';
       return `<button class="kid" data-id="${id}" style="--k:${COLORS[[...nm].reduce((a, c) => a + c.codePointAt(0), 0) % COLORS.length]}"><span class="av">${nm[0].toUpperCase()}</span><b>${nm}</b><small>★ ${profileStars(id)}</small></button>`; }).join('')}
 </div><button class="warr off" data-d="1" aria-label="Siguientes">›</button></div>` : '<p>¡Aprende jugando, a tu ritmo y con Poli!</p>'}
-    <div class="field" ${root.order.length && !cur.add ? 'hidden' : ''}><input id="nm" maxlength="14" placeholder="¿Cómo te llamas?" autocomplete="off"><button class="btn gold" id="go">¡Empezar!</button></div></div></div>`, 'welcome');
+    <div class="field" ${root.order.length ? 'hidden' : ''}><input id="nm" maxlength="14" placeholder="¿Cómo te llamas?" autocomplete="off"><button class="btn gold" id="go">¡Empezar!</button></div></div></div>`, 'welcome');
   // Recorrido: botón con texto en la esquina de arriba (en la portada está libre)
   // Rincón de adultos: al lado (debajo de las tarjetas no cabe en celular acostado). Crear jugadores se hace allí
   $('#barSlot').innerHTML = '<button class="tourpill" id="bTour">🧭 Recorrido</button><button class="adultpill" id="bAdult">🔒 Adultos</button>';

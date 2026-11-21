@@ -74,91 +74,9 @@ function viewRepaso() {
   show();
 }
 
-/* ---------- Panel de apoderado ---------- */
+/* ---------- fechas (Rincón de adultos y reporte) ---------- */
 const dayStart = t => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
 const ago = t => { if (!t) return 'nunca'; const d = Math.round((dayStart(Date.now()) - dayStart(t)) / 864e5); return d <= 0 ? 'hoy' : d === 1 ? 'ayer' : `hace ${d} días`; };
-function viewParent() {
-  // entrada: una multiplicación que una niña de 2° básico aún no sabe (protege de la niña, no de un adulto)
-  if (!cur.ok) {
-    frame(`<div class="stepbody"><div class="col pgate"><h2>Solo para adultos</h2><span class="sub" id="pq"></span>
-      <div class="field"><input id="pg" type="text" inputmode="numeric" maxlength="3" autocomplete="off" placeholder="Respuesta"><button class="btn gold" id="pgo">Entrar</button></div></div></div>`);
-    let ans = 0, tries = 0;
-    const ask = () => { const a = rnd(6, 9), b = rnd(6, 9); ans = a * b; $('#pq').textContent = `¿Cuánto es ${a} × ${b}?`; $('#pg').value = ''; $('#pg').focus(); };
-    const tryIt = () => {
-      if (+$('#pg').value.trim() === ans) return go('adultos', { ok: true });
-      sfx.bad(); tries++;
-      if (tries >= 3) { poli.oops('Esta parte es para adultos.'); setTimeout(() => cur.name === 'adultos' && go('map'), 1400); return; }
-      poli.oops('Esa no es. Prueba con esta.'); ask();
-    };
-    ask();
-    $('#pgo').onclick = tryIt;
-    $('#pg').onkeydown = e => { if (e.key === 'Enter') tryIt(); };
-    poli.say('Esta parte es para adultos.', false);
-    return;
-  }
-  const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-  const el = frame(`<div class="pwrap">
-    <div class="pbtns ajtop"><button class="tourbtn" id="bTourAj">🧭 Recorrido</button></div>
-    <h3 class="sec">Niños y niñas</h3>
-    <div class="pbox" id="ajKids"><div class="pkids">${root.order.map(id => `<button class="pkid ${id === root.cur ? 'on' : ''}" data-id="${id}">${root.profiles[id].name || '?'}</button>`).join('')}${root.order.length < MAXPROFILES ? '<button class="pkid" id="bAddK">+ Nuevo</button>' : ''}</div>
-      <p>Ajustes de <b>${save.name}</b>. Toca otro nombre para cambiar los suyos.</p>
-      <div class="pbtns gsel"><button class="pkid ${save.g === 'a' ? 'on' : ''}" data-gs="a">👧 Niña</button><button class="pkid ${save.g === 'o' ? 'on' : ''}" data-gs="o">👦 Niño</button></div>
-      <div class="pbtns nmrow"><input id="pName" maxlength="14" value="${save.name}" autocomplete="off" aria-label="Nombre"><button class="btn sm ghost" id="bRen" aria-label="Cambiar nombre">Cambiar</button><button class="btn sm danger" id="bDel" aria-label="Borrar este perfil">🗑️ Borrar</button></div></div>
-    <h3 class="sec">Novedades</h3>
-    <div class="pbox split" id="ajNews"><p>Lo nuevo de cada versión de la app.</p><div class="pbtns"><button class="btn sm ghost" id="bNewsP">🔔 Ver novedades</button></div></div>
-    <h3 class="sec">Respaldo del progreso</h3>
-    <div class="pbox split stack" id="ajBackup"><p>Guarda un archivo con el progreso de todos los niños y niñas de este dispositivo. Sirve para pasarlo a otro dispositivo o recuperarlo si se borran los datos del navegador.</p>
-      <div class="pbtns"><button class="btn sm green" id="bSave">Guardar respaldo</button><button class="btn sm ghost" id="bLoad">Cargar respaldo</button>
-      <input type="file" id="fLoad" accept=".json,application/json" hidden></div></div>
-    <h3 class="sec">Ayúdanos a mejorar</h3>
-    <div class="pbox" id="ajFeedback"><p>¿Te gusta Aprende con Poli? Cuéntanos qué tanto la recomendarías. El reporte <b>no lleva nombres</b> y nada se envía solo: tú decides si lo compartes.</p>
-      <div class="rate" id="rate" role="slider" tabindex="0" aria-label="Recomendación de 0,5 a 5 estrellas" aria-valuemin="0.5" aria-valuemax="5" aria-valuenow="0">${[1, 2, 3, 4, 5].map(i => `<span class="rs" data-i="${i}"><i class="rbg">★</i><i class="rfg">★</i></span>`).join('')}<b id="rval"></b></div>
-      <textarea id="fbText" maxlength="300" rows="2" placeholder="¿Quieres contarnos algo más? (opcional)" aria-label="Comentario opcional"></textarea>
-      <p class="fbhint">Esto es lo que se compartiría:</p>
-      <textarea id="fbRep" readonly rows="6" aria-label="Reporte que se compartiría"></textarea>
-      <div class="pbtns">${FEEDBACK_MAIL ? '<button class="btn sm gold" id="bFbMail">Enviar por correo</button>' : ''}<button class="btn sm green" id="bFbCopy">Copiar reporte</button><button class="btn sm ghost" id="bFbFile">Guardar archivo</button></div></div>
-    <h3 class="sec">Instalar la app</h3>
-    <div class="pbox" id="ajInstall">${installed ? '<p><b>✓ La app ya está instalada en este dispositivo.</b> Funciona sin internet.</p>'
-      : `<div class="splitrow"><p>Al instalarla queda con su ícono en la pantalla de inicio y funciona sin internet. También se puede seguir usando desde el link.</p>
-        ${installPrompt ? '<button class="btn sm gold" id="bInst">Instalar app</button>' : ''}</div>
-        <ul class="psteps"><li><b>Android (Chrome):</b> menú ⋮ → <i>Instalar app</i> o <i>Agregar a la pantalla principal</i>.</li>
-        <li><b>iPad o iPhone (Safari):</b> botón Compartir → <i>Agregar a inicio</i>. En Apple la app instalada guarda su progreso aparte de Safari: usa el respaldo para pasarlo.</li></ul>`}</div>
-  </div>`, 'fill');
-  $$('.pkid[data-id]', el).forEach(b => b.onclick = () => { sfx.pop(); switchProfile(b.dataset.id); go('adultos', { ok: true }); });
-  if ($('#bAddK', el)) $('#bAddK', el).onclick = () => go('welcome', { add: true });
-  $$('[data-gs]', el).forEach(b => b.onclick = () => { save.g = b.dataset.gs; persist(); sfx.pop(); go('adultos', { ok: true }); });
-  $('#bRen', el).onclick = () => {
-    const nm = cleanName($('#pName', el).value);
-    if (!nm || root.order.some(id => id !== root.cur && root.profiles[id].name.toLowerCase() === nm.toLowerCase())) { sfx.bad(); poli.oops(nm ? 'Ya hay otro perfil con ese nombre.' : 'Escribe un nombre.'); return; }
-    save.name = nm; persist(); sfx.ok(); go('adultos', { ok: true }); poli.cheer(`Listo, ahora se llama ${nm}.`);
-  };
-  $('#bDel', el).onclick = () => {
-    if (!confirm(`¿Borrar el perfil de ${save.name} y todo su progreso? Solo se puede recuperar con un respaldo.`)) return;
-    deleteProfile(root.cur); sfx.pop();
-    root.cur ? go('adultos', { ok: true }) : go('welcome');
-  };
-  $('#bNewsP', el).onclick = () => go('news', { from: 'adultos' });
-  $('#bSave', el).onclick = () => { sfx.pop(); downloadBackup(); poli.say('Listo. Guarda el archivo en un lugar seguro.', false); };
-  $('#bLoad', el).onclick = () => $('#fLoad', el).click();
-  $('#fLoad', el).onchange = async e => {
-    const f = e.target.files[0]; if (!f) return;
-    let data;
-    try { if (f.size > 200000) throw 0; data = restoreFrom(JSON.parse(await f.text())); }
-    catch (err) { sfx.bad(); poli.oops('Ese archivo no es un respaldo de la app.'); return; }
-    const names = list => list.join(', ') || 'nadie';
-    if (!confirm(`Esto reemplaza los perfiles de este dispositivo (${names(root.order.map(id => root.profiles[id].name))}) por los del respaldo (${names(data.map(d => d.name))}). ¿Continuar?`)) return;
-    const profiles = {}, order = [];
-    for (const d of data) { const id = newPid() + order.length; profiles[id] = d; order.push(id); }
-    root = { profiles, order, cur: order[0] }; save = loadProfile(order[0]); persist(); sfx.win();
-    go('adultos', { ok: true }); poli.cheer('¡Progreso cargado!');
-  };
-  if ($('#bInst', el)) $('#bInst', el).onclick = async () => { installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; go('adultos', { ok: true }); };
-  setupFeedback(el);
-  $('#bTourAj', el).onclick = () => { sfx.pop(); startAjustesTour(); };
-  poli.say('Aquí están los ajustes: perfiles, respaldo e instalación.', false);
-  if (tourSeen(TOURAJKEY) < TOURVER_AJ) setTimeout(() => cur.name === 'adultos' && !tourOn && startAjustesTour(), 500);
-}
-
 /* ---------- Mi avance (entrega 2): sin candado, solo del jugador que está jugando ----------
    Cada tema es un camino de 5 piedras de colores con una estrella que camina hasta donde va; el % va chico.
    Si cuesta, dice «¡Vamos a practicar!» en naranjo (nunca rojo). Arriba, una línea para la familia con lo de hoy.
@@ -257,5 +175,10 @@ function cleanProfile(src) {
     if (TOP[k] && v && /^[01]{0,20}$/.test(v.h) && Number.isFinite(v.n)) out.stats[k] = { n: Math.max(0, Math.round(v.n)), h: v.h, last: Number.isFinite(v.last) ? v.last : 0 };
   if (Array.isArray(src.days)) out.days = src.days.filter(d => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)).slice(-90);
   if (Array.isArray(src.repasoOff)) out.repasoOff = src.repasoOff.filter(k => TOP[k]);
+  if (Array.isArray(src.badges)) out.badges = src.badges.filter(b => typeof b === 'string' && /^[\w-]{1,20}$/.test(b)).slice(0, 40);
+  if (typeof src.acc === 'string' && /^[a-z]{1,12}$/.test(src.acc)) out.acc = src.acc;
+  if (src.today && typeof src.today === 'object' && /^\d{4}-\d{2}-\d{2}$/.test(src.today.d) && Number.isFinite(src.today.n) && Number.isFinite(src.today.ok)) {
+    const n = Math.max(0, Math.min(9999, Math.round(src.today.n))); out.today = { d: src.today.d, n, ok: Math.max(0, Math.min(n, Math.round(src.today.ok))) };
+  }
   return migrate(out);
 }
