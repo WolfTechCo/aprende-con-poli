@@ -15,7 +15,9 @@ const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
 const ps = pts => pts.map(p => p.join(',')).join(' ');
 
 /* ---------- guardado ---------- */
-const KEY = 'poligonos-magicos-v1';
+/* la app final usa siempre 'poligonos-magicos-v1' (no se cambia nunca). Solo el ambiente de pruebas, que vive en la misma
+   dirección base (wolftechco.github.io), define POLI_KEY antes de cargar esta app para no mezclar su progreso con el de la final */
+const KEY = self.POLI_KEY || 'poligonos-magicos-v1';
 const SAVEVER = 2;
 /* badges: medallas que Poli ya anunció · acc: ropa que lleva Poli · today: respuestas de hoy { d, n, ok } (línea de la familia) */
 const NEWSAVE = () => ({ ver: SAVEVER, name: '', g: '', fx: true, voice: true, prog: {}, challenge: 0, challenge3d: 0, challengeNum: 0, ch: 1, stats: {}, repasoOff: [], badges: [], acc: '', today: null });

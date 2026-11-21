@@ -4,8 +4,8 @@
    - Al publicar una versión nueva: subir VERSION aquí y el ?v= en index.html (deben coincidir).
      El navegador detecta el cambio, guarda la versión nueva y borra la anterior.
    - El progreso (localStorage) NO se toca: está en otro lugar del dispositivo. */
-const VERSION = 'v32';
-const CACHE = 'poli-' + VERSION;
+const VERSION = 'v33';
+const CACHE = 'poli-' + VERSION; // el ambiente de pruebas usa otro prefijo ('pruebas-poli-'): así ninguna borra los archivos de la otra
 const FILES = [
   './', './index.html', './manifest.webmanifest',
   `./css/style.css?v=${VERSION.slice(1)}`, `./js/app.js?v=${VERSION.slice(1)}`, `./js/numeros.js?v=${VERSION.slice(1)}`, `./js/repaso.js?v=${VERSION.slice(1)}`, `./js/opinion.js?v=${VERSION.slice(1)}`, `./js/patrones.js?v=${VERSION.slice(1)}`, `./js/medallas.js?v=${VERSION.slice(1)}`, `./js/guardarropa.js?v=${VERSION.slice(1)}`, `./js/diploma.js?v=${VERSION.slice(1)}`, `./js/premios.js?v=${VERSION.slice(1)}`, `./js/adultos.js?v=${VERSION.slice(1)}`, `./js/novedades.js?v=${VERSION.slice(1)}`, `./js/recorrido.js?v=${VERSION.slice(1)}`,
@@ -19,7 +19,7 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith('poli-') && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => /^poli-v\d+$/.test(k) && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 
 self.addEventListener('fetch', e => {
