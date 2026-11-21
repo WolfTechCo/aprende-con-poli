@@ -59,6 +59,12 @@ Quien lleve la conversación **debe avisar a la dueña, al empezar cada etapa, q
 Plan de la dueña en `docs/plan-audio-tts.md`. Observaciones al revisarlo: los textos de la app **no son fijos** (muchos llevan nombre, números o ejercicios al azar, ver `poli.say(...)` y las preguntas generadas), no existe el marcador `{nombre}`, `afterSay` depende de `speechSynthesis.speaking`, y la cuenta de Azure y su llave las maneja la dueña en su máquina. Primer paso: inventariar y clasificar los textos.
 
 ## 6. Pendientes menores
+- **Ajustes menores de las unidades 1 a 3 en celular acostado** (revisión del 21-11-2026 en 6 tamaños: 844×390, 667×375, 740×360, 915×412 y celulares verticales 390×844 y 360×640; en vertical no hay hallazgos ni errores). Dejar para una etapa posterior, junto con la reestructura:
+  - *Se pasan unos píxeles y habría que deslizar* (solo en celulares acostados muy bajos, 667×375 y 740×360): isla de Unidad, decena y centena (29-38 px; el título de 2 líneas y los 3 recuadros ocupan mucho), lección del cubo (8-12 px), "Caza en la vida real" del capítulo 1 y 2 (7 px), juego "Suma por columnas" (10 px), Gran Desafío del capítulo 3 (10 px) y Repaso (19 px en 740×360).
+  - *Quedan vacíos arriba y abajo* (contenido pequeño y pegado arriba, como pasaba en el capítulo 4 antes del arreglo): juego "¿Cuál es?" del capítulo 3 (35-38 % de la altura), "¿Cuánto vale?" y el Gran Desafío del capítulo 3 en 915×412 (39 %). Agrandar números y opciones para llenar el espacio.
+  - *Dibujo grande, textos chicos* (al revés del capítulo 4): lecciones de figuras 3D, por ejemplo "El cubo", con el título y los recuadros "6 caras · 12 aristas · 8 vértices" muy pequeños junto al dibujo.
+  - *El título de la pantalla repite la pregunta* en algunos juegos del capítulo 3 ("¿Cuál es?" / "¿Cuál es el 532?"): usar el nombre de la actividad, como ya se hizo en el capítulo 4.
+  - Un solo criterio para todas las unidades: el contenido debe ocupar bien el alto y los textos deben ser proporcionales al dibujo.
 - Probar en aparatos reales: instalación, modo sin internet y voces.
 - Revisar el diploma impreso en papel.
 - El aviso de ✨ → campana ya está; si se agrega un numerito de "novedades sin leer", definir cuándo.
