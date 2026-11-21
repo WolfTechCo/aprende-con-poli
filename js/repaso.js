@@ -83,9 +83,9 @@ function viewParent() {
     let ans = 0, tries = 0;
     const ask = () => { const a = rnd(6, 9), b = rnd(6, 9); ans = a * b; $('#pq').textContent = `¿Cuánto es ${a} × ${b}?`; $('#pg').value = ''; $('#pg').focus(); };
     const tryIt = () => {
-      if (+$('#pg').value.trim() === ans) return go('parent', { ok: true });
+      if (+$('#pg').value.trim() === ans) return go('adultos', { ok: true });
       sfx.bad(); tries++;
-      if (tries >= 3) { poli.oops('Esta parte es para adultos.'); setTimeout(() => cur.name === 'parent' && go('map'), 1400); return; }
+      if (tries >= 3) { poli.oops('Esta parte es para adultos.'); setTimeout(() => cur.name === 'adultos' && go('map'), 1400); return; }
       poli.oops('Esa no es. Prueba con esta.'); ask();
     };
     ask();
@@ -98,7 +98,7 @@ function viewParent() {
   const el = frame(`<div class="pwrap">
     <div class="pbtns ajtop"><button class="tourbtn" id="bTourAj">🧭 Recorrido</button></div>
     <h3 class="sec">Niños y niñas</h3>
-    <div class="pbox" id="ajKids"><div class="pkids">${root.order.map(id => `<button class="pkid ${id === root.cur ? 'on' : ''}" data-id="${id}">${root.profiles[id].name || '?'}</button>`).join('')}</div>
+    <div class="pbox" id="ajKids"><div class="pkids">${root.order.map(id => `<button class="pkid ${id === root.cur ? 'on' : ''}" data-id="${id}">${root.profiles[id].name || '?'}</button>`).join('')}${root.order.length < MAXPROFILES ? '<button class="pkid" id="bAddK">+ Nuevo</button>' : ''}</div>
       <p>Ajustes de <b>${save.name}</b>. Toca otro nombre para cambiar los suyos.</p>
       <div class="pbtns gsel"><button class="pkid ${save.g === 'a' ? 'on' : ''}" data-gs="a">👧 Niña</button><button class="pkid ${save.g === 'o' ? 'on' : ''}" data-gs="o">👦 Niño</button></div>
       <div class="pbtns nmrow"><input id="pName" maxlength="14" value="${save.name}" autocomplete="off" aria-label="Nombre"><button class="btn sm ghost" id="bRen" aria-label="Cambiar nombre">Cambiar</button><button class="btn sm danger" id="bDel" aria-label="Borrar este perfil">🗑️ Borrar</button></div></div>
@@ -122,19 +122,20 @@ function viewParent() {
         <ul class="psteps"><li><b>Android (Chrome):</b> menú ⋮ → <i>Instalar app</i> o <i>Agregar a la pantalla principal</i>.</li>
         <li><b>iPad o iPhone (Safari):</b> botón Compartir → <i>Agregar a inicio</i>. En Apple la app instalada guarda su progreso aparte de Safari: usa el respaldo para pasarlo.</li></ul>`}</div>
   </div>`, 'fill');
-  $$('.pkid[data-id]', el).forEach(b => b.onclick = () => { sfx.pop(); switchProfile(b.dataset.id); go('parent', { ok: true }); });
-  $$('[data-gs]', el).forEach(b => b.onclick = () => { save.g = b.dataset.gs; persist(); sfx.pop(); go('parent', { ok: true }); });
+  $$('.pkid[data-id]', el).forEach(b => b.onclick = () => { sfx.pop(); switchProfile(b.dataset.id); go('adultos', { ok: true }); });
+  if ($('#bAddK', el)) $('#bAddK', el).onclick = () => go('welcome', { add: true });
+  $$('[data-gs]', el).forEach(b => b.onclick = () => { save.g = b.dataset.gs; persist(); sfx.pop(); go('adultos', { ok: true }); });
   $('#bRen', el).onclick = () => {
     const nm = cleanName($('#pName', el).value);
     if (!nm || root.order.some(id => id !== root.cur && root.profiles[id].name.toLowerCase() === nm.toLowerCase())) { sfx.bad(); poli.oops(nm ? 'Ya hay otro perfil con ese nombre.' : 'Escribe un nombre.'); return; }
-    save.name = nm; persist(); sfx.ok(); go('parent', { ok: true }); poli.cheer(`Listo, ahora se llama ${nm}.`);
+    save.name = nm; persist(); sfx.ok(); go('adultos', { ok: true }); poli.cheer(`Listo, ahora se llama ${nm}.`);
   };
   $('#bDel', el).onclick = () => {
     if (!confirm(`¿Borrar el perfil de ${save.name} y todo su progreso? Solo se puede recuperar con un respaldo.`)) return;
     deleteProfile(root.cur); sfx.pop();
-    root.cur ? go('parent', { ok: true }) : go('welcome');
+    root.cur ? go('adultos', { ok: true }) : go('welcome');
   };
-  $('#bNewsP', el).onclick = () => go('news', { from: 'parent' });
+  $('#bNewsP', el).onclick = () => go('news', { from: 'adultos' });
   $('#bSave', el).onclick = () => { sfx.pop(); downloadBackup(); poli.say('Listo. Guarda el archivo en un lugar seguro.', false); };
   $('#bLoad', el).onclick = () => $('#fLoad', el).click();
   $('#fLoad', el).onchange = async e => {
@@ -147,13 +148,13 @@ function viewParent() {
     const profiles = {}, order = [];
     for (const d of data) { const id = newPid() + order.length; profiles[id] = d; order.push(id); }
     root = { profiles, order, cur: order[0] }; save = loadProfile(order[0]); persist(); sfx.win();
-    go('parent', { ok: true }); poli.cheer('¡Progreso cargado!');
+    go('adultos', { ok: true }); poli.cheer('¡Progreso cargado!');
   };
-  if ($('#bInst', el)) $('#bInst', el).onclick = async () => { installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; go('parent', { ok: true }); };
+  if ($('#bInst', el)) $('#bInst', el).onclick = async () => { installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; go('adultos', { ok: true }); };
   setupFeedback(el);
   $('#bTourAj', el).onclick = () => { sfx.pop(); startAjustesTour(); };
   poli.say('Aquí están los ajustes: perfiles, respaldo e instalación.', false);
-  if (tourSeen(TOURAJKEY) < TOURVER_AJ) setTimeout(() => cur.name === 'parent' && !tourOn && startAjustesTour(), 500);
+  if (tourSeen(TOURAJKEY) < TOURVER_AJ) setTimeout(() => cur.name === 'adultos' && !tourOn && startAjustesTour(), 500);
 }
 
 /* ---------- Mi avance: cómo le va en cada tema (sin clave, solo para mirar) ---------- */

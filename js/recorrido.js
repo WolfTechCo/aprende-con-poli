@@ -71,19 +71,18 @@ function startMapTour(after) {
     prog: { intro: { lesson: true }, tri: { lesson: true, build: true, hunt: true }, sq: { lesson: true } } });
   root.cur = root.cur || '__demo';
   go('map');
-  const wide = () => getComputedStyle($('.mbtns')).display !== 'none';
-  // en celular, Repaso, Álbum, Mi avance y Ajustes están dentro del menú: se abre y se ilumina la opción
-  const btn = g => () => { if (wide()) return $(`.mbtns [data-go=${g}]`); setMenu(true); return $(`#menu [data-go=${g}]`); };
+  // Repaso, Mis premios, Mi avance y Adultos están dentro del menú «+»: se abre y se ilumina la opción
+  const btn = g => () => { setMenu(true); return $(`#menu [data-go=${g}]`); };
   setTimeout(() => runTour([
     { target: () => $('.chapters'), say: '¡Hola! Aquí eliges qué quieres aprender y jugar hoy. ¡Toca la varita para seguir!' },
     { target: () => $('.node.current'), say: '¡El Gran Desafío te llama! Salta de isla en isla y sigue a la que se mueve… ¡ahí empieza la diversión!' },
     { target: () => $('.node[data-id="tri"]'), say: '¡Junta todas sus estrellas y gana su sticker!' },
     { target: () => $('.node[data-id="challenge"]'), say: 'Al superar todas las islas se abre el Gran Desafío. ¡Si no te sale, inténtalo otra vez!' },
     { target: btn('repaso'), say: '¿Quieres ser todavía más fuerte? 💪 Aquí practicas un poquito de todo lo que aprendiste.' },
-    { target: btn('album'), say: 'Aquí guardas tus stickers. ¿Podrás completarlos todos?' },
+    { target: btn('premios'), say: 'Aquí guardas tus stickers, medallas y la ropa de Poli. ¿Podrás ganarlos todos?' },
     { target: btn('avance'), say: `¡Mira todo lo que has avanzado! Aquí ves tus estrellas y en qué eres ${gx('experta', 'experto')}.`,
       adult: 'Para adultos: % de aciertos por tema, qué reforzar y personalizar su Repaso 🔒' },
-    { target: btn('parent'), say: 'Esta parte es para tus papás. 🔒', adult: 'Perfiles y respaldo del progreso.' },
+    { target: btn('adultos'), say: 'Esta parte es para tus papás. 🔒', adult: 'Jugadores, ajustes y respaldo del progreso.' },
     { target: () => $('#btnVoice'), say: '¡Psst! 🤫 Con este parlante decides si Poli habla.' },
     { final: true, say: '¡Listo, ya conoces todo! ✨ En la portada, la campanita te cuenta las novedades. ¡A jugar!' },
   ], () => {
