@@ -874,3 +874,15 @@ svg.join{width:var(--board);max-width:100%;height:auto}
   .card .ico{width:42px;border-radius:14px}.card b{font-size:19px}.card small{font-size:12px}.card .st svg{width:26px;height:26px}
   .chip{font-size:12px;padding:1px 10px}.chips{gap:5px}
 }
+/* celular horizontal bajo: en las preguntas de patrones la fila de fichas va arriba y las opciones abajo, en una sola fila (no en una columna al lado) */
+@media (max-height:500px){
+  .qwrap:has(.pat){grid-template-columns:1fr;grid-template-areas:"q" "s" "o"}
+  .qwrap:has(.pat)>.nshape{grid-area:s}
+  .qwrap:has(.pat)>.opts{grid-area:o;grid-column:auto;flex-wrap:nowrap}
+  .pat .pt,.ptq{width:min(9vh,38px)}
+  .opt .pt{width:min(11vh,44px)}
+  .opt .pat.sm .pt{width:min(7vh,26px)}
+  .opt.txt{padding:5px 10px}
+  .reptag{margin:0 0 2px;line-height:1}.reptag span{font-size:12px;padding:0 10px;box-shadow:0 2px 0 #c7c9f0}
+  .progress{padding:0 0 3px}.progress i{height:9px}
+}
