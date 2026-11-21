@@ -6,6 +6,12 @@ Lo que ven los apoderados dentro de la app está en `js/novedades.js` (*Novedade
 Formato de versión **X.Y.Z**: X = cambio grande (nueva materia o rediseño) · Y = capítulo o función nueva · Z = ajustes y arreglos.
 La versión de los archivos (`?v=` en `index.html` y `VERSION` en `sw.js`) es un número interno aparte.
 
+## 2.4.1 — 2026-11-21 (archivos v25)
+Ajustes visuales pedidos por la dueña al probar la entrega 1 (ver `PLAN.md`, sección 3.1). Sin novedades para familias.
+- **Presentación de la isla:** la clase `.hero` es de la portada (ancho fijo y `aspect-ratio:1`) y también se aplicaba a `.hub .hero`: la figura y su texto quedaban angostos, pegados a la izquierda (43 px fuera del centro en celular vertical) y con un hueco en medio. Ahora `.hub .hero{width:auto;aspect-ratio:auto}`. En vertical (≤820 px) la figura queda centrada y ocupa el alto sobrante (`grid-template-rows:1fr auto`); en tablet vertical es más grande; en **celular acostado** la figura va a la izquierda y su texto (título y recuadros) a su lado, con lo que no hay que deslizar (la isla de Unidad, decena y centena ya no se pasa 29-38 px). Vale para las islas de figuras 2D, 3D, números y patrones.
+- **Pantalla de felicitaciones** (juego, lección, Repaso y desafío; en celular acostado): formato **B** elegido por la dueña, con la estrella a la izquierda y el título y el mensaje a su lado en dos líneas (antes se repartían por todo el ancho). En el desafío, las 3 estrellas quedan juntas a la izquierda.
+- **Patrones que crecen:** las filas de la torre se ajustan a la torre más alta (`towerSvg`, mínimo 5; antes siempre 11), así los cubos salen más grandes; en celular acostado la torre y las opciones van juntas en el centro (no en extremos opuestos) y en la lección la torre comparte el alto con el título.
+
 ## 2.4.0 — 2026-11-21 (archivos v24)
 - **Reporte de uso y opinión** (`js/opinion.js`, sección "Ayúdanos a mejorar" en Ajustes): estrellas de 0,5 a 5 (mitad izquierda = media estrella; también con teclado) y comentario opcional de hasta 300 caracteres. Arma un reporte anónimo ("Perfil 1", "Perfil 2"…, código al azar por dispositivo) con estrellas ganadas, temas, días de uso, respuestas y % a la primera. El adulto lo ve completo y lo comparte con "Copiar reporte" o "Guardar archivo". Nada sale solo: la CSP no cambia. Para recibirlo por correo, escribir el correo del proyecto en `FEEDBACK_MAIL` (`js/opinion.js`): aparece "Enviar por correo".
 - `save.days`: días en que practicó (últimos 90), se guarda en `track()` y se limpia en `cleanProfile`.

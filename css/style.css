@@ -887,7 +887,7 @@ svg.join{width:var(--board);max-width:100%;height:auto}
   .progress{padding:0 0 1px}.progress i{height:8px}
 }
 /* torres de cubos: el ancho sale de --n (cuántas torres hay); en celular acostado se agrandan para llenar el espacio */
-.towers{width:min(calc(var(--n,5) * 44px),86vw)}
+.towers{width:min(calc(var(--n,5) * 52px),86vw)}
 @media (max-height:500px){
   .towers{width:min(calc(var(--n,5) * 64px),62vw);max-height:clamp(105px,calc(100vh - 235px),215px)}
   /* lecciones de patrones: la fila de fichas arriba y el título abajo, centrados (antes: todo en una fila pegado arriba) */
@@ -901,3 +901,43 @@ svg.join{width:var(--board);max-width:100%;height:auto}
 #bMenu[aria-expanded=true]{animation:none}
 @keyframes glowmas{0%,100%{box-shadow:0 5px 0 #d98f00,0 9px 16px rgba(43,45,110,.28),inset 0 3px 0 rgba(255,255,255,.6),0 0 0 0 rgba(255,194,51,.6)}50%{box-shadow:0 5px 0 #d98f00,0 9px 16px rgba(43,45,110,.28),inset 0 3px 0 rgba(255,255,255,.6),0 0 0 10px rgba(255,194,51,0)}}
 #bMenu .plus{width:24px;height:24px;filter:drop-shadow(0 2px 0 rgba(138,75,0,.35))}
+/* ---------- presentación de la isla (entrega 1.1) ----------
+   Antes: la clase .hero es de la portada (ancho fijo y proporción cuadrada) y también se aplicaba aquí: dejaba la figura y su texto
+   angostos, pegados a la izquierda y con un hueco en medio. */
+.hub .hero{width:auto;aspect-ratio:auto}
+@media (max-width:820px){
+  .hub{grid-template-rows:minmax(0,1fr) auto}   /* la figura aprovecha el alto y las actividades quedan abajo, junto a Poli */
+  .hub .hero{width:100%;justify-self:center}
+}
+/* celular acostado: la figura a la izquierda y su texto (título y recuadros) a su lado; así sobra alto y no hay que deslizar */
+@media (max-height:500px) and (orientation:landscape){
+  .hub{grid-template-columns:minmax(0,1.1fr) minmax(0,1.2fr);grid-template-rows:none;gap:14px}
+  .hub .hero{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"fig title" "fig chips";column-gap:12px;row-gap:4px;align-items:center;text-align:left;width:100%}
+  .hub .hero>svg,.hub .hero>canvas{grid-area:fig;width:min(34vh,150px);height:auto;max-height:none}
+  .hub .hero>canvas{height:min(34vh,150px)}
+  .hub .hero h2{grid-area:title;align-self:end;font-size:clamp(20px,3.6vw,28px)}
+  .hub .hero h2.long{font-size:clamp(17px,3vw,23px);line-height:1.12}
+  .hub .hero .chips{grid-area:chips;align-self:start;justify-content:flex-start}
+}
+/* tablet vertical: la figura de la isla usa más del alto que sobra */
+@media (min-width:600px) and (max-width:820px) and (orientation:portrait){
+  .hub .hero svg{max-height:min(var(--board),34vh)}
+  .hub .hero canvas{height:min(var(--board),34vh)}
+  .hub h2{font-size:clamp(34px,6vw,52px)}.hub h2.long{font-size:clamp(26px,4.6vw,40px)}
+}
+/* ---------- pantalla de felicitaciones (entrega 1.1) ----------
+   Celular acostado: antes todo se repartía en una fila por todo el ancho (título, estrella y mensaje lejos entre sí).
+   Ahora: la estrella a la izquierda y, a su lado, el título y el mensaje en dos líneas. Aplica a juegos, lecciones, Repaso y desafíos. */
+@media (max-height:500px) and (orientation:landscape){
+  .col.trophy{display:grid;grid-template-columns:auto auto;grid-template-areas:"star title" "star sub";column-gap:22px;row-gap:6px;justify-content:center;align-items:center;text-align:left}
+  .col.trophy>:nth-child(2){grid-area:star}
+  .col.trophy>h2{grid-area:title;align-self:end;font-size:32px}
+  .col.trophy>.sub{grid-area:sub;align-self:start;justify-self:start}
+  .trophy svg{width:min(34vh,130px)}
+  .col.trophy>div:not(.star-big) svg{width:min(17vh,66px)}   /* desafío: 3 estrellas juntas */
+}
+/* ---------- patrones que crecen (entrega 1.1) ---------- */
+@media (max-height:500px) and (orientation:landscape){
+  .qwrap:has(.towers){grid-template-columns:auto auto;justify-content:center;column-gap:34px}  /* torre y opciones juntas, no en extremos opuestos */
+  .col>.towers{max-height:clamp(80px,calc(100vh - 300px),170px)}  /* en la lección la torre comparte el alto con el título y el recuadro */
+}
