@@ -111,7 +111,8 @@ const PICO = {
 };
 PATS.forEach(T => { FIG[T.id] = T; T.ico = { g1: PICO[T.id] }; });
 CH[4] = {
-  nodes: ['intro4', ...PATS.map(T => T.id), 'challengePat'], intro: 'intro4', chal: 'challengePat', figs: PATS, label: '<span class="cn">4 · </span>Patrones',
+  nodes: ['intro4', ...PATS.map(T => T.id), 'challengePat'], intro: 'intro4', chal: 'challengePat', figs: PATS, label: '<span class="cn">4 · </span>Patrones', nm: 'Patrones',
+  ico: '<svg viewBox="0 0 24 24"><circle cx="4.5" cy="12" r="3.6" fill="#ff6b6b"/><circle cx="12" cy="12" r="3.6" fill="#4ea8ff"/><circle cx="19.5" cy="12" r="3.6" fill="#ff6b6b"/></svg>',
   introLabel: 'Patrones', sticker: () => ['Detective', 'Descubrir patrones'], chalTitle: 'Gran Desafío de Patrones', champ: () => gx('una campeona', 'un campeón') + ' de los patrones',
   hello: n => `¡${gx('Bienvenida', 'Bienvenido')} al capítulo de los patrones, ${n}! Toca la isla verde.`,
   types: ['n:pc_next', 'n:pf_next', 'n:pc_miss', 'n:pf_miss', 'n:pc_core', 'n:pf_core', 'n:pg_next', 'n:pg_miss'],

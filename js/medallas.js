@@ -27,16 +27,28 @@ const MEDALS = [
   { id: 'e50', ico: '🌟', name: '50 estrellas', how: 'Junta 50 estrellas', ok: () => totalStars() >= 50 },
   { id: 'mente', ico: '🧠', name: 'Mente brillante', how: 'Aprende todos los temas', ok: () => TOPICS.every(T => T.learned()) },
 ];
-const medalsEarned = () => MEDALS.filter(m => m.ok()).map(m => m.id);
+/* lo ganado no se pierde: una medalla que Poli ya anunció (save.badges) queda para siempre, aunque lleguen temas nuevos */
+const medalsEarned = () => MEDALS.filter(m => (save.badges || []).includes(m.id) || m.ok()).map(m => m.id);
+/* al llegar el capítulo 5, quien ya tenía todo lo de los capítulos 1 a 4 conserva «Mente brillante» y el rango más alto.
+   Se revisa una sola vez por jugador ('c5' en save.badges). Para otro capítulo nuevo: otra marca y el capítulo anterior */
+function keepEarned() {
+  if (demoMode) return;
+  const b = save.badges ||= [];
+  if (b.includes('c5')) return;
+  if (TOPICS.filter(T => T.ch <= 4).every(T => T.learned()) && !b.includes('mente')) b.push('mente');
+  if ([1, 2, 3, 4].every(k => chStars(k) === CH[k].figs.length * 3 + 4) && !b.includes('rey')) b.push('rey');
+  b.push('c5'); persist();
+}
 
 /* anuncio de Poli en el mapa: medallas nuevas (una sola vez, con confeti) o la racha.
    Al actualizar a la entrega 2, las medallas que ya tenía se celebran todas juntas */
 function medalNews() {
   if (demoMode || tourOn) return '';
+  keepEarned();
   const now = medalsEarned(), old = save.badges || [], fresh = MEDALS.filter(m => now.includes(m.id) && !old.includes(m.id));
   let out = '';
   if (fresh.length) {
-    save.badges = now; persist();
+    save.badges = [...new Set([...old, ...now])]; persist();
     out += fresh.length === 1 ? `¡Ganaste la medalla ${fresh[0].name}! Toca tus estrellas para verla. ` : `¡Tienes ${fresh.length} medallas nuevas! Toca tus estrellas para verlas. `;
     setTimeout(() => { if (cur.name === 'map') { sfx.win(); confetti(100); } }, 500);
   }

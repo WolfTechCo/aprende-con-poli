@@ -124,7 +124,8 @@ function viewAvance() {
     ${chapTabs(ch, k => { const c = chapStones(k); return { done: c.s === 5, html: c.k === 'off' ? '🔒' : `<span class="mroad">${stonesHtml(c.s)}</span>${c.k === 'prac' ? '<span>💪</span>' : ''}` }; })}
     <div class="tgrid">${TOPICS.filter(T => T.ch === ch).map(card).join('')}</div>
     <div class="avfoot"><span>🔁 = entra al Repaso del día</span><button class="btn sm ghost" id="bRepSel">🔒 Elegir temas del Repaso</button></div></div>`, 'fill');
-  $$('.ctab', el).forEach(b => b.onclick = () => go('avance', { ch: +b.dataset.ch, again: true }));
+  fitChapRow($('.ctabs', el));
+  $$('.ctab', el).forEach(b => b.onclick = () => { go('avance', { ch: +b.dataset.ch, again: true }); poli.say(chapName(+b.dataset.ch)); });
   $$('.tcard', el).forEach(b => b.onclick = () => {
     const T = TOP[b.dataset.t], L = levelOf(T); sfx.tap(2);
     $$('.tcard', el).forEach(x => x.classList.toggle('sel', x === b));
@@ -167,7 +168,7 @@ function cleanProfile(src) {
   out.name = cleanName(src.name);
   if (src.g === 'a' || src.g === 'o') out.g = src.g;
   for (const k of ['fx', 'voice']) if (typeof src[k] === 'boolean') out[k] = src[k];
-  for (const k of ['challenge', 'challenge3d', 'challengeNum', 'challengePat']) if (Number.isFinite(src[k])) out[k] = Math.max(0, Math.min(3, Math.round(src[k])));
+  for (const k of Object.values(CH).map(C => C.chal)) if (Number.isFinite(src[k])) out[k] = Math.max(0, Math.min(3, Math.round(src[k])));
   if (CH[src.ch]) out.ch = +src.ch;
   if (src.prog && typeof src.prog === 'object') for (const [k, v] of Object.entries(src.prog))
     if (id.test(k) && v && typeof v === 'object') { out.prog[k] = {}; for (const [a, b] of Object.entries(v)) if (id.test(a) && b === true) out.prog[k][a] = true; }

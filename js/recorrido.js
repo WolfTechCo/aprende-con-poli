@@ -8,7 +8,7 @@
      3 (entrega 2): casita, estrellas que llevan a Mis premios y menú «+» con Repaso, Mis premios, Mi avance y Adultos.
    - El Rincón de adultos no tiene recorrido: es sobrio, sin Poli, y cada sección dice para qué sirve.
    ========================================================= */
-const TOURVER = 3;
+const TOURVER = 4;
 const TOURKEY = 'poli-recorrido-visto';
 const tourSeen = key => { try { return +localStorage.getItem(key) || 0; } catch (e) { return 99; } };
 const tourDone = (key, v) => { try { localStorage.setItem(key, v); } catch (e) { } };
@@ -76,7 +76,7 @@ function startMapTour(after) {
   // Repaso, Mis premios, Mi avance y Adultos están dentro del menú «+»: se abre y se ilumina la opción
   const btn = g => () => { setMenu(true); return $(`#menu [data-go=${g}]`); };
   setTimeout(() => runTour([
-    { target: () => $('.chapters'), say: '¡Hola! Aquí eliges qué quieres aprender y jugar hoy. ¡Toca la varita para seguir!' },
+    { target: () => $('.chapters'), say: '¡Hola! Aquí eliges qué quieres aprender y jugar hoy. Cada capítulo tiene su dibujito. ¡Toca la varita para seguir!' },
     { target: () => $('.node.current'), say: '¡El Gran Desafío te llama! Salta de isla en isla y sigue a la que se mueve… ¡ahí empieza la diversión!' },
     { target: () => $('.node[data-id="tri"]'), say: '¡Junta todas sus estrellas y gana su sticker!' },
     { target: () => $('.node[data-id="challenge"]'), say: 'Al superar todas las islas se abre el Gran Desafío. ¡Si no te sale, inténtalo otra vez!' },
