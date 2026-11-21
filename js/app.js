@@ -119,10 +119,10 @@ const plural = F => F.pl || `${F.art === 'la' ? 'las' : 'los'} ${F.name}s`;
 
 /* capítulos: el 3 (números) se agrega desde js/numeros.js */
 const CH = {
-  1: { nodes: ['intro', 'tri', 'sq', 'rect', 'pent', 'hex', 'oct', 'challenge', 'taller'], intro: 'intro', chal: 'challenge', figs: SHAPES, label: '1 · Polígonos',
+  1: { nodes: ['intro', 'tri', 'sq', 'rect', 'pent', 'hex', 'oct', 'challenge', 'taller'], intro: 'intro', chal: 'challenge', figs: SHAPES, label: '<span class="cn">1 · </span>Polígonos',
     introLabel: 'Inicio', sticker: () => [gx('Exploradora', 'Explorador'), 'Qué es un polígono'], chalTitle: 'Gran Desafío', champ: () => gx('una campeona', 'un campeón') + ' de las formas',
     hello: n => `¡Hola, ${n}! Toca la isla verde para empezar.`, types: ['sides', 'sides', 'vert', 'vert', 'name', 'name', 'notpoly', 'poly'] },
-  2: { nodes: ['intro3d', ...SOLIDS.map(s => s.id), 'challenge3d'], intro: 'intro3d', chal: 'challenge3d', figs: SOLIDS, label: '2 · <span class="lg">Figuras </span>2D y 3D',
+  2: { nodes: ['intro3d', ...SOLIDS.map(s => s.id), 'challenge3d'], intro: 'intro3d', chal: 'challenge3d', figs: SOLIDS, label: '<span class="cn">2 · </span><span class="lg">Figuras </span>2D y 3D',
     introLabel: '¿2D o 3D?', sticker: () => ['Ojo 3D', '2D y 3D'], chalTitle: 'Gran Desafío 3D', champ: () => gx('una campeona', 'un campeón') + ' de las formas',
     hello: n => `¡${gx('Bienvenida', 'Bienvenido')} al capítulo de figuras 2D y 3D, ${n}! Toca la isla verde.`, types: ['is3d', 'name3d', 'print', 'rolls', 'count3d', 'count3d', 'count3d', 'name3d'] },
 };
@@ -518,11 +518,15 @@ const sfx = {
 let voice = null;
 function pickVoice() {
   if (!('speechSynthesis' in window)) return;
-  const vs = speechSynthesis.getVoices();
-  for (const p of ['es-cl', 'es-419', 'es-us', 'es-mx', 'es-ar', 'es-co', 'es-es']) {
-    const v = vs.find(v => v.lang.replace('_', '-').toLowerCase() === p); if (v) { voice = v; return; }
-  }
-  voice = vs.find(v => v.lang.toLowerCase().startsWith('es')) || null;
+  /* la mejor voz en español de cada dispositivo: primero el acento (Chile y Latinoamérica),
+     luego la calidad (voces "naturales", "neuronales" o "online" suenan mucho mejor que las básicas) */
+  const accent = ['es-cl', 'es-419', 'es-us', 'es-mx', 'es-ar', 'es-co', 'es-es'];
+  const score = v => {
+    const lang = v.lang.replace('_', '-').toLowerCase(), i = accent.indexOf(lang), nm = v.name.toLowerCase();
+    return (i < 0 ? 0 : 20 - i * 2) + (/natural|neural|premium|enhanced|online|google/.test(nm) ? 40 : 0) + (/compact|espeak/.test(nm) ? -30 : 0);
+  };
+  const es = speechSynthesis.getVoices().filter(v => v.lang.toLowerCase().startsWith('es'));
+  voice = es.sort((a, b) => score(b) - score(a))[0] || null;
 }
 if ('speechSynthesis' in window) { speechSynthesis.onvoiceschanged = pickVoice; pickVoice(); }
 function speak(text) {
@@ -630,7 +634,7 @@ const scr = () => $('#screen');
 const isIntro = id => Object.values(CH).some(C => C.intro === id);
 
 function go(name, params = {}) { sfx.pop(); cur = { name, ...params }; render(); }
-const backTarget = () => ({ island: ['map'], lesson: isIntro(cur.id) ? ['map'] : ['island', { id: cur.id }], build: ['island', { id: cur.id }], paint: ['island', { id: cur.id }], hunt: ['island', { id: cur.id }], game: ['island', { id: cur.id }], challenge: ['map'], album: ['map'], workshop: ['map'], repaso: ['map'], parent: ['map'], avance: ['map'], news: cur.from === 'parent' ? ['parent', { ok: true }] : [cur.from || 'welcome'] }[cur.name]);
+const backTarget = () => ({ map: ['welcome'], island: ['map'], lesson: isIntro(cur.id) ? ['map'] : ['island', { id: cur.id }], build: ['island', { id: cur.id }], paint: ['island', { id: cur.id }], hunt: ['island', { id: cur.id }], game: ['island', { id: cur.id }], challenge: ['map'], album: ['map'], workshop: ['map'], repaso: ['map'], parent: ['map'], avance: ['map'], news: cur.from === 'parent' ? ['parent', { ok: true }] : [cur.from || 'welcome'] }[cur.name]);
 function setAction(label, fn, enabled = true, cls = '') {
   const b = $('#action');
   if (!label) { b.hidden = true; return; }
@@ -655,7 +659,7 @@ function titleFor() {
   if (F && F.kind === 'num') return cur.name === 'lesson' ? `Aprende: ${F.short}` : cur.name === 'game' ? F.acts.find(a => a.k === cur.k).t : F.title;
   switch (cur.name) {
     case 'island': return `Isla ${del(F)}`;
-    case 'lesson': return { intro: '¿Qué es un polígono?', intro3d: '¿2D o 3D?', intro123: '¿Cómo contamos?' }[cur.id] || `Aprende: ${F.name}`;
+    case 'lesson': return { intro: '¿Qué es un polígono?', intro3d: '¿2D o 3D?', intro123: '¿Cómo contamos?', intro4: '¿Qué es un patrón?' }[cur.id] || `Aprende: ${F.name}`;
     case 'build': return `Construye ${F.art} ${F.name}`;
     case 'paint': return 'Pinta sus caras';
     case 'hunt': return 'Caza en la vida real';
@@ -713,7 +717,7 @@ function viewWelcome() {
   $('#barSlot').innerHTML = '<button class="tourpill" id="bTour">🧭 Recorrido</button>';
   $('#bTour').onclick = () => { sfx.pop(); startMapTour(() => go('welcome')); };
   // Novedades: botón redondo arriba, al lado del volumen
-  $('#barSlot2').innerHTML = '<button class="round" id="bNews" aria-label="Novedades" title="Novedades"><svg viewBox="0 0 24 24"><path d="M12 2.5l1.9 5.6 5.6 1.9-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.9z" fill="#ffc233" stroke="#e09a00" stroke-width="1.4" stroke-linejoin="round"/><path d="M19 15l.8 2.2 2.2.8-2.2.8L19 21l-.8-2.2-2.2-.8 2.2-.8z" fill="#ff7eb6"/><path d="M5 15.5l.6 1.4 1.4.6-1.4.6L5 19.5l-.6-1.4-1.4-.6 1.4-.6z" fill="#4ea8ff"/></svg></button>';
+  $('#barSlot2').innerHTML = '<button class="round" id="bNews" aria-label="Novedades" title="Novedades"><svg viewBox="0 0 24 24"><path d="M12 2.8a6 6 0 0 0-6 6v3.5l-1.6 2.7c-.4.7.1 1.5.9 1.5h13.4c.8 0 1.3-.8.9-1.5L18 12.3V8.8a6 6 0 0 0-6-6z" fill="#ffc233" stroke="#e09a00" stroke-width="1.5" stroke-linejoin="round"/><path d="M9.6 18.6a2.5 2.5 0 0 0 4.8 0z" fill="#e09a00"/><path d="M12 1.3v1.6" stroke="#e09a00" stroke-width="1.8" stroke-linecap="round"/></svg></button>';
   // si hay más niños de los que caben, flechas para moverse (también se desliza con el dedo)
   const row = $('.whorow');
   if (row) {
@@ -776,6 +780,15 @@ const MENU_ITEMS = `
             <button data-go="parent"><span class="mi"><svg viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z" fill="none" stroke="#7c5cff" stroke-width="2.4"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="#7c5cff" stroke-width="2.4" stroke-linecap="round"/></svg></span><span><b>Ajustes</b><small>Para adultos 🔒</small></span></button>`;
 const setMenu = open => { const m = $('#menu'); if (!m) return; m.hidden = !open; $('#bMenu').setAttribute('aria-expanded', open); };
 addEventListener('click', e => { if (!e.target.closest('#menu,#bMenu')) setMenu(false); });
+/* saludo según la hora, una sola vez por visita; si hace días que no practica, invita al Repaso */
+let greeted = false;
+function greeting() {
+  if (greeted || demoMode || tourOn) return '';
+  greeted = true;
+  const h = new Date().getHours(), last = Math.max(0, ...Object.values(save.stats || {}).map(x => x.last || 0));
+  const away = last && Date.now() - last > 3 * 864e5 && typeof repasoTopics === 'function' && repasoTopics().length;
+  return `¡${h < 12 ? 'Buenos días' : h < 20 ? 'Buenas tardes' : 'Buenas noches'}, ${save.name}! ` + (away ? 'Hace días que no practicas. ¿Repasamos 5 minutos? ' : '');
+}
 function viewMap() {
   if (!root.cur) return go('welcome');
   const ch = CH[save.ch] ? +save.ch : 1, vert = isVertical();
@@ -816,14 +829,16 @@ function viewMap() {
   /* Repaso, Álbum, Mi avance y Ajustes: botones a la vista en pantallas anchas; en celular, en el Menú */
   $$('[data-go]', el).forEach(b => b.onclick = () => go(b.dataset.go));
   /* en celular, el botón Más va en la barra de arriba, al lado del título */
-  $('#barSlot').innerHTML = `<button class="round more" id="bMenu" aria-expanded="false" aria-label="Más opciones"><svg viewBox="0 0 24 24" class="dots4"><circle cx="7" cy="7" r="3.6" fill="#ff6b6b"/><circle cx="17" cy="7" r="3.6" fill="#4ea8ff"/><circle cx="7" cy="17" r="3.6" fill="#22c58b"/><circle cx="17" cy="17" r="3.6" fill="#9b6bff"/></svg></button>
+  $('#barSlot').innerHTML = `<button class="round more" id="bMenu" aria-expanded="false" aria-label="Más opciones"><svg viewBox="0 0 24 24" class="plus"><defs><linearGradient id="gmas" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff0bd"/></linearGradient></defs><path d="M12 6.5v11M6.5 12h11" stroke="#8a4b00" stroke-width="6" stroke-linecap="round"/><path d="M12 6.5v11M6.5 12h11" stroke="url(#gmas)" stroke-width="3.6" stroke-linecap="round"/></svg></button>
     <div class="menu" id="menu" hidden>${MENU_ITEMS}</div>`;
   $$('#barSlot [data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
   $('#bMenu').onclick = e => { e.stopPropagation(); sfx.pop(); setMenu(!!$('#menu').hidden); };
   const cu = ns.find(n => n.current);
-  poli.say(!cu ? `¡Increíble, ${save.name}! Completaste todo este capítulo.`
-    : isIntro(cu.id) ? CH[ch].hello(save.name)
-      : `Muy bien, ${save.name}. Sigamos con la isla que está saltando.`);
+  /* si Poli ya saludó con el nombre ("¡Buenos días, Ana!"), el resto va sin repetirlo */
+  const g = greeting(), bare = t => t.replace(`¡Hola, ${save.name}! `, '').replace(`, ${save.name}`, '');
+  poli.say(g + (!cu ? (g ? '¡Increíble! Completaste todo este capítulo.' : `¡Increíble, ${save.name}! Completaste todo este capítulo.`)
+    : isIntro(cu.id) ? (g ? bare(CH[ch].hello(save.name)) : CH[ch].hello(save.name))
+      : (g ? 'Sigamos con la isla que está saltando.' : `Muy bien, ${save.name}. Sigamos con la isla que está saltando.`)));
   if (!demoMode && !tourOn && tourSeen(TOURKEY) < TOURVER) setTimeout(() => cur.name === 'map' && !tourOn && startMapTour(() => go('map')), 500);
 }
 
@@ -922,6 +937,7 @@ function viewLesson() {
   if (cur.id === 'intro') return lessonIntro();
   if (cur.id === 'intro3d') return lessonIntro3D();
   if (cur.id === 'intro123') return lessonIntroNum();
+  if (cur.id === 'intro4') return lessonIntroPat();
   const F = FIG[cur.id];
   return F.kind === 'num' ? NUMLESSON[F.id](F) : F.kind === '3d' ? lessonSolid(F) : lessonShape(F);
 }
@@ -932,7 +948,7 @@ function lessonShape(S) {
   const nm = `${S.art} ${S.name}`;
   const objs = pickFresh(OBJ.filter(o => o.shape === S.id), 3, S.id);
   runSteps([
-    { say: `¡Hola, ${save.name}! Hoy vamos a conocer ${nm}.`, render: b => b.innerHTML = `<div class="col">${polySvg(S, { cls: 'big draw', sw: 6 })}<h2>${cap(nm)}</h2><span class="sub">Un polígono de ${S.n} lados</span></div>` },
+    { say: `¡Hoy vamos a conocer ${nm}!`, render: b => b.innerHTML = `<div class="col">${polySvg(S, { cls: 'big draw', sw: 6 })}<h2>${cap(nm)}</h2><span class="sub">Un polígono de ${S.n} lados</span></div>` },
     { gate: true, say: `Toca cada lado ${del(S)} para contarlos. Los lados son las líneas rectas.`, render: (b, c) => stepCount(b, c, S, 'side') },
     { gate: true, say: 'Ahora toca cada vértice. Los vértices son las esquinas.', render: (b, c) => stepCount(b, c, S, 'vertex') },
     { say: S.fact, render: b => b.innerHTML = `<div class="fact-wrap">${polySvg(S, { sw: 5 })}<div class="fact"><span class="fx">Dato curioso</span>${S.fact}</div></div>` },

@@ -2,7 +2,7 @@
 
 ## Contenidos
 - **Capítulo de simetría:** ejes de simetría, completar la mitad de una figura y encontrar objetos simétricos.
-- **Capítulo de patrones:** continuar secuencias de figuras y colores, y crear patrones propios.
+- **Patrones (ampliar):** crear patrones propios (el capítulo 4 ya tiene seguir y completar patrones).
 - **Capítulo de medir y comparar:** largo, más alto / más bajo, más pesado / más liviano.
 - **Más variedad de preguntas en el capítulo 1** (polígonos).
 - **Sumas C + D + U con letras repetidas** (1D + 1C + 1D + 1D + 1U = 131). Baja prioridad: las sumas desordenadas ya están.
@@ -10,9 +10,9 @@
 
 ## App
 - **App Android (APK) gratis** con PWABuilder/Bubblewrap, para que Kids Space de Lenovo muestre el ícono de Poli. Necesita un sitio `wolftechco.github.io` con el archivo de verificación.
-- **Enviar comentarios** (botón en Ajustes que abre un correo o formulario): cuando la app sea más robusta y la usen más familias.
-- **Voces:** elegir la mejor voz en español disponible en cada dispositivo.
-- **Saludo según el momento** ("¡Buenos días!", "¿Repasamos 5 minutos?" si hace días que no practica).
+- **Reporte por correo o formulario:** el reporte con estrellas ya existe en Ajustes; falta el correo del proyecto (`FEEDBACK_MAIL` en `js/opinion.js`), que se llena al final.
+- **Voz neuronal pregrabada** (entrega 3): ver `docs/plan-audio-tts.md` y `PLAN.md`.
+- **Estructura nueva de secciones** (entrega 2): perfiles en un solo lugar, premios, rincón de adultos, contador de estrellas, recordar dónde estaba. Ver `PLAN.md` y `docs/investigacion-mercado.md`.
 - En celular algunos textos del recorrido ocupan 3 líneas (caben completos); acortarlos si se quiere 2.
 
 ## Por probar

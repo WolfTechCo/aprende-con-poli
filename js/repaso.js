@@ -20,10 +20,13 @@ const TOP = Object.fromEntries(TOPICS.map(T => [T.id, T]));
 const N_TOPIC = { blocks: 'udc', value: 'valor', place: 'valor', which: 'valor', sum: 'valor', missing: 'valor', nota: 'nota', notaDesafio: 'nota', notaRev: 'nota', next: 'secu', rule: 'secu', table: 'tabla' };
 const topicOf = t => t.startsWith('n:') ? N_TOPIC[t.slice(2)] : CH[1].types.includes(t) ? 'poli' : 'fig3d';
 
+const dayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 function track(topic, ok) {
   if (!TOP[topic]) return;
   const st = (save.stats ||= {})[topic] ||= { n: 0, h: '' };
   st.n++; st.h = (st.h + (ok ? '1' : '0')).slice(-20); st.last = Date.now();
+  const hoy = dayKey(), days = (save.days ||= []); // días en que practicó (hora local; para el reporte y la racha)
+  if (days[days.length - 1] !== hoy) { days.push(hoy); if (days.length > 90) days.shift(); }
   persist();
 }
 const pctOf = st => st && st.h.length ? Math.round(100 * [...st.h].filter(c => c === '1').length / st.h.length) : null;
@@ -93,22 +96,29 @@ function viewParent() {
   }
   const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   const el = frame(`<div class="pwrap">
-    <div class="pbtns ajtop"><button class="tourbtn" id="bTourAj">🧭 Recorrido de Ajustes</button></div>
+    <div class="pbtns ajtop"><button class="tourbtn" id="bTourAj">🧭 Recorrido</button></div>
     <h3 class="sec">Niños y niñas</h3>
     <div class="pbox" id="ajKids"><div class="pkids">${root.order.map(id => `<button class="pkid ${id === root.cur ? 'on' : ''}" data-id="${id}">${root.profiles[id].name || '?'}</button>`).join('')}</div>
       <p>Ajustes de <b>${save.name}</b>. Toca otro nombre para cambiar los suyos.</p>
       <div class="pbtns gsel"><button class="pkid ${save.g === 'a' ? 'on' : ''}" data-gs="a">👧 Niña</button><button class="pkid ${save.g === 'o' ? 'on' : ''}" data-gs="o">👦 Niño</button></div>
-      <div class="pbtns"><input id="pName" maxlength="14" value="${save.name}" autocomplete="off" aria-label="Nombre"><button class="btn sm ghost" id="bRen">Cambiar nombre</button><button class="btn sm danger" id="bDel">Borrar este perfil</button></div></div>
+      <div class="pbtns nmrow"><input id="pName" maxlength="14" value="${save.name}" autocomplete="off" aria-label="Nombre"><button class="btn sm ghost" id="bRen" aria-label="Cambiar nombre">Cambiar</button><button class="btn sm danger" id="bDel" aria-label="Borrar este perfil">🗑️ Borrar</button></div></div>
     <h3 class="sec">Novedades</h3>
-    <div class="pbox" id="ajNews"><p>Lo nuevo de cada versión de la app.</p><div class="pbtns"><button class="btn sm ghost" id="bNewsP">✨ Ver novedades</button></div></div>
+    <div class="pbox split" id="ajNews"><p>Lo nuevo de cada versión de la app.</p><div class="pbtns"><button class="btn sm ghost" id="bNewsP">🔔 Ver novedades</button></div></div>
     <h3 class="sec">Respaldo del progreso</h3>
-    <div class="pbox" id="ajBackup"><p>Guarda un archivo con el progreso de todos los niños y niñas de este dispositivo (estrellas, aciertos y temas elegidos). Sirve para pasarlo a otro dispositivo o recuperarlo si se borran los datos del navegador.</p>
+    <div class="pbox split stack" id="ajBackup"><p>Guarda un archivo con el progreso de todos los niños y niñas de este dispositivo. Sirve para pasarlo a otro dispositivo o recuperarlo si se borran los datos del navegador.</p>
       <div class="pbtns"><button class="btn sm green" id="bSave">Guardar respaldo</button><button class="btn sm ghost" id="bLoad">Cargar respaldo</button>
       <input type="file" id="fLoad" accept=".json,application/json" hidden></div></div>
+    <h3 class="sec">Ayúdanos a mejorar</h3>
+    <div class="pbox" id="ajFeedback"><p>¿Te gusta Aprende con Poli? Cuéntanos qué tanto la recomendarías. El reporte <b>no lleva nombres</b> y nada se envía solo: tú decides si lo compartes.</p>
+      <div class="rate" id="rate" role="slider" tabindex="0" aria-label="Recomendación de 0,5 a 5 estrellas" aria-valuemin="0.5" aria-valuemax="5" aria-valuenow="0">${[1, 2, 3, 4, 5].map(i => `<span class="rs" data-i="${i}"><i class="rbg">★</i><i class="rfg">★</i></span>`).join('')}<b id="rval"></b></div>
+      <textarea id="fbText" maxlength="300" rows="2" placeholder="¿Quieres contarnos algo más? (opcional)" aria-label="Comentario opcional"></textarea>
+      <p class="fbhint">Esto es lo que se compartiría:</p>
+      <textarea id="fbRep" readonly rows="6" aria-label="Reporte que se compartiría"></textarea>
+      <div class="pbtns">${FEEDBACK_MAIL ? '<button class="btn sm gold" id="bFbMail">Enviar por correo</button>' : ''}<button class="btn sm green" id="bFbCopy">Copiar reporte</button><button class="btn sm ghost" id="bFbFile">Guardar archivo</button></div></div>
     <h3 class="sec">Instalar la app</h3>
     <div class="pbox" id="ajInstall">${installed ? '<p><b>✓ La app ya está instalada en este dispositivo.</b> Funciona sin internet.</p>'
-      : `<p>Al instalarla queda con su ícono en la pantalla de inicio y funciona sin internet. También se puede seguir usando desde el link.</p>
-        ${installPrompt ? '<div class="pbtns"><button class="btn sm gold" id="bInst">Instalar app</button></div>' : ''}
+      : `<div class="splitrow"><p>Al instalarla queda con su ícono en la pantalla de inicio y funciona sin internet. También se puede seguir usando desde el link.</p>
+        ${installPrompt ? '<button class="btn sm gold" id="bInst">Instalar app</button>' : ''}</div>
         <ul class="psteps"><li><b>Android (Chrome):</b> menú ⋮ → <i>Instalar app</i> o <i>Agregar a la pantalla principal</i>.</li>
         <li><b>iPad o iPhone (Safari):</b> botón Compartir → <i>Agregar a inicio</i>. En Apple la app instalada guarda su progreso aparte de Safari: usa el respaldo para pasarlo.</li></ul>`}</div>
   </div>`, 'fill');
@@ -140,6 +150,7 @@ function viewParent() {
     go('parent', { ok: true }); poli.cheer('¡Progreso cargado!');
   };
   if ($('#bInst', el)) $('#bInst', el).onclick = async () => { installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; go('parent', { ok: true }); };
+  setupFeedback(el);
   $('#bTourAj', el).onclick = () => { sfx.pop(); startAjustesTour(); };
   poli.say('Aquí están los ajustes: perfiles, respaldo e instalación.', false);
   if (tourSeen(TOURAJKEY) < TOURVER_AJ) setTimeout(() => cur.name === 'parent' && !tourOn && startAjustesTour(), 500);
@@ -213,12 +224,13 @@ function cleanProfile(src) {
   out.name = cleanName(src.name);
   if (src.g === 'a' || src.g === 'o') out.g = src.g;
   for (const k of ['fx', 'voice']) if (typeof src[k] === 'boolean') out[k] = src[k];
-  for (const k of ['challenge', 'challenge3d', 'challengeNum']) if (Number.isFinite(src[k])) out[k] = Math.max(0, Math.min(3, Math.round(src[k])));
+  for (const k of ['challenge', 'challenge3d', 'challengeNum', 'challengePat']) if (Number.isFinite(src[k])) out[k] = Math.max(0, Math.min(3, Math.round(src[k])));
   if (CH[src.ch]) out.ch = +src.ch;
   if (src.prog && typeof src.prog === 'object') for (const [k, v] of Object.entries(src.prog))
     if (id.test(k) && v && typeof v === 'object') { out.prog[k] = {}; for (const [a, b] of Object.entries(v)) if (id.test(a) && b === true) out.prog[k][a] = true; }
   if (src.stats && typeof src.stats === 'object') for (const [k, v] of Object.entries(src.stats))
     if (TOP[k] && v && /^[01]{0,20}$/.test(v.h) && Number.isFinite(v.n)) out.stats[k] = { n: Math.max(0, Math.round(v.n)), h: v.h, last: Number.isFinite(v.last) ? v.last : 0 };
+  if (Array.isArray(src.days)) out.days = src.days.filter(d => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)).slice(-90);
   if (Array.isArray(src.repasoOff)) out.repasoOff = src.repasoOff.filter(k => TOP[k]);
   return migrate(out);
 }
