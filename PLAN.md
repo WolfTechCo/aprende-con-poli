@@ -75,7 +75,7 @@ Son retoques de diseño que no dependen de la reestructura; se hacen con **Sonne
    - **3b · Mis premios:** tarjetas animadas con fondo con contenido; pasar medallas, diploma y guardarropa desde `integrada-2.8.6` (`cherry-pick`).
    - **3c · Mi avance:** sección grande y siempre visible, tema con dibujo animado + porcentaje pequeño, mensajes de Poli (general y al tocar un tema).
    - **3d · Rincón de adultos:** candado (multiplicación con tablas altas), jugadores (crear, renombrar, borrar), ajustes, respaldo, novedades, instalar, opinión, casillas del Repaso; migración del guardado si cambia algo.
-   - Después de cada bloque, probar tablet → celular → PC (**Sonnet**).
+   - **Orden acordado con la dueña:** **Opus construye todos los bloques (3a a 3d) seguidos**, sin cambiar de modelo entre uno y otro; al terminar los 4, la IA le **pide el cambio a Sonnet** para probar tablet → celular → PC, corregir, novedades, recorrido, changelog y Pull Request. Entre bloques solo se avisa en una línea que terminó (para que ella mire su uso) y se sigue, salvo que ella pida detenerse.
 4. Novedades curadas, recorrido (`TOURVER`) y changelog; Pull Request (**Sonnet**).
 
 ## 5. Entrega 3: voz neuronal
