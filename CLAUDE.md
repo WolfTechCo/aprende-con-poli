@@ -3,6 +3,7 @@
 App web estática (HTML + CSS + JS puro, sin dependencias ni build) para niños de 2° básico, guiada por la mascota Poli.
 Publicada con GitHub Pages desde `main`: https://wolftechco.github.io/aprende-con-poli/
 Contexto general en `README.md`, historial técnico en `CHANGELOG.md`, ideas en `PENDIENTES.md`.
+**Antes de empezar, leer `PLAN.md`**: estado actual, reglas acordadas con la dueña y plan de las próximas entregas.
 
 ## Forma de trabajo
 - Todo en **español de Chile**, pensado para una niña o niño de 7–8 años: textos cortos, entretenidos y que inviten a descubrir.
@@ -10,6 +11,10 @@ Contexto general en `README.md`, historial técnico en `CHANGELOG.md`, ideas en 
 - Trabajar en una rama y dejar un **Pull Request hacia `main`**; la dueña del proyecto revisa y hace Merge.
 - Si pide "modo plan" o "muéstrame primero": diseñar y mostrar capturas, sin subir nada hasta que apruebe.
 - Explicar en simple, sin jerga técnica.
+- **Probar siempre en este orden: tablet → celular → PC** (Playwright, vertical y horizontal). La dueña prueba rápido en su celular.
+- **Novedades** (`js/novedades.js`): solo lo importante o valioso para las familias; lo interno va solo en `CHANGELOG.md`.
+- **Textos de Poli:** el nombre se usa al saludar y al celebrar; no repetirlo dentro de una frase ni en pantallas seguidas.
+- **Modelos:** al empezar cada etapa, avisar a la dueña si conviene Sonnet u Opus y esperar su confirmación (reglas en `PLAN.md`, sección 2).
 
 ## Reglas de la app
 - **Todo debe caber en pantalla sin deslizar** (notebook, tablet y celular, vertical y horizontal). Solo se desliza lo
@@ -30,5 +35,5 @@ Contexto general en `README.md`, historial técnico en `CHANGELOG.md`, ideas en 
 
 ## Archivos
 - `js/app.js`: base (guardado y perfiles, navegación, Poli, voz, mapa, portada) y capítulos 1–2.
-- `js/numeros.js`: capítulo 3 · `js/repaso.js`: Repaso, Mi avance, Ajustes, respaldo · `js/novedades.js` · `js/recorrido.js`.
+- `js/numeros.js`: capítulo 3 · `js/patrones.js`: capítulo 4 · `js/repaso.js`: Repaso, Mi avance, Ajustes, respaldo · `js/opinion.js`: reporte de uso y opinión · `js/novedades.js` · `js/recorrido.js`.
 - `css/style.css`: estilos; las reglas por tamaño de pantalla están al final.
