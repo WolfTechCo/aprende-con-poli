@@ -263,7 +263,7 @@ const NUMS = [
 NUMS.forEach(T => { FIG[T.id] = T; });
 ACTS.num = ['lesson', 'g1', 'g2'];
 CH[3] = {
-  nodes: ['intro123', ...NUMS.map(T => T.id), 'challengeNum'], intro: 'intro123', chal: 'challengeNum', figs: NUMS, label: '3 · Números',
+  nodes: ['intro123', ...NUMS.map(T => T.id), 'challengeNum'], intro: 'intro123', chal: 'challengeNum', figs: NUMS, label: '<span class="cn">3 · </span>Números',
   introLabel: 'Agrupar', sticker: () => [gx('Agrupadora', 'Agrupador'), 'Contar en grupos'], chalTitle: 'Gran Desafío de Números', champ: () => gx('una campeona', 'un campeón') + ' de los números',
   hello: n => `¡${gx('Bienvenida', 'Bienvenido')} al capítulo de los números, ${n}! Toca la isla verde.`,
   types: ['n:blocks', 'n:value', 'n:notaDesafio', 'n:sum', 'n:missing', 'n:next', 'n:rule', 'n:table'],
@@ -291,7 +291,7 @@ function numIcon(id, white) {
 
 /* ---------- isla (hub) ---------- */
 function islandNum(F) {
-  save.ch = 3; persist();
+  save.ch = F.ch || 3; persist();
   const p = prog(F.id);
   const ico = {
     lesson: `<svg viewBox="0 0 24 24"><path d="M3 6l9-3 9 3v11l-9 3-9-3z" fill="${F.c}"/><path d="M12 3v17" stroke="#fff" stroke-width="2"/></svg>`,
