@@ -4,8 +4,14 @@
    ese está en CHANGELOG.md). Al actualizarse, se muestra una vez en la portada.
    Para publicar una versión con novedades: subir APPVER y agregar su entrada arriba de NEWS.
    ========================================================= */
-const APPVER = '2.4.0';
+const APPVER = '3.0.0';
 const NEWS = [
+  { v: '3.0.0', date: '2026-11-21', items: [
+    ['🏆', 'Mis premios', 'Toca las estrellas del mapa: ahí están los stickers, <b>9 medallas</b>, la <b>ropa de Poli</b> que se gana con ellas y un <b>diploma</b> para imprimir.'],
+    ['📈', 'Nuevo Mi avance', 'Un camino de colores por tema, para que el niño o la niña vea cómo va. Arriba, lo que practicó hoy.'],
+    ['🔒', 'Rincón de adultos', 'Jugadores, temas del Repaso, avance de todos, respaldo y más, en un solo lugar con candado. Está en la portada y en el «+» del mapa.'],
+    ['🏠', 'Más fácil de usar', 'Un solo menú «+» en el mapa, una casita para cambiar de jugador y, si hay un solo jugador, la app abre directo en su mapa.'],
+  ] },
   { v: '2.4.0', date: '2026-11-21', items: [
     ['🔁', 'Capítulo 4: Patrones', 'Colores, figuras y torres de cubos que crecen, con lección, juegos y un Gran Desafío. También entra al Repaso del día.'],
     ['⭐', 'Cuéntanos qué te parece', 'En <b>Ajustes</b> puedes dar de 0,5 a 5 estrellas y dejar un comentario. Tú ves todo lo que se comparte y no lleva nombres.'],

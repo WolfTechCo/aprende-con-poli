@@ -4,10 +4,12 @@
    - Se ilumina una parte y la niña toca la varita ✨ para seguir (lo de abajo no se activa).
    - El recorrido del mapa usa un mapa de muestra que no se guarda ni toca el progreso.
    - TOURVER: si la estructura de la app cambia harto (secciones nuevas, botones que se mueven),
-     se sube este número y el recorrido vuelve a aparecer una vez. Lo mismo con TOURVER_AJ para Ajustes.
+     se sube este número y el recorrido vuelve a aparecer una vez.
+     3 (entrega 2): casita, estrellas que llevan a Mis premios y menú «+» con Repaso, Mis premios, Mi avance y Adultos.
+   - El Rincón de adultos no tiene recorrido: es sobrio, sin Poli, y cada sección dice para qué sirve.
    ========================================================= */
-const TOURVER = 2, TOURVER_AJ = 2;
-const TOURKEY = 'poli-recorrido-visto', TOURAJKEY = 'poli-recorrido-ajustes-visto';
+const TOURVER = 3;
+const TOURKEY = 'poli-recorrido-visto';
 const tourSeen = key => { try { return +localStorage.getItem(key) || 0; } catch (e) { return 99; } };
 const tourDone = (key, v) => { try { localStorage.setItem(key, v); } catch (e) { } };
 let tourOn = false;
@@ -71,35 +73,24 @@ function startMapTour(after) {
     prog: { intro: { lesson: true }, tri: { lesson: true, build: true, hunt: true }, sq: { lesson: true } } });
   root.cur = root.cur || '__demo';
   go('map');
-  const wide = () => getComputedStyle($('.mbtns')).display !== 'none';
-  // en celular, Repaso, Álbum, Mi avance y Ajustes están dentro del menú: se abre y se ilumina la opción
-  const btn = g => () => { if (wide()) return $(`.mbtns [data-go=${g}]`); setMenu(true); return $(`#menu [data-go=${g}]`); };
+  // Repaso, Mis premios, Mi avance y Adultos están dentro del menú «+»: se abre y se ilumina la opción
+  const btn = g => () => { setMenu(true); return $(`#menu [data-go=${g}]`); };
   setTimeout(() => runTour([
     { target: () => $('.chapters'), say: '¡Hola! Aquí eliges qué quieres aprender y jugar hoy. ¡Toca la varita para seguir!' },
     { target: () => $('.node.current'), say: '¡El Gran Desafío te llama! Salta de isla en isla y sigue a la que se mueve… ¡ahí empieza la diversión!' },
     { target: () => $('.node[data-id="tri"]'), say: '¡Junta todas sus estrellas y gana su sticker!' },
     { target: () => $('.node[data-id="challenge"]'), say: 'Al superar todas las islas se abre el Gran Desafío. ¡Si no te sale, inténtalo otra vez!' },
+    { target: () => $('#bHome'), say: 'Con la casita vuelves a la portada. Si juegan varios, ahí cambian de jugador.' },
+    { target: () => $('#starsPill'), say: '¡Aquí se cuentan tus estrellas! Tócalas para ver tus premios.' },
     { target: btn('repaso'), say: '¿Quieres ser todavía más fuerte? 💪 Aquí practicas un poquito de todo lo que aprendiste.' },
-    { target: btn('album'), say: 'Aquí guardas tus stickers. ¿Podrás completarlos todos?' },
-    { target: btn('avance'), say: `¡Mira todo lo que has avanzado! Aquí ves tus estrellas y en qué eres ${gx('experta', 'experto')}.`,
-      adult: 'Para adultos: % de aciertos por tema, qué reforzar y personalizar su Repaso 🔒' },
-    { target: btn('parent'), say: 'Esta parte es para tus papás. 🔒', adult: 'Perfiles y respaldo del progreso.' },
+    { target: btn('premios'), say: 'Aquí guardas tus stickers, medallas y la ropa de Poli. ¿Podrás ganarlos todos?' },
+    { target: btn('avance'), say: `Aquí ves tu camino en cada tema y en qué eres ${gx('experta', 'experto')}.`,
+      adult: 'Para adultos: lo que practicó hoy, % a la primera y qué temas conviene practicar.' },
+    { target: btn('adultos'), say: 'Esta parte es para tus papás. 🔒', adult: 'Rincón de adultos: jugadores, temas del Repaso, avance de todos y respaldo.' },
     { target: () => $('#btnVoice'), say: '¡Psst! 🤫 Con este parlante decides si Poli habla.' },
     { final: true, say: '¡Listo, ya conoces todo! ✨ En la portada, la campanita te cuenta las novedades. ¡A jugar!' },
   ], () => {
     demoMode = false; save = snap.save; root.cur = snap.cur;
     tourDone(TOURKEY, TOURVER); after();
   }), 650);
-}
-
-/* recorrido de Ajustes (para adultos) */
-function startAjustesTour() {
-  runTour([
-    { target: () => $('#ajKids'), say: 'Aquí agregas niños y niñas, cambias su nombre, indicas niña o niño o borras un perfil.' },
-    { target: () => $('#ajNews'), say: 'Aquí está lo nuevo de cada versión de la app.' },
-    { target: () => $('#ajBackup'), say: 'Guarda un archivo con el progreso para pasarlo a otro equipo o recuperarlo si se borra.' },
-    { target: () => $('#ajFeedback'), say: 'Si la app te gusta, cuéntanos con estrellas y un comentario. El reporte no lleva nombres y tú decides si lo compartes.' },
-    { target: () => $('#ajInstall'), say: 'Instala la app en el inicio del equipo para usarla sin internet.' },
-    { final: true, say: '¡Listo! Puedes repetir este recorrido cuando quieras con el botón de arriba.' },
-  ], () => { tourDone(TOURAJKEY, TOURVER_AJ); $('.pwrap')?.scrollTo({ top: 0 }); });
 }

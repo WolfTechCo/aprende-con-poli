@@ -15,14 +15,22 @@ const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
 const ps = pts => pts.map(p => p.join(',')).join(' ');
 
 /* ---------- guardado ---------- */
-const KEY = 'poligonos-magicos-v1';
-const SAVEVER = 1;
-const NEWSAVE = () => ({ ver: SAVEVER, name: '', g: '', fx: true, voice: true, prog: {}, challenge: 0, challenge3d: 0, challengeNum: 0, ch: 1, stats: {}, repasoOff: [] });
+/* la app final usa siempre 'poligonos-magicos-v1' (no se cambia nunca). Solo el ambiente de pruebas, que vive en la misma
+   dirección base (wolftechco.github.io), define POLI_KEY antes de cargar esta app para no mezclar su progreso con el de la final */
+const KEY = self.POLI_KEY || 'poligonos-magicos-v1';
+const SAVEVER = 2;
+/* badges: medallas que Poli ya anunció · acc: ropa que lleva Poli · today: respuestas de hoy { d, n, ok } (línea de la familia) */
+const NEWSAVE = () => ({ ver: SAVEVER, name: '', g: '', fx: true, voice: true, prog: {}, challenge: 0, challenge3d: 0, challengeNum: 0, ch: 1, stats: {}, repasoOff: [], badges: [], acc: '', today: null });
 /* el nombre se muestra dentro de la página: solo letras, números y espacios */
 const cleanName = s => String(s || '').replace(/[^\p{L}\p{N} .-]/gu, '').trim().slice(0, 14);
 /* traspaso del progreso entre versiones del guardado: si algún día se renombra, une o elimina
    una isla, se agrega aquí un paso { de: n, paso: s => {...} } que convierte el progreso antiguo */
-const MIGRATIONS = [{ de: 0, paso: s => s }]; // 0 → 1: guardados anteriores al número de versión, sin cambios
+const MIGRATIONS = [
+  { de: 0, paso: s => s }, // 0 → 1: guardados anteriores al número de versión, sin cambios
+  // 1 → 2 (entrega 2): no se renombra nada; se agregan las medallas ya anunciadas (vacías: Poli celebra una vez en el mapa
+  // las que ya tenía ganadas) y la ropa de Poli. Las medallas en sí no se guardan: se calculan con lo que ya hay
+  { de: 1, paso: s => { if (!Array.isArray(s.badges)) s.badges = []; if (typeof s.acc !== 'string') s.acc = ''; } },
+];
 function migrate(s) { s.ver ||= 0; for (const m of MIGRATIONS) if (s.ver === m.de) { m.paso(s); s.ver = m.de + 1; } return s; }
 /* perfiles: cada niño o niña tiene su propio progreso.
    Se guarda { profiles: {id: progreso}, order: [ids], cur: id }; save es el progreso del perfil que está jugando */
@@ -633,8 +641,12 @@ let cur = { name: 'welcome' };
 const scr = () => $('#screen');
 const isIntro = id => Object.values(CH).some(C => C.intro === id);
 
-function go(name, params = {}) { sfx.pop(); cur = { name, ...params }; render(); }
-const backTarget = () => ({ map: ['welcome'], island: ['map'], lesson: isIntro(cur.id) ? ['map'] : ['island', { id: cur.id }], build: ['island', { id: cur.id }], paint: ['island', { id: cur.id }], hunt: ['island', { id: cur.id }], game: ['island', { id: cur.id }], challenge: ['map'], album: ['map'], workshop: ['map'], repaso: ['map'], parent: ['map'], avance: ['map'], news: cur.from === 'parent' ? ['parent', { ok: true }] : [cur.from || 'welcome'] }[cur.name]);
+function go(name, params = {}) { sfx.pop(); cur = { name, ...params }; refreshPoli(); render(); }
+/* a dónde lleva la flecha ‹ de cada pantalla. El mapa no tiene flecha: tiene la casita (askHome).
+   Lo del niño vuelve al mapa; los detalles de premios (stickers, medallas, ropa) vuelven a Mis premios */
+const backTarget = () => ({ island: ['map'], lesson: isIntro(cur.id) ? ['map'] : ['island', { id: cur.id }], build: ['island', { id: cur.id }], paint: ['island', { id: cur.id }], hunt: ['island', { id: cur.id }], game: ['island', { id: cur.id }], challenge: ['map'], workshop: ['map'], repaso: ['map'],
+  premios: ['map'], album: ['premios'], medallas: ['premios'], ropa: ['premios'], avance: ['map'],
+  adultos: adultBack(), news: cur.from === 'adultos' ? ['adultos', { ok: true, sec: 'news', from: cur.afrom }] : [cur.from || 'welcome'] }[cur.name]);
 function setAction(label, fn, enabled = true, cls = '') {
   const b = $('#action');
   if (!label) { b.hidden = true; return; }
@@ -642,9 +654,13 @@ function setAction(label, fn, enabled = true, cls = '') {
   b.onclick = () => { sfx.pop(); fn(); };
 }
 const enableAction = () => { $('#action').disabled = false; };
+/* el contador de estrellas es un botón: lleva a Mis premios (con «›» y un saltito de vez en cuando para invitar a tocarlo) */
+const NOSTARS = ['welcome', 'adultos', 'news'];
 function refreshStars(bump) {
   const p = $('#starsPill');
-  p.hidden = cur.name === 'welcome';
+  p.hidden = NOSTARS.includes(cur.name);
+  p.classList.toggle('tap', cur.name !== 'premios');
+  p.setAttribute('aria-label', `${totalStars()} estrellas. Mis premios`);
   p.innerHTML = `${starSvg(true)}<span>${totalStars()}</span>`;
   if (bump) { p.classList.remove('bump'); void p.offsetWidth; p.classList.add('bump'); }
 }
@@ -664,12 +680,15 @@ function titleFor() {
     case 'paint': return 'Pinta sus caras';
     case 'hunt': return 'Caza en la vida real';
     case 'challenge': return (CH[cur.ch] || CH[1]).chalTitle;
-    case 'map': return 'Mapa de aventuras';
-    case 'album': return 'Mi álbum';
+    case 'map': return innerWidth < 640 && innerHeight > innerWidth ? 'Mapa' : 'Mapa de aventuras'; // celular de pie: corto
+    case 'premios': return 'Mis premios';
+    case 'album': return 'Mis stickers';
+    case 'medallas': return 'Mis medallas';
+    case 'ropa': return 'Ropa de Poli';
     case 'workshop': return 'Taller libre';
     case 'repaso': return 'Repaso del día';
-    case 'parent': return 'Ajustes';
-    case 'avance': return `Avance de ${save.name}`;
+    case 'adultos': return 'Rincón de adultos';
+    case 'avance': return 'Mi avance';
     case 'news': return 'Novedades';
     default: return 'Aprende con Poli';
   }
@@ -681,11 +700,13 @@ function render() {
   $('#barSlot').innerHTML = ''; $('#barSlot2').innerHTML = '';
   $$('#app > .modal').forEach(m => m.remove());
   $('#app').classList.toggle('is-home', cur.name === 'welcome');
+  $('#app').classList.toggle('is-adult', cur.name === 'adultos' || cur.name === 'news');
   $('#title').textContent = titleFor();
   setAction(null);
   refreshStars();
   scr().innerHTML = '';
-  ({ welcome: viewWelcome, map: viewMap, island: viewIsland, lesson: viewLesson, build: viewBuild, paint: viewPaint, hunt: viewHunt, game: viewGame, challenge: viewChallenge, album: viewAlbum, workshop: viewWorkshop, repaso: viewRepaso, parent: viewParent, avance: viewAvance, news: viewNews })[cur.name]();
+  ({ welcome: viewWelcome, map: viewMap, island: viewIsland, lesson: viewLesson, build: viewBuild, paint: viewPaint, hunt: viewHunt, game: viewGame, challenge: viewChallenge, album: viewAlbum, workshop: viewWorkshop, repaso: viewRepaso, avance: viewAvance, news: viewNews,
+    premios: viewPremios, medallas: viewMedallas, ropa: viewRopa, adultos: viewAdultos })[cur.name]();
 }
 
 /* =========================================================
@@ -711,11 +732,13 @@ function viewWelcome() {
     <span class="subline">Mundo de Formas y Números</span>
     ${root.order.length ? `<p class="who">¿Quién va a jugar?</p><div class="whowrap who"><button class="warr off" data-d="-1" aria-label="Anteriores">‹</button><div class="whorow">${root.order.map(id => { const nm = root.profiles[id].name || '?';
       return `<button class="kid" data-id="${id}" style="--k:${COLORS[[...nm].reduce((a, c) => a + c.codePointAt(0), 0) % COLORS.length]}"><span class="av">${nm[0].toUpperCase()}</span><b>${nm}</b><small>★ ${profileStars(id)}</small></button>`; }).join('')}
-      ${root.order.length < MAXPROFILES ? '<button class="kid add" id="bAdd"><span class="av">+</span><b>Agregar</b><small>niño o niña</small></button>' : ''}</div><button class="warr off" data-d="1" aria-label="Siguientes">›</button></div>` : '<p>¡Aprende jugando, a tu ritmo y con Poli!</p>'}
+</div><button class="warr off" data-d="1" aria-label="Siguientes">›</button></div>` : '<p>¡Aprende jugando, a tu ritmo y con Poli!</p>'}
     <div class="field" ${root.order.length ? 'hidden' : ''}><input id="nm" maxlength="14" placeholder="¿Cómo te llamas?" autocomplete="off"><button class="btn gold" id="go">¡Empezar!</button></div></div></div>`, 'welcome');
   // Recorrido: botón con texto en la esquina de arriba (en la portada está libre)
-  $('#barSlot').innerHTML = '<button class="tourpill" id="bTour">🧭 Recorrido</button>';
+  // Rincón de adultos: al lado (debajo de las tarjetas no cabe en celular acostado). Crear jugadores se hace allí
+  $('#barSlot').innerHTML = '<button class="tourpill" id="bTour">🧭 Recorrido</button><button class="adultpill" id="bAdult">🔒 Adultos</button>';
   $('#bTour').onclick = () => { sfx.pop(); startMapTour(() => go('welcome')); };
+  $('#bAdult').onclick = () => go('adultos', { from: 'welcome' });
   // Novedades: botón redondo arriba, al lado del volumen
   $('#barSlot2').innerHTML = '<button class="round" id="bNews" aria-label="Novedades" title="Novedades"><svg viewBox="0 0 24 24"><path d="M12 2.8a6 6 0 0 0-6 6v3.5l-1.6 2.7c-.4.7.1 1.5.9 1.5h13.4c.8 0 1.3-.8.9-1.5L18 12.3V8.8a6 6 0 0 0-6-6z" fill="#ffc233" stroke="#e09a00" stroke-width="1.5" stroke-linejoin="round"/><path d="M9.6 18.6a2.5 2.5 0 0 0 4.8 0z" fill="#e09a00"/><path d="M12 1.3v1.6" stroke="#e09a00" stroke-width="1.8" stroke-linecap="round"/></svg></button>';
   // si hay más niños de los que caben, flechas para moverse (también se desliza con el dedo)
@@ -751,7 +774,6 @@ function viewWelcome() {
     if (save.g) return go('map');
     askGender(save.name, g => { save.g = g; persist(); go('map'); });
   });
-  if ($('#bAdd')) $('#bAdd').onclick = () => { sfx.pop(); $('.welcome .field').hidden = false; $('#nm').focus(); poli.say('¡Hola! Escribe tu nombre y comencemos.', false); };
   $('#bNews').onclick = () => go('news', { from: 'welcome' });
   maybeShowNews();
   poli.say(root.order.length ? '¡Hola! Soy Poli. ¿Quién va a jugar hoy? Toca tu nombre.' : '¡Hola! Soy Poli y vamos a aprender jugando. Escribe tu nombre y comencemos.', false);
@@ -773,11 +795,21 @@ function nodeState(ch, vert) {
     return { id, x, y, locked, current, isChal };
   });
 }
+/* íconos del menú «+» (también los usa el recorrido) */
+const ICO = {
+  home: '<svg viewBox="0 0 24 24"><path d="M3.5 11.2L12 4l8.5 7.2" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9.5h4.5v-5h3v5H18V10" fill="currentColor"/></svg>',
+  lock: '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2.5" fill="#6c7aa5"/><path d="M8 11V8a4 4 0 018 0v3" fill="none" stroke="#6c7aa5" stroke-width="2.6" stroke-linecap="round"/></svg>',
+  repaso: '<svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round"/><path d="M21 4v5h-5" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7.5V12l3 2" fill="none" stroke="#5a3a00" stroke-width="2.4" stroke-linecap="round"/></svg>',
+  premios: `<svg viewBox="0 0 24 24"><path d="${trophyPath}" fill="#ffc233" stroke="#e09a00" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>`,
+  avance: '<svg viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8" rx="1.5" fill="#ff8a3d"/><rect x="10" y="8" width="4" height="13" rx="1.5" fill="#4ea8ff"/><rect x="17" y="3" width="4" height="18" rx="1.5" fill="#22c58b"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" class="plus"><defs><linearGradient id="gmas" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff0bd"/></linearGradient></defs><path d="M12 6.5v11M6.5 12h11" stroke="#8a4b00" stroke-width="6" stroke-linecap="round"/><path d="M12 6.5v11M6.5 12h11" stroke="url(#gmas)" stroke-width="3.6" stroke-linecap="round"/></svg>',
+};
+/* menú «+» del mapa, igual en todos los tamaños. Adultos va aparte, más chico y gris */
 const MENU_ITEMS = `
-            <button data-go="repaso"><span class="mi"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round"/><path d="M21 4v5h-5" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7.5V12l3 2" fill="none" stroke="#5a3a00" stroke-width="2.4" stroke-linecap="round"/></svg></span><span><b>Repaso</b><small>5 preguntas para practicar</small></span></button>
-            <button data-go="album"><span class="mi"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3" fill="#ff7eb6" stroke="#7c5cff" stroke-width="2"/><path d="M8 8h8M8 12h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></span><span><b>Álbum</b><small>Tus stickers y estrellas</small></span></button>
-            <button data-go="avance"><span class="mi"><svg viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8" rx="1.5" fill="#ff8a3d"/><rect x="10" y="8" width="4" height="13" rx="1.5" fill="#4ea8ff"/><rect x="17" y="3" width="4" height="18" rx="1.5" fill="#22c58b"/></svg></span><span><b>Mi avance</b><small>Cómo vas en cada tema</small></span></button>
-            <button data-go="parent"><span class="mi"><svg viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z" fill="none" stroke="#7c5cff" stroke-width="2.4"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="#7c5cff" stroke-width="2.4" stroke-linecap="round"/></svg></span><span><b>Ajustes</b><small>Para adultos 🔒</small></span></button>`;
+  <button data-go="repaso"><span class="mi">${ICO.repaso}</span><span><b>Repaso</b><small>5 preguntas para practicar</small></span></button>
+  <button data-go="premios"><span class="mi">${ICO.premios}</span><span><b>Mis premios</b><small>Stickers, medallas y ropa de Poli</small></span></button>
+  <button data-go="avance"><span class="mi">${ICO.avance}</span><span><b>Mi avance</b><small>Cómo vas en cada tema</small></span></button>
+  <button data-go="adultos" class="madult"><span class="mi">${ICO.lock}</span><span><b>Adultos</b><small>Jugadores, ajustes y respaldo</small></span></button>`;
 const setMenu = open => { const m = $('#menu'); if (!m) return; m.hidden = !open; $('#bMenu').setAttribute('aria-expanded', open); };
 addEventListener('click', e => { if (!e.target.closest('#menu,#bMenu')) setMenu(false); });
 /* saludo según la hora, una sola vez por visita; si hace días que no practica, invita al Repaso */
@@ -807,14 +839,6 @@ function viewMap() {
   const el = frame(`<div class="mapwrap ${vert ? 'vert' : ''}">
       <div class="maptop">
         <div class="chapters">${Object.keys(CH).map(Number).map(k => `<button class="chap ${k === ch ? 'on' : ''}" data-ch="${k}">${CH[k].label}</button>`).join('')}</div>
-        <div class="mapbar">
-          <div class="mbtns">
-            <button class="btn gold sm" data-go="repaso"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 109 9" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round"/><path d="M21 4v5h-5" fill="none" stroke="#5a3a00" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7.5V12l3 2" fill="none" stroke="#5a3a00" stroke-width="2.4" stroke-linecap="round"/></svg>Repaso</button>
-            <button class="btn ghost sm" data-go="album"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3" fill="#ff7eb6" stroke="#7c5cff" stroke-width="2"/><path d="M8 8h8M8 12h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>Álbum</button>
-            <button class="btn ghost sm" data-go="avance"><svg viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8" rx="1.5" fill="#ff8a3d"/><rect x="10" y="8" width="4" height="13" rx="1.5" fill="#4ea8ff"/><rect x="17" y="3" width="4" height="18" rx="1.5" fill="#22c58b"/></svg>Mi avance</button>
-            <button class="btn ghost sm" data-go="parent"><svg viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z" fill="none" stroke="#7c5cff" stroke-width="2.4"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="#7c5cff" stroke-width="2.4" stroke-linecap="round"/></svg>Ajustes</button>
-          </div>
-        </div>
       </div>
       <div class="mapscroll"><div class="map ${!vert && ns.length > 8 ? 'dense' : ''}" ${vert ? `style="height:${ns.length * 132}px"` : ''}>
         <svg class="path" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="${d}"/></svg>${nodeHtml}</div></div></div>`, 'fill');
@@ -826,20 +850,37 @@ function viewMap() {
     if (n.free) return go('workshop');
     isIntro(id) ? go('lesson', { id }) : n.isChal ? go('challenge', { ch }) : go('island', { id });
   });
-  /* Repaso, Álbum, Mi avance y Ajustes: botones a la vista en pantallas anchas; en celular, en el Menú */
-  $$('[data-go]', el).forEach(b => b.onclick = () => go(b.dataset.go));
-  /* en celular, el botón Más va en la barra de arriba, al lado del título */
-  $('#barSlot').innerHTML = `<button class="round more" id="bMenu" aria-expanded="false" aria-label="Más opciones"><svg viewBox="0 0 24 24" class="plus"><defs><linearGradient id="gmas" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff0bd"/></linearGradient></defs><path d="M12 6.5v11M6.5 12h11" stroke="#8a4b00" stroke-width="6" stroke-linecap="round"/><path d="M12 6.5v11M6.5 12h11" stroke="url(#gmas)" stroke-width="3.6" stroke-linecap="round"/></svg></button>
+  /* arriba a la izquierda: la casita (cambiar de jugador, con aviso suave) y el «+» con Repaso, Mis premios, Mi avance y Adultos */
+  $('#btnBack').hidden = true;
+  $('#barSlot').innerHTML = `<div class="lbtns"><button class="round" id="bHome" aria-label="${root.order.length > 1 ? 'Cambiar de jugador' : 'Portada'}">${ICO.home}</button>
+    <button class="round more" id="bMenu" aria-expanded="false" aria-label="Más opciones">${ICO.plus}</button></div>
     <div class="menu" id="menu" hidden>${MENU_ITEMS}</div>`;
-  $$('#barSlot [data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+  $$('#barSlot [data-go]').forEach(b => b.onclick = () => go(b.dataset.go, b.dataset.go === 'adultos' ? { from: 'map' } : {}));
   $('#bMenu').onclick = e => { e.stopPropagation(); sfx.pop(); setMenu(!!$('#menu').hidden); };
+  $('#bHome').onclick = () => { sfx.pop(); askHome(); };
   const cu = ns.find(n => n.current);
   /* si Poli ya saludó con el nombre ("¡Buenos días, Ana!"), el resto va sin repetirlo */
-  const g = greeting(), bare = t => t.replace(`¡Hola, ${save.name}! `, '').replace(`, ${save.name}`, '');
+  const g = greeting() + medalNews(), bare = t => t.replace(`¡Hola, ${save.name}! `, '').replace(`, ${save.name}`, '');
   poli.say(g + (!cu ? (g ? '¡Increíble! Completaste todo este capítulo.' : `¡Increíble, ${save.name}! Completaste todo este capítulo.`)
     : isIntro(cu.id) ? (g ? bare(CH[ch].hello(save.name)) : CH[ch].hello(save.name))
       : (g ? 'Sigamos con la isla que está saltando.' : `Muy bien, ${save.name}. Sigamos con la isla que está saltando.`)));
   if (!demoMode && !tourOn && tourSeen(TOURKEY) < TOURVER) setTimeout(() => cur.name === 'map' && !tourOn && startMapTour(() => go('map')), 500);
+}
+
+/* casita del mapa: ventana suave con Poli antes de volver a la portada (el avance ya está guardado) */
+function askHome() {
+  if (demoMode) return;
+  const many = root.order.length > 1, q = many ? '¿Cambiamos de jugador?' : '¿Volvemos a la portada?', before = lastSay;
+  const m = document.createElement('div'); m.className = 'modal';
+  m.innerHTML = `<div class="mcard soft" role="dialog" aria-label="${q}"><div class="mpoli">${typeof poliSvg === 'function' ? poliSvg(save.acc) : POLI_SVG}</div>
+    <h2>${q}</h2><p class="msub">Tu avance queda guardado.</p>
+    <div class="gbtns"><button class="btn gold sm" id="hYes">${many ? '👋 Sí, cambiar' : '🏠 Sí, volver'}</button><button class="btn ghost sm" id="hNo">Seguir jugando</button></div></div>`;
+  $('#app').append(m);
+  const close = () => { m.remove(); poli.say(before, false); };
+  $('#hYes', m).onclick = () => go('welcome');
+  $('#hNo', m).onclick = () => { sfx.pop(); close(); };
+  m.onclick = e => { if (e.target === m) close(); };
+  poli.say(`${q} Tu avance queda guardado.`);
 }
 
 /* ---------- Isla (hub) ---------- */
@@ -1301,25 +1342,6 @@ function viewChallenge() {
   show();
 }
 
-/* ---------- Álbum ---------- */
-function viewAlbum() {
-  const total = totalStars(), max = maxStars();
-  const rank = total >= max ? `¡${gx('Reina', 'Rey')} de las formas y los números!` : total >= 40 ? gx('Maestra', 'Maestro') : total >= 15 ? gx('Exploradora', 'Explorador') : 'Aprendiz';
-  const stk = (on, art, name, sub) => `<div class="stk ${on ? 'on' : 'off'}">${art}<b>${name}</b><small>${sub}</small></div>`;
-  const starIco = c => `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z" fill="${c}" stroke="#1b9f72" stroke-width="1.4" stroke-linejoin="round"/></svg>`;
-  const trophy = `<svg viewBox="0 0 24 24"><path d="${trophyPath}" fill="#ffc233" stroke="#e09a00" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
-  const section = ch => {
-    const C = CH[ch];
-    return `<h3 class="sec">Capítulo ${C.label}</h3>` + [
-      stk(prog(C.intro).lesson, starIco('#34d399'), ...C.sticker()),
-      ...C.figs.map(F => { const on = figStars(F.id) === 3; return stk(on, figSvg(F), F.short || cap(F.name), on ? '¡Completo!' : '3 estrellas'); }),
-      stk((save[C.chal] || 0) >= 3, trophy, gx('Campeona', 'Campeón'), 'Desafío perfecto'),
-    ].join('');
-  };
-  const el = frame(`<p class="rank"><span>${save.name ? save.name + ' · ' : ''}${rank} · ${total}/${max} ★</span></p><div class="album">${Object.keys(CH).map(section).join('')}</div>`);
-  poli.say(`¡Mira tu álbum, ${save.name}! Completa las tres estrellas de cada isla para ganar sus stickers.`);
-}
-
 /* ---------- Taller libre ---------- */
 function viewWorkshop() {
   const N = 6, GAP = 64, OFF = 40;
@@ -1403,12 +1425,13 @@ function updateVoiceIcon() {
 $('#poli').innerHTML = POLI_SVG;
 $('#btnBack').onclick = () => { if (stepBack) { sfx.pop(); stepBack(); return; } const t = backTarget(); if (t) go(t[0], t[1] || {}); };
 $('#btnVoice').onclick = () => { const on = !(save.voice || save.fx); save.voice = save.fx = on; persist(); updateVoiceIcon(); if (!on) speechSynthesis?.cancel?.(); else sfx.pop(); };
+$('#starsPill').onclick = () => { if (cur.name !== 'premios' && !demoMode && !tourOn) go('premios'); };
 $('#replay').onclick = () => { sfx.pop(); if (lastSay) { const v = save.voice; save.voice = true; speak(lastSay); save.voice = v; } };
 /* al girar el celular, el mapa se rearma (solo si cambia de vertical a horizontal) */
 let lastVert = isVertical(), rsT;
 addEventListener('resize', () => {
   clearTimeout(rsT);
-  rsT = setTimeout(() => { const v = isVertical(); if (v !== lastVert) { lastVert = v; if (cur.name === 'map') viewMap(); } }, 250);
+  rsT = setTimeout(() => { if (cur.name === 'map') $('#title').textContent = titleFor(); const v = isVertical(); if (v !== lastVert) { lastVert = v; if (cur.name === 'map') viewMap(); } }, 250);
 });
 (() => {
   const SEL = '.round[aria-label],.warr[aria-label],#replay';
@@ -1437,6 +1460,9 @@ addEventListener('resize', () => {
 
 /* arranca cuando ya cargaron todos los scripts (js/numeros.js agrega el capítulo 3) */
 const boot = () => {
+  /* al abrir: sin jugadores, la portada con el formulario; con uno solo, directo a su mapa (el jugador y el capítulo
+     ya quedan guardados); con dos o más, la portada para que cada niño toque su tarjeta */
+  if (root.order.length === 1 && root.cur && save.g) cur = { name: 'map' };
   initBg(); updateVoiceIcon(); render();
   // modo sin internet (solo cuando la app está publicada, no al abrir el archivo directo)
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('sw.js').catch(() => { });
