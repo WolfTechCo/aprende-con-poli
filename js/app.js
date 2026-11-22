@@ -643,6 +643,10 @@ let cur = { name: 'welcome' };
 const scr = () => $('#screen');
 const isIntro = id => Object.values(CH).some(C => C.intro === id);
 
+/* capítulos que usan el «escenario» (entrega 3.1, ver css/style.css): la zona de juego crece con el espacio disponible.
+   Se encienden de a uno, después de revisarlos en todos los tamaños */
+const STAGE_CH = [5];
+const curChapter = () => cur.name === 'challenge' ? cur.ch : FIG[cur.id] ? FIG[cur.id].ch : Object.keys(CH).find(k => CH[k].intro === cur.id);
 function go(name, params = {}) { sfx.pop(); cur = { name, ...params }; refreshPoli(); render(); }
 /* a dónde lleva la flecha ‹ de cada pantalla. El mapa no tiene flecha: tiene la casita (askHome).
    Lo del niño vuelve al mapa; los detalles de premios (stickers, medallas, ropa) vuelven a Mis premios */
@@ -703,6 +707,7 @@ function render() {
   $$('#app > .modal').forEach(m => m.remove());
   $('#app').classList.toggle('is-home', cur.name === 'welcome');
   $('#app').classList.toggle('is-adult', cur.name === 'adultos' || cur.name === 'news');
+  $('#app').classList.toggle('stage', ['lesson', 'game', 'challenge'].includes(cur.name) && STAGE_CH.includes(+curChapter()));
   $('#title').textContent = titleFor();
   setAction(null);
   refreshStars();
