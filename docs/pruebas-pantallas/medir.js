@@ -32,7 +32,7 @@ const { metric } = require('./metrica');
     const rec = async (name, shot = true) => {
       await p.waitForTimeout(250); const m = await p.evaluate(metric);
       (data[name] = data[name] || {})[dn] = m;
-      report.push(`${dn.padEnd(6)} ${name.padEnd(26)} alto ${String(m.alto).padStart(3)}% ancho ${String(m.ancho).padStart(3)}% relleno ${String(m.relleno).padStart(3)}% hueco ${String(m.hueco).padStart(2)}%${m.desb > 0 ? ' DESBORDE ' + m.desb : ''} · letra ${m.letra} resp ${m.resp} dibujo ${m.dibujo}`);
+      report.push(`${dn.padEnd(6)} ${name.padEnd(26)} alto ${String(m.alto).padStart(3)}% ancho ${String(m.ancho).padStart(3)}% relleno ${String(m.relleno).padStart(3)}% hueco ${String(m.hueco).padStart(2)}%${m.desb > 0 ? ' DESBORDE ' + m.desb : ''}${m.fuera ? ' FUERA ' + m.fuera : ''} · letra ${m.letra} resp ${m.resp} dibujo ${m.dibujo}`);
       if (shot) await p.screenshot({ path: `${OUT}/${TAG}c${CHN}-${dn}-${name}.jpg`, type: 'jpeg', quality: 60 });
     };
     const C = await p.evaluate(n => ({ intro: CH[n].intro, figs: CH[n].figs.map(F => F.id) }), CHN);

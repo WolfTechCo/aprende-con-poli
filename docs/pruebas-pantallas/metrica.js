@@ -29,13 +29,19 @@ const metric = () => {
   for (let y = 0; y < N; y++) { const empty = !cell.slice(y * N, y * N + N).some(Boolean); run = empty ? run + 1 : 0; gap = Math.max(gap, run); }
   const q = s.querySelector('h2.q, .q, h2'), opt = s.querySelector('.opt');
   let art = 0; s.querySelectorAll('svg').forEach(v => { if (!v.closest('.opt') && !v.parentElement.closest('svg')) art = Math.max(art, Math.round(v.getBoundingClientRect().height)); });
+  // algo que se sale de su tarjeta o botón blanco (más de 2 px)
+  let fuera = 0; const box = '.panel,.opt,.mbig,.tcard,.mcap,.mstory,.stone,.ctab,.chap,.famline';
+  s.querySelectorAll(box).forEach(c => { const R = c.getBoundingClientRect(); if (!R.width) return;
+    c.querySelectorAll('svg,span,b,p,small,img').forEach(k => { if (k.closest(box) !== c || k.parentElement.closest('svg')) return; const r = k.getBoundingClientRect(); if (!r.width) return;
+      const inl = getComputedStyle(k).display === 'inline'; // en letras sueltas solo cuenta el lado: su caja invisible sobresale arriba y abajo
+      if (r.left < R.left - 2 || r.right > R.right + 2 || (!inl && (r.top < R.top - 2 || r.bottom > R.bottom + 2))) fuera++; }); });
   const t = s.querySelector('.tabwrap');
   return {
     zona: `${Math.round(W)}×${Math.round(H)}`,
     alto: Math.round((bb.b - bb.t) / H * 100), ancho: Math.round((bb.r - bb.l) / W * 100),
     relleno: Math.round(cell.reduce((a, b) => a + b, 0) / (N * N) * 100), hueco: Math.round(gap / N * 100),
     desb: (s.scrollHeight - s.clientHeight) + (t ? Math.max(0, t.scrollHeight - t.clientHeight) : 0),
-    letra: q ? Math.round(parseFloat(getComputedStyle(q).fontSize)) : 0, resp: opt ? Math.round(opt.getBoundingClientRect().height) : 0, dibujo: art,
+    fuera, letra: q ? Math.round(parseFloat(getComputedStyle(q).fontSize)) : 0, resp: opt ? Math.round(opt.getBoundingClientRect().height) : 0, dibujo: art,
   };
 };
 module.exports = { metric };

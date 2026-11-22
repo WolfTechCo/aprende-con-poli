@@ -1502,14 +1502,20 @@ svg.mg:not(.arr){width:calc(var(--vw) * var(--u, .8px));height:auto;max-width:10
 #app.stage .stepbody .trio .panel p,#app.stage .stepbody .mduo .panel p{font-size:clamp(14px,min(3.4cqh,4.6cqw),30px)}
 @container (orientation:portrait){
   #app.stage .stepbody>.trio{flex-direction:column;align-items:stretch;width:min(86cqw,520px);gap:2cqh}
-  #app.stage .stepbody>.trio .panel{flex-direction:row;justify-content:space-between;gap:4cqw;padding:1.4cqh 5cqw}
-  #app.stage .stepbody .trio .panel svg.mg{--H:16cqh;--mw:52cqw;--m:1.6}
+  #app.stage .stepbody>.trio .panel{flex-direction:row;justify-content:space-between;gap:4cqw;padding:1.4cqh 5cqw;width:100%;max-width:none;flex:none}
+  #app.stage .stepbody .trio .panel svg.mg{--H:16cqh;--mw:58%;--m:1.6}
+  #app.stage .stepbody>.trio .panel p{flex:none}
 }
 @container (orientation:landscape){
   #app.stage .stepbody .stone{min-width:clamp(44px,min(18cqh,9cqw),112px);height:clamp(44px,min(18cqh,9cqw),112px);font-size:clamp(18px,min(9cqh,4.4cqw),50px)}
   #app.stage .stepbody .hop{width:clamp(30px,min(11cqh,6cqw),70px)}
   #app.stage .stepbody .hop em{font-size:clamp(12px,min(4.6cqh,2.2cqw),24px)}
-  #app.stage .stepbody .trio .panel svg.mg{--H:42cqh;--mw:26cqw;--m:1.8}
+  #app.stage .stepbody>.trio{width:min(94cqw,1100px)}
+  #app.stage .stepbody>.trio .panel{flex:1 1 0;min-width:0;max-width:none;width:auto}
+  #app.stage .stepbody .trio .panel svg.mg{--H:42cqh;--mw:100%;--m:1.8}
   #app.stage .stepbody .trio .panel p,#app.stage .stepbody .mduo .panel p{font-size:clamp(13px,min(5.4cqh,2.6cqw),30px)}
 }
-@container (orientation:landscape){#app.stage .stepbody .mduo .panel svg.mg:not(.arr){--mw:34cqw;--H:44cqh}}
+@container (orientation:landscape){
+  #app.stage .stepbody .mduo .panel{width:auto;max-width:none;flex:none}
+  #app.stage .stepbody .mduo .panel svg.mg:not(.arr){--mw:34cqw;--H:44cqh}
+}
