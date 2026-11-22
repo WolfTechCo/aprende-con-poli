@@ -71,7 +71,7 @@
     dino: i => { const p = ['verde', 'menta', 'lila', 'naranja', 'azul', 'rosa'][i % 6]; return piso(11, 11)
       + [[-6, -8.4], [-1, -10.4], [4, -9.6]].map(([x, y]) => gel(P(`M${x - 3} ${y + 3}Q${x} ${y - 4} ${x + 3} ${y + 3}Z`), 'amarillo', .8)).join('')
       + gel(P('M-11.6 6Q-13.6 2 -10 -1Q-9 -8.6 0 -8.8Q10 -9 11 0Q11.6 7.6 6 9.6L-6 9.8Q-10 9.8 -11.6 6Z'), p) + gel(P('M-10.6 4Q-15 4.6 -14.6 1.4Q-14 -.6 -11 .8Z'), p, 1)
-      + gel(E(2.4, 4.8, 6, 3.6), 'vainilla', .8) + gel(R(-6.6, 8, 4, 4, 2), p, 1) + gel(R(3.6, 8, 4, 4, 2), p, 1) + arc('M-6 -4Q-4.5 -7.4 -.8 -7.8', 1.6) + face(-1.2, .74, { boca: 'abierta' }); },
+      + gel(P('M-4.6 6.4Q-4.2 2.8 1.8 2.6Q7.6 2.6 7.8 6.2Q7 7.8 4.2 7.8L-2.6 7.8Q-4.3 7.8 -4.6 6.4Z'), 'vainilla', .7) /* panza chica, dentro del cuerpo */ + gel(R(-6.6, 8, 4, 4, 2), p, 1) + gel(R(3.6, 8, 4, 4, 2), p, 1) + arc('M-6 -4Q-4.5 -7.4 -.8 -7.8', 1.6) + face(-1.2, .74, { boca: 'abierta' }); },
     pollito: () => piso(11, 9) + `<path d="M-3 9V12.2M3 9V12.2" stroke="#ff8a3d" stroke-width="1.4" stroke-linecap="round"/>` + gel(C(0, 1, 10.2), 'amarillo')
       + `<path d="M-1.6 -8.8Q0 -14 1.2 -9.2Q3 -13 3.6 -8.6" fill="none" stroke="#f0a800" stroke-width="1.4" stroke-linecap="round"/>` + gel(P('M-9.6 2.4Q-14 0 -12.4 5.4Q-10.4 6.6 -9 4.4Z'), 'amarillo', .9)
       + gel(P('M-1.6 2.6L1.6 2.6L0 4.8Z'), 'naranja', .7) + arc('M-6.8 -3.4Q-5.6 -6.6 -2.4 -7.4', 1.6) + face(-.6, .78).replace(/<path d="M-1.2 2.1[^>]*>/, ''),
