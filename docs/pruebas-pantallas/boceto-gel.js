@@ -92,7 +92,7 @@
   const spots = (n, S = n <= 3 ? 36 : 33) => { const top = n <= 3 ? n : Math.ceil(n / 2), rows = n <= 3 ? [n] : [top, n - top];
     return rows.flatMap((m, r) => Array.from({ length: m }, (_, i) => [(i - (m - 1) / 2) * S, rows.length === 1 ? 0 : r ? 15 : -14])); };
   const row = (n, S) => Array.from({ length: n }, (_, i) => [(i - (n - 1) / 2) * S, 0]);
-  const stand = (n, S = 30) => n <= 3 ? row(n, S).map(([x]) => [x, -4]) : [...row(Math.ceil(n / 2), S).map(([x]) => [x, -29]), ...row(n - Math.ceil(n / 2), S).map(([x]) => [x, -4])];
+  const stand = (n, S = 30) => n <= 3 ? row(n, S).map(([x]) => [x, -4]) : [...row(Math.ceil(n / 2), S).map(([x]) => [x, -24]), ...row(n - Math.ceil(n / 2), S).map(([x]) => [x, -3])];
   /* ---------- recipientes gel (sin cara) ---------- */
   const shine = (x, y, w) => arc(`M${x} ${y}Q${x + w * .3} ${y - 6} ${x + w} ${y - 7}`, 3, .7);
   const CONT = {
@@ -106,16 +106,16 @@
     isla: { lay: spots, back: () => piso(34, 54) + gel(E(0, 4, 57, 30), 'cafe', 1.6) + gel(E(0, -2, 55, 27), 'hoja', 1.6) + [[-40, -8, '#fff4b0'], [42, 4, '#ffd6e8'], [30, -16, '#e9e0ff']].map(([x, y, c]) => `<circle cx="${x}" cy="${y}" r="2.6" fill="${c}" stroke="#fff" stroke-width="1"/>`).join('') + shine(-40, -12, 22) },
     pista: { lay: n => { if (n <= 2) return row(n, 46).map(([x]) => [x, 0]); const t = Math.ceil(n / 2), S = n <= 4 ? 46 : 35; return [...row(t, S).map(([x]) => [x, -15]), ...row(n - t, S).map(([x]) => [x, 16])]; },
       is: n => n <= 4 ? 1.55 : 1.2, back: () => piso(36, 54) + gel(R(-57, -34, 114, 68, 18), 'lila', 1.8) + `<rect x="-50" y="-27" width="100" height="54" rx="12" fill="#f4efff" opacity=".7"/><path d="M-47 2H47" stroke="#fff" stroke-width="3" stroke-dasharray="9 7" stroke-linecap="round"/>` },
-    canasto: { is: n => n <= 3 ? 1.35 : 1.22, lay: n => stand(n, n <= 3 ? 33 : 30), back: () => piso(42, 52) + `<path d="M-48 10Q-48 -54 0 -54Q48 -54 48 10" fill="none" stroke="#a86b38" stroke-width="5" stroke-linecap="round"/><path d="M-46 4Q-44 -48 0 -51" fill="none" stroke="#f5d9b8" stroke-width="1.6" stroke-linecap="round" opacity=".7"/>`,
-      front: () => gel(P('M-54 10L54 10L47 38Q46 42 41 42L-41 42Q-46 42 -47 38Z'), 'cafe', 1.8) + `<path d="M-51 22H51M-49 32H49M-30 10L-27 42M-10 10L-9 42M10 10L9 42M30 10L27 42" stroke="#a86b38" stroke-width="1.4" opacity=".8"/>` + gel(R(-57, 6, 114, 9, 4.5), 'cafe', 1.4) + shine(-50, 22, 18) },
+    canasto: { is: n => n <= 3 ? 1.6 : 1.3, lay: n => stand(n, n <= 3 ? 36 : 32), back: () => piso(38, 52) + `<path d="M-48 10Q-48 -48 0 -48Q48 -48 48 10" fill="none" stroke="#a86b38" stroke-width="5" stroke-linecap="round"/><path d="M-46 4Q-44 -42 0 -45" fill="none" stroke="#f5d9b8" stroke-width="1.6" stroke-linecap="round" opacity=".7"/>`,
+      front: () => gel(P('M-54 10L54 10L48 34Q47 38 42 38L-42 38Q-47 38 -48 34Z'), 'cafe', 1.8) + `<path d="M-51 20H51M-49 29H49M-30 10L-28 38M-10 10L-9 38M10 10L9 38M30 10L28 38" stroke="#a86b38" stroke-width="1.4" opacity=".8"/>` + gel(R(-57, 6, 114, 9, 4.5), 'cafe', 1.4) + shine(-50, 22, 18) },
     frasco: { is: n => n <= 3 ? 1.35 : 1.15, lay: n => spots(n, n <= 3 ? 33 : 29).map(([x, y]) => [x, y + 3]), back: () => piso(38, 50) + `<path d="M-50 -26Q-54 -26 -54 -20L-54 30Q-54 36 -48 36L48 36Q54 36 54 30L54 -20Q54 -26 50 -26Z" fill="#eaf8ff" stroke="#5ab4ea" stroke-width="1.8"/>`,
       front: () => `<path d="M-50 -26Q-54 -26 -54 -20L-54 30Q-54 36 -48 36L48 36Q54 36 54 30L54 -20Q54 -26 50 -26Z" fill="#cdeeff" opacity=".2"/>` + arc('M-46 -16V26', 4, .8) + arc('M46 18V26', 3, .6) + gel(R(-44, -36, 88, 12, 5), 'rosa', 1.6) },
-    tina: { is: n => n <= 3 ? 1.35 : 1.22, lay: n => stand(n, n <= 3 ? 33 : 30), back: () => piso(46, 56),
-      front: () => gel(P('M-56 8L56 8Q56 40 30 40L-30 40Q-56 40 -56 8Z'), 'blanco', 1.8) + `<path d="M-38 40L-42 46M38 40L42 46" stroke="#8f97b8" stroke-width="4" stroke-linecap="round"/>` + gel(R(-56, 4, 112, 8, 4), 'agua', 1.2) + [[-42, 6, 5], [-32, 4, 3.5], [38, 7, 4.5], [48, 4, 3]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" stroke="#bfe3ff" stroke-width="1"/>`).join('') + shine(-48, 22, 18) },
-    juguetes: { is: n => n <= 3 ? 1.35 : 1.22, lay: n => stand(n, n <= 3 ? 33 : 30), back: () => piso(46, 56),
-      front: () => gel(R(-56, 8, 112, 34, 10), 'lila', 1.8) + `<text x="0" y="32" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="14" fill="#fff" opacity=".9">★ ★ ★</text>` + gel(R(-58, 5, 116, 8, 4), 'lila', 1.4) + shine(-50, 22, 16) },
-    tarro: { is: n => n <= 4 ? 1.55 : 1.3, lay: n => row(n, n > 4 ? 15 : 20).map(([x]) => [x, -14]), back: () => piso(42, 46),
-      front: () => gel(P('M-48 2L48 2L44 36Q43.5 40 39 40L-39 40Q-43.5 40 -44 36Z'), 'amarillo', 1.8) + gel(R(-51, -2, 102, 9, 4.5), 'amarillo', 1.4) + [[-26, 22], [0, 26], [26, 22]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="4.6" fill="#fff" opacity=".7"/>`).join('') + shine(-42, 24, 16) },
+    tina: { is: n => n <= 3 ? 1.6 : 1.3, lay: n => stand(n, n <= 3 ? 36 : 32), back: () => piso(40, 56),
+      front: () => gel(P('M-56 8L56 8Q56 35 30 35L-30 35Q-56 35 -56 8Z'), 'blanco', 1.8) + `<path d="M-38 35L-41 39M38 35L41 39" stroke="#8f97b8" stroke-width="4" stroke-linecap="round"/>` + gel(R(-56, 4, 112, 8, 4), 'agua', 1.2) + [[-42, 6, 5], [-32, 4, 3.5], [38, 7, 4.5], [48, 4, 3]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" stroke="#bfe3ff" stroke-width="1"/>`).join('') + shine(-48, 22, 18) },
+    juguetes: { is: n => n <= 3 ? 1.6 : 1.3, lay: n => stand(n, n <= 3 ? 36 : 32), back: () => piso(38, 56),
+      front: () => gel(R(-56, 8, 112, 30, 10), 'lila', 1.8) + `<text x="0" y="29" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="14" fill="#fff" opacity=".9">★ ★ ★</text>` + gel(R(-58, 5, 116, 8, 4), 'lila', 1.4) + shine(-50, 22, 16) },
+    tarro: { is: n => n <= 4 ? 1.55 : 1.3, lay: n => row(n, n > 4 ? 15 : 20).map(([x]) => [x, -14]), back: () => piso(37, 46),
+      front: () => gel(P('M-48 2L48 2L44 32Q43.5 36 39 36L-39 36Q-43.5 36 -44 32Z'), 'amarillo', 1.8) + gel(R(-51, -2, 102, 9, 4.5), 'amarillo', 1.4) + [[-26, 19], [0, 23], [26, 19]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="4.6" fill="#fff" opacity=".7"/>`).join('') + shine(-42, 24, 16) },
     soporte: { lay: n => row(n, n > 5 ? 16 : 18).map(([x]) => [x, -8]), back: () => piso(42, 56),
       front: () => gel(R(-56, 6, 112, 30, 12), 'rosa', 1.8) + `<path d="M-56 16H56" stroke="#fff" stroke-width="2" opacity=".6"/>` + Array.from({ length: 9 }, (_, i) => `<circle cx="${-48 + i * 12}" cy="28" r="2" fill="#fff" opacity=".8"/>`).join('') + shine(-50, 22, 16) },
   };
@@ -148,14 +148,16 @@
     const items = pts.map(([x, y], i) => `<g class="bf-it" style="--d:${i}" transform="translate(${x} ${y})"><g class="bf-a"><g transform="scale(${sc})">${ITEM[th.k](i + i0)}</g></g></g>`).join('');
     const inner = (C.back ? C.back(th.contColor) : '') + items + (C.front ? C.front(th.contColor) : '');
     const [bg, bd] = CARD[th.card];
-    return `<rect x="-62" y="-44" width="124" height="94" rx="20" fill="${bd}" opacity=".55"/><rect x="-62" y="-48" width="124" height="94" rx="20" fill="${bg}" stroke="${bd}" stroke-width="2.4"/>${inner}`;
+    return `<rect x="-62" y="-40" width="124" height="84" rx="20" fill="${bd}" opacity=".55"/><rect x="-62" y="-43" width="124" height="84" rx="20" fill="${bg}" stroke="${bd}" stroke-width="2.4"/>${inner}`;
   }
-  const GW = 132, GH = 104;
+  const GW = 132, GH = 92;
+  /* tamaño que se informa al CSS (--vw/--vh) en la misma escala que los platos de antes (104 de ancho): así las pantallas ya probadas calzan */
+  const K104 = 104 / 132;
   function grp(sizes, th, { cols = 3, cls = '', tap = false } = {}) {
     const rows = Math.ceil(sizes.length / cols), top = tap ? -26 : 0, H = rows * GH + 6 - top, W = cols * GW;
     const g = sizes.map((n, i) => { const cx = GW / 2 + (i % cols) * GW, cy = GH / 2 + 3 + Math.floor(i / cols) * GH;
-      return `<g class="pl bf-g" data-i="${i}" style="--g:${i}" transform="translate(${cx} ${cy})">${group(th, n, 'A', i)}${tap ? '<text class="plc" y="-52" text-anchor="middle"></text><rect x="-64" y="-50" width="128" height="100" fill="transparent"/>' : ''}</g>`; }).join('');
-    return `<svg viewBox="-2 ${top - 2} ${W + 4} ${H + 4}" class="grp mg ${cls}" style="--vw:${W + 4};--vh:${H + 4}">${DEFS}${g}</svg>`;
+      return `<g class="pl bf-g" data-i="${i}" style="--g:${i}" transform="translate(${cx} ${cy})">${group(th, n, 'A', i)}${tap ? '<text class="plc" y="-47" text-anchor="middle"></text><rect x="-64" y="-45" width="128" height="90" fill="transparent"/>' : ''}</g>`; }).join('');
+    return `<svg viewBox="-2 ${top - 2} ${W + 4} ${H + 4}" class="grp mg ${cls}" style="--vw:${Math.round((W + 4) * K104)};--vh:${Math.round((H + 4) * K104)}">${DEFS}${g}</svg>`;
   }
   /* ---------- bicicletas gel (2 ruedas), sobres, filas ---------- */
   function bikes(k, cols = Math.min(k, 3)) {
