@@ -1,7 +1,21 @@
 # Plan de trabajo de Aprende con Poli
 
 Documento para retomar el proyecto en una conversación nueva. Léelo completo junto con `CLAUDE.md`.
-Última actualización: 21-11-2026 (entrega 2 en la app final; la dueña la revisa. Prioridad nueva: entrega 3 (capítulo 5 de Multiplicación), ver sección 4.1; después la entrega 4. Respaldo de antes: rama `respaldo-2.4.1`).
+Última actualización: 22-11-2026 (entregas 2 y 3 en la app final. **En curso: entrega 3.1**, fase 1 terminada y revisión automática lista; **siguiente: fase 2 (figuras nuevas del capítulo 5), empezar conversando con la dueña**, ver «Para retomar» abajo. Después la entrega 4. Respaldo de antes: rama `respaldo-2.4.1`).
+
+## Para retomar (22-11-2026)
+- **Rama de trabajo:** `ccr-c1892ab9-wh1ylw` en `aprende-con-poli` (la app final). Ahí están la fase 1, la revisión automática y este plan. **Aún no está en `main` ni en el ambiente de pruebas** (eso es la fase 3). En un chat nuevo: partir desde esa rama (`git fetch origin ccr-c1892ab9-wh1ylw`) o crear la rama nueva desde ella, no desde `main`.
+- **Página con todo lo decidido y las capturas:** «Espacios del capítulo 5», https://claude.ai/artifact/K95uQWHMUUi6ZGcAFPzzQr
+- **Revisión de pantallas:** `node docs/pruebas-pantallas/revisar.js` (rápida, ≈ 30 s) o `revisar.js completo todos` (≈ 6 min); instrucciones en `docs/pruebas-pantallas/LEEME.md`. Hoy el capítulo 5 pasa todo salvo el «¡Nuevo!» cortado.
+- **Modelo:** la fase 2 es diseño → **Opus** (regla flexible, sección 2).
+- **Fase 2 · figuras nuevas del capítulo 5: empezar conversando.** Preguntas hechas a la dueña (responde las que quiera; en las demás decide la IA con la propuesta):
+  1. **¿Qué cosas dibujar?** Hoy: sopaipillas, frutillas, galletas y huevos en platos o nidos; bicicletas; sobres de láminas; filas de puntos; cuentos con emojis (pájaros, calcetines, manos, estrellas, cajas, canastos). *Propuesta:* seguir agrupando, con cosas de la vida diaria de un niño en Chile (empanadas en bandeja, lápices en estuches, huevos en caja, ruedas de autos, patas de animales) y cambiar los emojis por dibujos propios (cada aparato los dibuja distinto). ¿Algo que quiera sí o sí, o evitar?
+  2. **¿Cuánto movimiento?** *Propuesta:* como los capítulos 1 y 2: aparecen con un saltito, reaccionan al tocarlas y al contar se iluminan una a una; sin distraer de contar.
+  3. **¿Caras o personajes?** (frutas o cajas con ojos, animalitos). *Propuesta:* solo en algunos dibujos.
+  4. **¿Alcance?** *Propuesta:* solo el capítulo 5; lo aprendido se aplica después a los capítulos 3 y 4 (fase 4).
+  Luego: página con 2 o 3 estilos dibujados (sin construir), la dueña elige, y recién ahí se construye. Referencia de lo que gusta: capítulos 1 y 2 (cosas reales, grandes, en tarjetas blancas y con colores vivos); lo que no: los platos chicos y pálidos del capítulo 5 (las bicicletas sí gustaron).
+- **Después de la fase 2:** fase 3 (revisión completa, `?v=` y `VERSION`, CHANGELOG, novedades si aplica, merge al ambiente de pruebas para que la dueña lo pruebe en su celular), fase 4 (capítulos 3 y 4: misma regla del escenario, `STAGE_CH`, y sus figuras; el «¡Nuevo!» cortado), fase 5 (capítulos 1 y 2). Al final, Pull Request a `main` de la app final.
+
 
 ## 1. Cómo trabajamos (acordado con la dueña)
 - **Dos repositorios que comparten historia:**
@@ -36,7 +50,8 @@ Quien lleve la conversación **debe avisar a la dueña, al empezar cada etapa, q
 | **1 · 2.4.0** (`entrega-1`) | Reporte con estrellas y comentario, capítulo 4 Patrones, saludo según la hora, mejor voz, campana en Novedades, "+" en el menú del mapa, volver a la portada, "Recorrido" en Ajustes, botones compactos, pestañas de capítulos en una fila, textos sin nombre repetido | **Mergeada en la app final** (Pull Request #11, 21-11-2026) |
 | **1.1 · 2.4.1** | Ajustes visuales (ver sección 3.1) | Puntos 1 a 3 en 2.4.1; el punto 4 se hizo junto con la entrega 2 (3.0.0) |
 | **2 · 3.0.0** | Estructura nueva (ver sección 4) | **Construida y en la app final** (21-11-2026, rama `entrega-2`). Excepción acordada: Opus hizo también pruebas, novedades, recorrido y el Merge, porque la dueña revisa en la mañana. Si algo no convence, se vuelve a `respaldo-2.4.1` |
-| **3 · 3.1.0** | **Capítulo 5: Multiplicación** (método de la editorial SM) y barra de capítulos que crece | **Construida y probada en el ambiente de pruebas** (21-11-2026, rama `claude/gracious-fermat-ulqmwe`; **falta que la dueña la pruebe en su celular y pida el Pull Request**). Ver sección 4.1 |
+| **3 · 3.1.0** | **Capítulo 5: Multiplicación** (método de la editorial SM) y barra de capítulos que crece | **En la app final** (Pull Request #21, 21-11-2026). Ver sección 4.1 |
+| **3.1** | **Espacios del capítulo 5** (escenario, B3, Mi avance), figuras nuevas y revisión de los demás capítulos | **En curso** (22-11-2026, rama `ccr-c1892ab9-wh1ylw`): fase 1 hecha, revisión automática lista; sigue la fase 2 (figuras). Ver «Para retomar» y sección 5 |
 | **4** | **Incentivos con sinergia** (stickers, medallas, ropa, racha) y **Poli niño o niña** | Después de la entrega 3 (ver sección 4.2) |
 
 ## 3.1 Entrega 1.1 · 2.4.1: ajustes visuales (pedidos por la dueña tras probar la entrega 1)
