@@ -26,12 +26,13 @@ const CSS = '.memo{gap:6px 10px}.memo .bf-st{width:clamp(56px,min(15vw,11vh),120
     await p.evaluate(() => { localStorage.clear(); for (const [k, x] of [['poli-recorrido-visto', '99'], ['poli-recorrido-ajustes-visto', '99'], ['poli-novedades-visto', '9.9.9']]) localStorage.setItem(k, x); });
     await p.reload(); await p.evaluate(() => { addProfile('Ana', 'a'); save.voice = false; persist(); });
     await p.addStyleTag({ content: '*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition:none!important}' });
-    if (st === 'K') {
+    if (st === 'K' || st === 'K2') {
+      if (st === 'K2') await p.evaluate(() => { window.APILA = true; }); // K2: de pie, hasta 3 grupos uno debajo del otro
       await p.evaluate(KW);
       await p.evaluate(() => {
         const K = window.BOCETO_KW; window.BOCETO_FIG = { THEMES: K.THEMES };
         MTH.splice(0, MTH.length, ...K.THEMES);
-        window.grpSvg = (sizes, th, o = {}) => K.grp(sizes, th, { ...o, cols: o.cols || mCols(sizes.length) }, 'A');
+        window.grpSvg = (sizes, th, o = {}) => K.grp(sizes, th, { ...o, cols: o.cols || (window.APILA && mNarrow() && sizes.length <= 3 ? 1 : mCols(sizes.length)) }, 'A');
         window.bikeSvg = k => K.bikes(k, mNarrow() ? Math.min(k, 3) : k > 5 ? Math.ceil(k / 2) : k);
         window.sobreSvg = (k, t, cols = mNarrow() ? Math.min(k, 3) : k > 4 ? Math.ceil(k / 2) : k) => K.sobres(k, t, cols);
         window.arrSvg = (r, c, o = {}) => K.filas(r, c, o.col === '#4ea8ff' ? { ...o, col: '#7fd0ff', dk: '#3a9ad6' } : { ...o, col: '#ff8fbf', dk: '#e0609a' });

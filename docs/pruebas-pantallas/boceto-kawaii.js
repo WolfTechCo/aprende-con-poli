@@ -83,10 +83,40 @@
     { k: 'sopa', one: 'sopaipilla', pl: 'sopaipillas', f: 1, cont: 'plato', conts: 'platos', card: 'lila', grp: 'De Chile' },
     { k: 'lapiz', one: 'lápiz', pl: 'lápices', f: 0, cont: 'estuche', conts: 'estuches', card: 'crema', grp: 'Útiles' },
   ];
+
+  /* ---------- autito, estilo 2 (ejemplo pedido el 22-11-2026): contorno grueso ciruela, sombra recortada de un tono,
+     brillos blancos marcados, forma gordita y cara grande y baja. Dibujado en una caja de 120 × 90. ---------- */
+  const OL = '#4b2e5a';
+  const CAR_C = [['#ff8a9a', '#e8607a'], ['#7fdcc0', '#45b893'], ['#ffd45c', '#e8ad2a'], ['#b9a0ff', '#8f72e0'], ['#7fc8ff', '#4f9fe0']];
+  function car(i = 0, fino = true) {
+    const [c, d] = CAR_C[i % CAR_C.length];
+    const body = 'M14 60Q12 45 27 42L38 40Q44 17 66 15Q88 14 95 38L102 40Q113 43 111 58Q111 69 100 69L23 69Q14 69 14 60Z';
+    const wheel = x => `<circle cx="${x}" cy="68" r="12.5" fill="${OL}"/><circle cx="${x}" cy="68" r="5.6" fill="#e9e4ff"/><circle cx="${x - 1.8}" cy="66.2" r="1.6" fill="#fff"/>`;
+    return `<ellipse cx="62" cy="82" rx="50" ry="5.5" fill="${OL}" opacity=".16"/>`
+      + (fino ? `<g fill="#fff" stroke="${OL}" stroke-width="2.4"><circle cx="8" cy="62" r="4.5"/><circle cx="3" cy="55" r="3"/></g>` : '')
+      + `<path d="M66 15V7" stroke="${OL}" stroke-width="2.6" stroke-linecap="round"/><path d="M66 8.5C63.5 5 59.5 6.5 61.5 10L66 14L70.5 10C72.5 6.5 68.5 5 66 8.5Z" fill="#ff6f9f" stroke="${OL}" stroke-width="2.2" stroke-linejoin="round"/>`
+      + `<path d="${body}" fill="${c}"/>`
+      + `<path d="M15 57Q17 67 25 67L99 67Q109 67 110 56Q104 61 92 61L32 61Q20 61 15 57Z" fill="${d}"/>`
+      + `<path d="M45 38Q48 23 62 21.5L62 38Z" fill="#dff3ff" stroke="${OL}" stroke-width="2.6" stroke-linejoin="round"/><path d="M68 21.5Q83 21.5 88.5 38L68 38Z" fill="#dff3ff" stroke="${OL}" stroke-width="2.6" stroke-linejoin="round"/>`
+      + `<path d="M50 34L56 26M73 34L78 26" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>`
+      + `<path d="${body}" fill="none" stroke="${OL}" stroke-width="3.4" stroke-linejoin="round"/>`
+      + `<path d="M44 21Q54 13 66 13" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".9"/>`
+      + (fino ? `<path d="M22 47Q30 44 36 44" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" opacity=".85"/>` : '')
+      + `<rect x="104" y="47" width="6" height="7" rx="3" fill="#fff3a6" stroke="${OL}" stroke-width="2"/>`
+      + wheel(34) + wheel(91)
+      // cara: ojos grandes, separados y bajos, con dos brillos; boca chica; mejillas
+      + `<ellipse cx="70" cy="46.5" rx="4" ry="5" fill="${OL}"/><ellipse cx="89" cy="46.5" rx="4" ry="5" fill="${OL}"/>`
+      + `<circle cx="71.4" cy="44.5" r="1.7" fill="#fff"/><circle cx="90.4" cy="44.5" r="1.7" fill="#fff"/>` + (fino ? `<circle cx="68.9" cy="48.9" r=".8" fill="#fff"/><circle cx="87.9" cy="48.9" r=".8" fill="#fff"/>` : '')
+      + `<path d="M77 51Q79.5 54 82 51" fill="none" stroke="${OL}" stroke-width="2.2" stroke-linecap="round"/>`
+      + `<ellipse cx="63.5" cy="52.5" rx="3.6" ry="2.2" fill="#ff6f9f" opacity=".55"/><ellipse cx="96" cy="52.5" rx="3.6" ry="2.2" fill="#ff6f9f" opacity=".55"/>`;
+  }
+  ITEM.auto = i => `<g transform="scale(.27) translate(-62 -48)">${car(i, false)}</g>`;
+  CONT.pista = { is: n => n <= 4 ? 1.45 : 1.12, lay: n => { if (n <= 2) return row(n, 46).map(([x]) => [x, 0]); const t = Math.ceil(n / 2), S = n <= 4 ? 46 : 35; return [...row(t, S).map(([x]) => [x, -15]), ...row(n - t, S).map(([x]) => [x, 16])]; }, back: () => `<ellipse cy="38" rx="52" ry="5" fill="${OL}" opacity=".14"/><rect x="-57" y="-34" width="114" height="68" rx="18" fill="#e9e4f7" stroke="${OL}" stroke-width="2.2"/><path d="M-47 2H47" stroke="#fff" stroke-width="3" stroke-dasharray="9 7" stroke-linecap="round"/><path d="M-44 -27Q-30 -31 -16 -29" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".9"/>` };
+  THEMES.push({ k: 'auto', one: 'autito', pl: 'autitos', f: 0, cont: 'pista', conts: 'pistas', card: 'crema', grp: 'Juguetes' });
   const IS = 1.22; // tamaño de cada cosa dentro de su recipiente
   function group(th, n, st = 'A', i0 = 0) {
-    const C = CONT[th.cont], pts = C.lay(n);
-    const items = pts.map(([x, y], i) => `<g class="bf-it" style="--d:${i}" transform="translate(${x} ${y})"><g class="bf-a"><g transform="scale(${IS})">${ITEM[th.k](i + i0)}</g></g></g>`).join('');
+    const C = CONT[th.cont], pts = C.lay(n), sc = C.is ? C.is(n) : IS;
+    const items = pts.map(([x, y], i) => `<g class="bf-it" style="--d:${i}" transform="translate(${x} ${y})"><g class="bf-a"><g transform="scale(${sc})">${ITEM[th.k](i + i0)}</g></g></g>`).join('');
     const inner = (C.back ? C.back(th.contColor) : '') + items + (C.front ? C.front(th.contColor) : '');
     if (st !== 'A') return inner;
     const [bg, bd] = CARD[th.card];
@@ -133,5 +163,5 @@
   };
   const STORY_KEYS = ['pajaro', 'calcetin', 'mano', 'estrella', 'caja', 'canasto'];
   const storyIco = k => `<svg class="bf-st" viewBox="0 0 40 40" width="1.15em" height="1.15em">${DEFS}${STORY[k]()}</svg>`;
-  root.BOCETO_KW = { THEMES, CARD, CONT, ITEM, grp, group, bikes, sobres, filas, storyIco, STORY_KEYS, DEFS, GW, GH };
+  root.BOCETO_KW = { car, THEMES, CARD, CONT, ITEM, grp, group, bikes, sobres, filas, storyIco, STORY_KEYS, DEFS, GW, GH };
 })(typeof window !== 'undefined' ? window : module.exports);
