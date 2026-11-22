@@ -34,6 +34,9 @@ Contexto general en `README.md`, historial técnico en `CHANGELOG.md`, ideas en 
   cada vez: frutas, dulces, juguetes, autos, dinosaurios, animalitos y comidas **de todo el mundo** (no solo de Chile), sorteadas al azar. Las **tarjetas** cambian de color
   según lo que llevan y el fondo, para que todo se vea y nada se pierda. Movimiento suave (saltito al aparecer, reacción al tocar, se
   iluminan al contar). Dibujos propios en vez de emojis. Antes de construir figuras nuevas, proponer estilos dibujados con capturas.
+  **Es la base, no una camisa de fuerza** (dueña, 22-11-2026): el estilo puede variar a favor del contenido y del objetivo de cada
+  actividad, sea cual sea el rango de edad (por ejemplo, una figura geométrica que debe verse exacta, un gráfico o un mapa). Si se varía,
+  explicar por qué y mostrarlo con capturas antes de construir.
 - Los ejercicios son **al azar** y no se repiten en la sesión (`freshQ`).
 - Al acertar, **no cortar a Poli**: avanzar con `afterSay`.
 - Conteos de caras/aristas/vértices salen de `stats(id)` (mallas 3D en `MESH`), para que todas las pantallas digan lo mismo.
