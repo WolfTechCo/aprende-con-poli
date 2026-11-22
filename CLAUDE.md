@@ -4,6 +4,7 @@ App web estática (HTML + CSS + JS puro, sin dependencias ni build) para niños 
 Publicada con GitHub Pages desde `main`: https://wolftechco.github.io/aprende-con-poli/
 Contexto general en `README.md`, historial técnico en `CHANGELOG.md`, ideas en `PENDIENTES.md`.
 **Antes de empezar, leer `PLAN.md`**: estado actual, reglas acordadas con la dueña y plan de las próximas entregas.
+**Antes de empezar, listar las ramas remotas de los dos repositorios** (`git ls-remote --heads origin`, con cuántos commits lleva cada una por delante de `main`). Si hay una rama `ccr-…` o `claude/…` más reciente que `main`, puede tener trabajo en curso y un `PLAN.md` más nuevo: leer ese y partir desde ella, no desde `main`. Nunca dar por hecho que «lo último» está en `main`.
 
 ## Forma de trabajo
 - Todo en **español de Chile**, pensado para una niña o niño de 7–8 años: textos cortos, entretenidos y que inviten a descubrir.
