@@ -28,6 +28,7 @@ Quien lleve la conversación **debe avisar a la dueña, al empezar cada etapa, q
 - **Sonnet:** investigación con búsquedas, armar y ordenar planes, pruebas con Playwright, arreglos chicos de pantalla, textos, ramas, Pull Requests, novedades y changelog.
 - **Opus:** diseño y construcción de la **reestructura de secciones** (entrega 2), migraciones de datos del guardado, resolver conflictos grandes entre ramas, y la **voz neuronal** (inventario de textos y script).
 - Volver a Sonnet al terminar cada etapa pesada (pruebas, correcciones, Pull Request).
+- **Regla flexible (dueña, 22-11-2026):** la tabla anterior es una guía, no una regla fija. Cualquier modelo debe **detenerse y avisar en medio de una etapa** si el trabajo cambia de tipo: por ejemplo, si Sonnet, probando, encuentra problemas de diseño o de distribución que hay que rediseñar, avisa que conviene Opus antes de seguir; y si Opus queda haciendo pruebas o tareas repetitivas largas, avisa que puede seguir Sonnet. Experiencia de la entrega 3.1: Opus, al construir la herramienta de revisión, encontró más fallas de posición que las pasadas anteriores de Sonnet; para tareas donde hay que **mirar y juzgar** las pantallas (no solo correr pruebas), conviene Opus.
 
 ## 3. Estado
 | Entrega | Contenido | Estado |
