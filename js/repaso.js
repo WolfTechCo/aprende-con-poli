@@ -122,7 +122,7 @@ function viewAvance() {
   const el = frame(`<div class="tabwrap avwrap">
     <p class="famline">👪 ${fam}</p>
     ${chapTabs(ch, k => { const c = chapStones(k); return { done: c.s === 5, html: c.k === 'off' ? '🔒' : `<span class="mroad">${stonesHtml(c.s)}</span>${c.k === 'prac' ? '<span>💪</span>' : ''}` }; })}
-    <div class="tgrid">${TOPICS.filter(T => T.ch === ch).map(card).join('')}</div>
+    <div class="tgrid" style="--n:${TOPICS.filter(T => T.ch === ch).length}">${TOPICS.filter(T => T.ch === ch).map(card).join('')}</div>
     <div class="avfoot"><span>🔁 = entra al Repaso del día</span><button class="btn sm ghost" id="bRepSel">🔒 Elegir temas del Repaso</button></div></div>`, 'fill');
   fitChapRow($('.ctabs', el));
   $$('.ctab', el).forEach(b => b.onclick = () => { go('avance', { ch: +b.dataset.ch, again: true }); poli.say(chapName(+b.dataset.ch)); });

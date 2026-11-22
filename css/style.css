@@ -1394,3 +1394,122 @@ svg.mg:not(.arr){width:calc(var(--vw) * var(--u, .8px));height:auto;max-width:10
 @media (min-height:900px) and (max-aspect-ratio:1/1){
   .mduo .panel svg.mg{--u:clamp(.5px,min(.24vw,.1vh),1.6px)}
 }
+
+/* ---------- entrega 3.1 · Escenario (capítulo 5; después se encienden los demás capítulos en STAGE_CH, js/app.js) ----------
+   La zona de juego (.stepbody) mide su propio espacio (container-type:size) y la pregunta, el dibujo y las respuestas crecen
+   con él (unidades cqw/cqh), en vez de depender del tamaño de la pantalla entera.
+   De pie: pregunta arriba, dibujo grande al centro, respuestas grandes abajo.
+   Acostado (B3): pregunta arriba; dibujo y respuestas en columna forman un grupo centrado con separación fija, de modo que la
+   alineación es la misma en celular, tablet y computador; si una respuesta crece, el grupo se reacomoda al centro.
+   Dibujos con escala común: --U es lo que mide una unidad de dibujo (un plato son 104); cada dibujo trae su ancho y alto en
+   --vw y --vh (js/multiplicacion.js). --m deja crecer un poco los dibujos chicos, --mw y --H ponen el tope de ancho y alto. */
+#app.stage #screen .screen{flex:1;min-height:0}
+#app.stage #screen .stepbody{flex:1;min-height:0;container-type:size;align-items:stretch}
+#app.stage .stepbody>.qwrap,#app.stage .stepbody>.col,#app.stage .stepbody>.ttab,#app.stage .stepbody>.duo,#app.stage .stepbody>.trio{margin:auto}
+#app.stage .stepbody>*{--U:min(calc(92cqw / 312), calc(44cqh / 230));--m:1.3;--mw:92cqw;--H:44cqh}
+#app.stage .stepbody svg.mg:not(.arr):not(.mgo){width:min(calc(var(--vw) * var(--U) * var(--k, 1) * var(--m)), var(--mw), calc(var(--H) * var(--vw) / var(--vh, 100)));height:auto;max-width:none;max-height:none}
+#app.stage .stepbody svg.bikes{--k:1.5}
+#app.stage .stepbody svg.sobres{--k:1.15}
+#app.stage .stepbody .panel svg.mg:not(.arr){--mw:100%;--H:30cqh;flex:none}
+#app.stage .stepbody svg.mg.arr{height:min(calc(var(--r) * 7cqh), 40cqh, calc(var(--r) / var(--c) * 80cqw));width:auto;max-width:none}
+#app.stage .stepbody .mturn svg.mg.arr{height:min(calc(var(--r) * 6cqh), 36cqh);max-width:40cqw}
+#app.stage .stepbody>.qwrap>.nshape{min-width:0;max-width:100%}
+
+/* ---- de pie ---- */
+@container (orientation:portrait){
+  #app.stage .stepbody>.qwrap{display:grid;grid-template-rows:auto 1fr auto;grid-template-columns:minmax(0,1fr);grid-template-areas:"q" "s" "o";height:100%;width:100%;justify-items:center;align-items:center;gap:3cqh;padding:1cqh 0 2cqh}
+  #app.stage .stepbody>.qwrap:not(:has(>.nshape)){grid-template-rows:auto 1fr;grid-template-areas:"q" "o"}
+  #app.stage .qwrap>.q{grid-area:q;font-size:clamp(22px,min(4.4cqh,7.4cqw),54px);line-height:1.1}
+  #app.stage .qwrap>.nshape{grid-area:s}
+  #app.stage .qwrap>.opts{grid-area:o;gap:4cqw;flex-wrap:nowrap}
+  #app.stage .qwrap .opt{font-size:clamp(28px,min(7.5cqh,12cqw),84px);min-width:min(26cqw,20cqh);padding:2.4cqh 2cqw;border-radius:min(5cqw,28px)}
+  #app.stage .qwrap .opt.txt{font-size:clamp(20px,min(5cqh,7cqw),56px);min-width:0}
+  #app.stage .qwrap .opts:has(svg.mgo){flex-direction:column;align-items:center;gap:2cqh}
+  #app.stage .qwrap .opts:has(svg.mgo) .opt{padding:1.4cqh 3cqw}
+  #app.stage .stepbody .qwrap .opts:has(svg.mgo) .opt svg.mgo{--u:min(calc(70cqw / 260), calc(20cqh / 200))}
+  #app.stage .nshape{gap:2cqh}
+  #app.stage .mcap{font-size:clamp(16px,min(3.2cqh,5.4cqw),36px);padding:.6cqh 3cqw}
+  #app.stage .mbig{font-size:clamp(34px,min(10cqh,13cqw),130px)}
+  #app.stage .mstory{font-size:clamp(18px,min(3.8cqh,6cqw),40px);max-width:94cqw}
+  #app.stage .memo{font-size:clamp(30px,min(8cqh,11cqw),90px)}
+  #app.stage .stepbody .col{gap:3cqh}
+  #app.stage .counter{font-size:clamp(20px,min(4.4cqh,7cqw),50px)}
+  #app.stage .ptree{font-size:clamp(26px,min(6.4cqh,7.6cqw),90px)}
+  #app.stage .ttab{gap:1.6cqh 3cqw}
+  #app.stage .ttab span{font-size:clamp(20px,min(5.2cqh,7cqw),64px);padding:.6cqh 2.4cqw}
+  #app.stage .stepbody .sub{font-size:clamp(16px,min(3.4cqh,5.6cqw),36px)}
+}
+
+/* ---- acostado (B3) ---- */
+@container (orientation:landscape){
+  #app.stage .stepbody>*{--U:min(calc(52cqw / 520), calc(76cqh / 230));--m:1.8;--mw:58cqw;--H:66cqh}
+  #app.stage .stepbody svg.mg.arr{height:min(calc(var(--r) * 12cqh), 74cqh)}
+  #app.stage .stepbody .mturn svg.mg.arr{height:min(calc(var(--r) * 9cqh), 62cqh);max-width:24cqw}
+  #app.stage .stepbody>.qwrap{display:grid;height:100%;width:100%;align-items:center;justify-items:center;gap:2cqh 4cqw;padding:1cqh 2cqw;grid-template-areas:"q" "o";grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  #app.stage .stepbody>.qwrap:has(>.nshape){grid-template-areas:"q q" "s o";grid-template-columns:auto auto;justify-content:center;column-gap:clamp(24px,7cqw,110px);grid-template-rows:auto 1fr}
+  #app.stage .stepbody>.qwrap>.q{grid-area:q;font-size:clamp(18px,min(7.6cqh,4cqw),52px);line-height:1.1}
+  #app.stage .stepbody>.qwrap>.nshape{grid-area:s}
+  #app.stage .stepbody>.qwrap>.opts{grid-area:o;flex-wrap:nowrap}
+  #app.stage .stepbody>.qwrap:has(>.nshape)>.opts{flex-direction:column;gap:2.6cqh;align-items:stretch}
+  #app.stage .qwrap .opt{font-size:clamp(22px,min(12cqh,6cqw),56px);min-width:min(18cqw,40cqh,200px);padding:min(1.6cqh,14px) 2cqw;border-radius:min(3cqw,28px)}
+  #app.stage .qwrap .opt.txt{font-size:clamp(18px,min(9cqh,4.4cqw),48px)}
+  #app.stage .stepbody .qwrap:not(:has(>.nshape)) .opt svg.mgo{--u:min(calc(27cqw / 260), calc(52cqh / 200))}
+  #app.stage .mcap{font-size:clamp(14px,min(5.4cqh,2.6cqw),34px)}
+  #app.stage .mbig{font-size:clamp(34px,min(18cqh,8cqw),120px)}
+  #app.stage .mstory{font-size:clamp(15px,min(6.4cqh,3cqw),38px);max-width:52cqw}
+  #app.stage .memo{font-size:clamp(26px,min(13cqh,5cqw),80px)}
+  #app.stage .stepbody .col{gap:3cqh}
+  #app.stage .stepbody>.col:has(>svg.mg,>.nshape){display:grid;grid-template-columns:auto auto;justify-content:center;align-items:center;column-gap:clamp(24px,6cqw,90px)}
+  #app.stage .counter{font-size:clamp(18px,min(8cqh,4cqw),48px)}
+  #app.stage .ptree{font-size:clamp(24px,min(12cqh,5.4cqw),84px)}
+  #app.stage .ttab span{font-size:clamp(18px,min(8.4cqh,3.4cqw),52px);padding:.8cqh 1.6cqw}
+  #app.stage .stepbody .sub{font-size:clamp(15px,min(6cqh,2.8cqw),34px)}
+}
+/* acostado y con alto de sobra (tablet acostada, computador): dibujo y respuestas con peso parecido */
+@container (orientation:landscape) and (min-height:420px){
+  #app.stage .stepbody>*{--m:2.1;--H:70cqh}
+  #app.stage .stepbody svg.mg.arr{height:min(calc(var(--r) * 13cqh), 72cqh)}
+  #app.stage .mbig{font-size:clamp(36px,min(19cqh,9cqw),130px)}
+  #app.stage .memo{font-size:clamp(26px,min(15cqh,6cqw),100px)}
+  #app.stage .mstory{font-size:clamp(15px,min(6cqh,3cqw),40px)}
+}
+
+/* ---------- entrega 3.1 · Mi avance: las tarjetas de temas se reparten el alto que queda (nunca tapan las pestañas) ----------
+   Antes, si no cabían, el centrado las sacaba hacia arriba sobre la fila de capítulos (tablet acostada). Ahora cada fila mide
+   lo que queda dividido por la cantidad de filas (--n temas en --cols columnas), con un tope (--top) para que no se vean gigantes.
+   --rowH es lo mismo medido en cqh, para el ícono de cada tarjeta. */
+.avwrap .tgrid{--cols:2;--g:clamp(8px,1.6vh,14px);--rows:round(up, var(--n, 4) / var(--cols));--rowH:min(150px, calc((100cqh - (var(--rows) - 1) * var(--g)) / var(--rows)));
+  container-type:size;gap:var(--g);align-content:safe center;grid-auto-rows:min(var(--top,150px), calc((100% - (var(--rows) - 1) * var(--g)) / var(--rows)))}
+.avwrap .tcard{min-height:0;overflow:hidden}
+.avwrap .tcard .temo{width:min(clamp(44px,8vh,76px), calc(var(--rowH) * .62));height:min(clamp(44px,8vh,76px), calc(var(--rowH) * .62))}
+@media (max-width:640px){.avwrap .tgrid{--cols:1;--g:7px;--top:96px;--rowH:min(96px, calc((100cqh - (var(--rows) - 1) * var(--g)) / var(--rows)))}}
+@media (max-height:500px) and (orientation:landscape){.avwrap .tgrid{--cols:3;--g:6px}}
+@media (min-height:700px) and (min-width:641px){.avwrap .tgrid{--g:clamp(10px,2.4vh,22px);--top:170px;--rowH:min(170px, calc((100cqh - (var(--rows) - 1) * var(--g)) / var(--rows)))}}
+@media (max-width:640px) and (max-height:700px) and (orientation:portrait){.avwrap .tgrid{--g:5px}}
+/* tablet de pie: hay mucho alto; las tarjetas crecen más y su texto crece con ellas */
+@media (min-height:700px) and (min-width:641px) and (max-aspect-ratio:1/1){
+  .avwrap .tgrid{--top:230px;--rowH:min(230px, calc((100cqh - (var(--rows) - 1) * var(--g)) / var(--rows)))}
+  .avwrap .tcard .temo{width:min(96px, calc(var(--rowH) * .5));height:min(96px, calc(var(--rowH) * .5));font-size:min(52px, calc(var(--rowH) * .26))}
+  .avwrap .tbody{gap:min(14px, calc(var(--rowH) * .06))}
+  .avwrap .tbody b{font-size:clamp(18px, calc(var(--rowH) * .15), 30px);white-space:normal}
+  .avwrap .tbody small{font-size:clamp(13px, calc(var(--rowH) * .09), 19px)}
+  .avwrap .road{height:min(32px, calc(var(--rowH) * .15))}.avwrap .road i{height:min(18px, calc(var(--rowH) * .08))}
+}
+/* escenario: cintas de números y paneles (lecciones del capítulo 5) */
+#app.stage .stepbody .stone{min-width:clamp(46px,min(11cqh,15cqw),112px);height:clamp(46px,min(11cqh,15cqw),112px);font-size:clamp(20px,min(5.6cqh,7.6cqw),50px);border-radius:min(24px,4cqh)}
+#app.stage .stepbody .hop{width:clamp(30px,min(7cqh,10cqw),70px)}
+#app.stage .stepbody .hop em{font-size:clamp(13px,min(3cqh,4cqw),24px)}
+#app.stage .stepbody .trio .panel p,#app.stage .stepbody .mduo .panel p{font-size:clamp(14px,min(3.4cqh,4.6cqw),30px)}
+@container (orientation:portrait){
+  #app.stage .stepbody>.trio{flex-direction:column;align-items:stretch;width:min(86cqw,520px);gap:2cqh}
+  #app.stage .stepbody>.trio .panel{flex-direction:row;justify-content:space-between;gap:4cqw;padding:1.4cqh 5cqw}
+  #app.stage .stepbody .trio .panel svg.mg{--H:16cqh;--mw:52cqw;--m:1.6}
+}
+@container (orientation:landscape){
+  #app.stage .stepbody .stone{min-width:clamp(44px,min(18cqh,9cqw),112px);height:clamp(44px,min(18cqh,9cqw),112px);font-size:clamp(18px,min(9cqh,4.4cqw),50px)}
+  #app.stage .stepbody .hop{width:clamp(30px,min(11cqh,6cqw),70px)}
+  #app.stage .stepbody .hop em{font-size:clamp(12px,min(4.6cqh,2.2cqw),24px)}
+  #app.stage .stepbody .trio .panel svg.mg{--H:42cqh;--mw:26cqw;--m:1.8}
+  #app.stage .stepbody .trio .panel p,#app.stage .stepbody .mduo .panel p{font-size:clamp(13px,min(5.4cqh,2.6cqw),30px)}
+}
+@container (orientation:landscape){#app.stage .stepbody .mduo .panel svg.mg:not(.arr){--mw:34cqw;--H:44cqh}}

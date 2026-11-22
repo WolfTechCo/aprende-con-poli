@@ -60,6 +60,7 @@ const { metric } = require('./metrica');
     const ks = await p.evaluate(f => Object.keys(N_TOPIC).filter(k => f.includes(N_TOPIC[k]) && NQ[k]), C.figs);
     for (const k of ks) {
       await p.evaluate(k => {
+        if (cur.name !== 'lesson') go('lesson', { id: CH[5].figs[0].id }); setAction(null);
         const q = NQ[k](); const el = frame('<div class="progress"><i class="now"></i><i></i><i></i><i></i><i></i></div><div class="stepbody"></div>');
         choice(el.querySelector('.stepbody'), { prompt: q.prompt, shape: q.shape || '', opts: q.opts, cls: q.cls || '', onRight() { } });
       }, k);
