@@ -1422,19 +1422,19 @@ svg.mg:not(.arr){width:calc(var(--vw) * var(--u, .8px));height:auto;max-width:10
   #app.stage .qwrap>.q{grid-area:q;font-size:clamp(22px,min(4.4cqh,7.4cqw),54px);line-height:1.1}
   #app.stage .qwrap>.nshape{grid-area:s}
   #app.stage .qwrap>.opts{grid-area:o;gap:4cqw;flex-wrap:nowrap}
-  #app.stage .qwrap .opt{font-size:clamp(28px,min(7.5cqh,12cqw),84px);min-width:min(26cqw,20cqh);padding:2.4cqh 2cqw;border-radius:min(5cqw,28px)}
+  #app.stage .qwrap .opt{font-size:clamp(28px,min(6.6cqh,11cqw),76px);min-width:min(25cqw,19cqh);padding:1.8cqh 2cqw;border-radius:min(5cqw,28px)}
   #app.stage .qwrap .opt.txt{font-size:clamp(20px,min(5cqh,7cqw),56px);min-width:0}
   #app.stage .qwrap .opts:has(svg.mgo){flex-direction:column;align-items:center;gap:2cqh}
   #app.stage .qwrap .opts:has(svg.mgo) .opt{padding:1.4cqh 3cqw}
-  #app.stage .stepbody .qwrap .opts:has(svg.mgo) .opt svg.mgo{--u:min(calc(70cqw / 260), calc(20cqh / 200))}
+  #app.stage .stepbody .qwrap .opts:has(svg.mgo) .opt svg.mgo{--u:min(calc(74cqw / 220), calc(21cqh / 160))}
   #app.stage .nshape{gap:2cqh}
   #app.stage .mcap{font-size:clamp(16px,min(3.2cqh,5.4cqw),36px);padding:.6cqh 3cqw}
-  #app.stage .mbig{font-size:clamp(34px,min(10cqh,13cqw),130px)}
+  #app.stage .mbig{font-size:clamp(34px,min(12cqh,15.5cqw),140px)}
   #app.stage .mstory{font-size:clamp(18px,min(3.8cqh,6cqw),40px);max-width:94cqw}
   #app.stage .memo{font-size:clamp(30px,min(8cqh,11cqw),90px)}
   #app.stage .stepbody .col{gap:3cqh}
   #app.stage .counter{font-size:clamp(20px,min(4.4cqh,7cqw),50px)}
-  #app.stage .ptree{font-size:clamp(26px,min(6.4cqh,7.6cqw),90px)}
+  #app.stage .ptree{font-size:clamp(26px,min(7.4cqh,8.6cqw),96px)}
   #app.stage .ttab{gap:1.6cqh 3cqw}
   #app.stage .ttab span{font-size:clamp(20px,min(5.2cqh,7cqw),64px);padding:.6cqh 2.4cqw}
   #app.stage .stepbody .sub{font-size:clamp(16px,min(3.4cqh,5.6cqw),36px)}

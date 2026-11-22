@@ -41,7 +41,7 @@ const metric = () => {
     alto: Math.round((bb.b - bb.t) / H * 100), ancho: Math.round((bb.r - bb.l) / W * 100),
     relleno: Math.round(cell.reduce((a, b) => a + b, 0) / (N * N) * 100), hueco: Math.round(gap / N * 100),
     desb: (s.scrollHeight - s.clientHeight) + (t ? Math.max(0, t.scrollHeight - t.clientHeight) : 0),
-    fuera, letra: q ? Math.round(parseFloat(getComputedStyle(q).fontSize)) : 0, resp: opt ? Math.round(opt.getBoundingClientRect().height) : 0, dibujo: art,
+    fuera, zona: (z => z ? Math.round(z.getBoundingClientRect().height) : 0)(s.querySelector('.qwrap>.nshape')), letra: q ? Math.round(parseFloat(getComputedStyle(q).fontSize)) : 0, resp: opt ? Math.round(opt.getBoundingClientRect().height) : 0, dibujo: art,
   };
 };
 module.exports = { metric };
