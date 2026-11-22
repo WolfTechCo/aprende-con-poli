@@ -27,10 +27,12 @@ Contexto general en `README.md`, historial técnico en `CHANGELOG.md`, ideas en 
   pestañas por capítulo con un resumen en cada una (Mis stickers y Mi avance). Otras posibles: agrupar en tarjetas que
   abren su detalle, columnas según el tamaño, mostrar menos y ampliar al tocar. El contenido debe llenar bien el alto,
   sin vacíos grandes, y los textos deben ser proporcionales a los dibujos.
-- **Figuras y dibujos pensados para el niño** (regla de la dueña, 22-11-2026): cosas reales y de la vida diaria de un niño en Chile,
-  grandes, con colores vivos y con movimiento suave (aparecen con un saltito, reaccionan al tocarlas, se
-  iluminan al contar), como en los capítulos 1 y 2. Caritas solo en algunas. Dibujos propios en vez de emojis (cada aparato los
-  dibuja distinto). Antes de construir figuras nuevas, proponer 2 o 3 estilos dibujados con capturas y una recomendada.
+- **Figuras y dibujos pensados para el niño** (regla de la dueña, 22-11-2026; se cumple siempre): **lindas, cute, kawaii**: caricaturescas,
+  no realistas, redondeadas, con **relieve y profundidad** (sombra suave abajo, brillo arriba, borde de color), caritas simples y colores
+  vivos. Lo mismo para **los recipientes** (platos, cajas, canastos) y **los stickers**. **Mucha variedad** para que no se repita lo mismo
+  cada vez: frutas, dulces, juguetes, animalitos, cosas de la vida diaria y de Chile, sorteadas al azar. Las **tarjetas** cambian de color
+  según lo que llevan y el fondo, para que todo se vea y nada se pierda. Movimiento suave (saltito al aparecer, reacción al tocar, se
+  iluminan al contar). Dibujos propios en vez de emojis. Antes de construir figuras nuevas, proponer estilos dibujados con capturas.
 - Los ejercicios son **al azar** y no se repiten en la sesión (`freshQ`).
 - Al acertar, **no cortar a Poli**: avanzar con `afterSay`.
 - Conteos de caras/aristas/vértices salen de `stats(id)` (mallas 3D en `MESH`), para que todas las pantallas digan lo mismo.

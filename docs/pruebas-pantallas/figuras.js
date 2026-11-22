@@ -8,11 +8,12 @@ const fs = require('fs'), path = require('path');
 const { metric } = require('./metrica');
 const OUT = path.join(__dirname, 'propuesta-figuras'); fs.mkdirSync(OUT, { recursive: true });
 const BOS = fs.readFileSync(path.join(__dirname, 'boceto-figuras.js'), 'utf8');
+const KW = fs.readFileSync(path.join(__dirname, 'boceto-kawaii.js'), 'utf8'); // estilo K: kawaii (22-11-2026)
 const DEV = { tabV: [820, 1180], tabH: [1180, 820], celV: [390, 844], celH: [844, 390], bajoV: [360, 640], bajoH1: [667, 375], pc: [1366, 768] };
 const SIZES = (process.argv[2] || 'tabV,celV,celH').split(','), STY = (process.argv[3] || 'hoy,A,B,C').split(',');
 /* pregunta:tema (el tema fija la cosa dibujada, para ver todas; «hoy» usa la más parecida de la app actual) */
 const QS = (process.argv[4] || 'ms_tot:empa,ms_tot:huevo,ms_pic:fruti,me_yes:lapiz,m5_prob,intro:sopa').split(',');
-const HOY = { empa: 'galle', huevo: 'huevo', fruti: 'fruti', lapiz: 'galle', sopa: 'sopa' };
+const HOY = new Proxy({ empa: 'galle', huevo: 'huevo', fruti: 'fruti', lapiz: 'galle', sopa: 'sopa' }, { get: (o, k) => o[k] || 'galle' });
 // en el boceto, los dibujos de los cuentos crecen como cosas reales (no como letras)
 const CSS = '.memo{gap:6px 10px}.memo .bf-st{width:clamp(56px,min(15vw,11vh),120px);height:auto}@media (orientation:landscape) and (max-height:500px){.memo .bf-st{width:min(13vh,60px)}}';
 (async () => {
@@ -25,7 +26,19 @@ const CSS = '.memo{gap:6px 10px}.memo .bf-st{width:clamp(56px,min(15vw,11vh),120
     await p.evaluate(() => { localStorage.clear(); for (const [k, x] of [['poli-recorrido-visto', '99'], ['poli-recorrido-ajustes-visto', '99'], ['poli-novedades-visto', '9.9.9']]) localStorage.setItem(k, x); });
     await p.reload(); await p.evaluate(() => { addProfile('Ana', 'a'); save.voice = false; persist(); });
     await p.addStyleTag({ content: '*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition:none!important}' });
-    if (st !== 'hoy') {
+    if (st === 'K') {
+      await p.evaluate(KW);
+      await p.evaluate(() => {
+        const K = window.BOCETO_KW; window.BOCETO_FIG = { THEMES: K.THEMES };
+        MTH.splice(0, MTH.length, ...K.THEMES);
+        window.grpSvg = (sizes, th, o = {}) => K.grp(sizes, th, { ...o, cols: o.cols || mCols(sizes.length) }, 'A');
+        window.bikeSvg = k => K.bikes(k, mNarrow() ? Math.min(k, 3) : k > 5 ? Math.ceil(k / 2) : k);
+        window.sobreSvg = (k, t, cols = mNarrow() ? Math.min(k, 3) : k > 4 ? Math.ceil(k / 2) : k) => K.sobres(k, t, cols);
+        window.arrSvg = (r, c, o = {}) => K.filas(r, c, o.col === '#4ea8ff' ? { ...o, col: '#7fd0ff', dk: '#3a9ad6' } : { ...o, col: '#ff8fbf', dk: '#e0609a' });
+        STORIES.forEach((S, i) => { S.ico = K.storyIco(K.STORY_KEYS[i]); });
+      });
+      await p.addStyleTag({ content: CSS });
+    } else if (st !== 'hoy') {
       await p.evaluate(BOS); // la app solo permite scripts propios (CSP): el boceto entra por evaluate
       await p.evaluate(st => {
         const F = window.BOCETO_FIG;
@@ -42,7 +55,7 @@ const CSS = '.memo{gap:6px 10px}.memo .bf-st{width:clamp(56px,min(15vw,11vh),120
     };
     for (const qk of QS) {
       const [k, tk] = qk.split(':'), name = tk ? `${k}-${tk}` : k;
-      if (tk) await p.evaluate(([t, st, H]) => { window._MTH0 = window._MTH0 || MTH.slice(); const all = st === 'hoy' ? window._MTH0 : window.BOCETO_FIG.THEMES; MTH.splice(0, MTH.length, all.find(x => x.k === (st === 'hoy' ? H[t] : t))); }, [tk, st, HOY]);
+      if (tk) await p.evaluate(([t, st, H]) => { window._MTH0 = window._MTH0 || MTH.slice(); const all = st === 'hoy' ? window._MTH0 : window.BOCETO_FIG.THEMES; MTH.splice(0, MTH.length, all.find(x => x.k === (st === 'hoy' ? H[t] : t)) || all[0]); }, [tk, st, HOY]);
       if (k === 'intro') {
         await p.evaluate(() => { let s = 11; Math.random = () => (s = (s * 16807) % 2147483647) / 2147483647; go('lesson', { id: CH[5].intro }); });
         await p.waitForTimeout(300); await rec(name); continue;
