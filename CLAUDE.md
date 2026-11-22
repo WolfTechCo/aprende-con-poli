@@ -4,6 +4,7 @@ App web estática (HTML + CSS + JS puro, sin dependencias ni build) para niños 
 Publicada con GitHub Pages desde `main`: https://wolftechco.github.io/aprende-con-poli/
 Contexto general en `README.md`, historial técnico en `CHANGELOG.md`, ideas en `PENDIENTES.md`.
 **Antes de empezar, leer `PLAN.md`**: estado actual, reglas acordadas con la dueña y plan de las próximas entregas.
+**Antes de empezar, listar las ramas remotas de los dos repositorios** (`git ls-remote --heads origin`, con cuántos commits lleva cada una por delante de `main`). Si hay una rama `ccr-…` o `claude/…` más reciente que `main`, puede tener trabajo en curso y un `PLAN.md` más nuevo: leer ese y partir desde ella, no desde `main`. Nunca dar por hecho que «lo último» está en `main`.
 
 ## Forma de trabajo
 - Todo en **español de Chile**, pensado para una niña o niño de 7–8 años: textos cortos, entretenidos y que inviten a descubrir.
@@ -12,6 +13,7 @@ Contexto general en `README.md`, historial técnico en `CHANGELOG.md`, ideas en 
 - Si pide "modo plan" o "muéstrame primero": diseñar y mostrar capturas, sin subir nada hasta que apruebe.
 - Explicar en simple, sin jerga técnica.
 - **Probar siempre en este orden: tablet → celular → PC** (Playwright, vertical y horizontal). La dueña prueba rápido en su celular.
+  Herramienta: `node docs/pruebas-pantallas/revisar.js` (rápida) o `revisar.js completo todos` (ver su `LEEME.md`). Además de las pruebas, **mirar las láminas de capturas**; cada error que se escape se agrega como regla nueva.
 - **Novedades** (`js/novedades.js`): solo lo importante o valioso para las familias; lo interno va solo en `CHANGELOG.md`.
 - **Textos de Poli:** el nombre se usa al saludar y al celebrar; no repetirlo dentro de una frase ni en pantallas seguidas.
 - **Modelos:** al empezar cada etapa, avisar a la dueña si conviene Sonnet u Opus y esperar su confirmación (reglas en `PLAN.md`, sección 2).

@@ -40,12 +40,16 @@ const contSvg = cont => cont === 'nido'
 const mSpots = n => { const top = n <= 3 ? n : Math.ceil(n / 2), rows = n <= 3 ? [n] : [top, n - top], S = 21;
   return rows.flatMap((m, r) => Array.from({ length: m }, (_, i) => [(i - (m - 1) / 2) * S, rows.length === 1 ? 0 : r ? 10 : -9])); };
 const GW = 104, GH = 72;
-/* sizes: cuántas cosas en cada recipiente (iguales o no). cols: recipientes por fila. tap: para tocarlos en la lección */
-function grpSvg(sizes, th, { cols = Math.min(sizes.length, 5), cls = '', tap = false } = {}) {
-  const rows = Math.ceil(sizes.length / cols);
+/* recipientes por fila según la pantalla: de pie caben 3 (así crecen); acostada, hasta 5. 4 siempre en 2 × 2 */
+const mNarrow = () => innerWidth < innerHeight;
+const mCols = (n, wide = 5) => n === 4 ? 2 : mNarrow() ? (n <= 3 ? n : 3) : Math.min(n, wide);
+/* sizes: cuántas cosas en cada recipiente (iguales o no). cols: recipientes por fila. tap: para tocarlos en la lección.
+   Cada dibujo informa su ancho (--vw) y su alto (--vh) en unidades: el CSS los escala parejo (ver «Escenario» en style.css) */
+function grpSvg(sizes, th, { cols = mCols(sizes.length), cls = '', tap = false } = {}) {
+  const rows = Math.ceil(sizes.length / cols), H = rows * GH + 8 + (tap ? 26 : 0);
   const g = sizes.map((n, i) => { const cx = GW / 2 + (i % cols) * GW, cy = GH / 2 + 4 + Math.floor(i / cols) * GH;
     return `<g class="pl" data-i="${i}" transform="translate(${cx} ${cy})">${contSvg(th.cont)}${mSpots(n).map(([x, y]) => itemSvg(th.k, x, y)).join('')}${tap ? '<text class="plc" y="-33" text-anchor="middle"></text><rect x="-52" y="-36" width="104" height="72" fill="transparent"/>' : ''}</g>`; }).join('');
-  return `<svg viewBox="0 ${tap ? -26 : 0} ${cols * GW} ${rows * GH + 8 + (tap ? 26 : 0)}" class="grp mg ${cls}" style="--vw:${cols * GW}">${g}</svg>`;
+  return `<svg viewBox="0 ${tap ? -26 : 0} ${cols * GW} ${H}" class="grp mg ${cls}" style="--vw:${cols * GW};--vh:${H}">${g}</svg>`;
 }
 /* filas de puntos (arreglos): r filas de c */
 function arrSvg(r, c, { band = false, col = '#ff8a3d', dk = '#e0651a' } = {}) {
@@ -56,18 +60,18 @@ function arrSvg(r, c, { band = false, col = '#ff8a3d', dk = '#e0651a' } = {}) {
 }
 /* bicicletas: cada una con 2 ruedas */
 function bikeSvg(k) {
-  const cols = Math.min(k, 5), W = 64, H = 44;
+  const cols = mNarrow() ? Math.min(k, 3) : k > 5 ? Math.ceil(k / 2) : k, W = 64, H = 44;
   const one = (x, y, c) => `<g transform="translate(${x} ${y})" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="13" cy="28" r="10.5" fill="#fff" stroke="#2b2d6e" stroke-width="3.2"/><circle cx="47" cy="28" r="10.5" fill="#fff" stroke="#2b2d6e" stroke-width="3.2"/>
     <path d="M13 28L24 13H41L47 28M24 13L30 28H13M30 28L41 13" fill="none" stroke="${c}" stroke-width="3.6"/><path d="M20 9h8M41 13l-2 -6h6" fill="none" stroke="#2b2d6e" stroke-width="3"/></g>`;
-  return `<svg viewBox="0 0 ${cols * W} ${Math.ceil(k / cols) * H}" class="grp mg bikes" style="--vw:${cols * W}">${Array.from({ length: k }, (_, i) => one((i % cols) * W, Math.floor(i / cols) * H, COLORS[i % 6])).join('')}</svg>`;
+  return `<svg viewBox="0 0 ${cols * W} ${Math.ceil(k / cols) * H}" class="grp mg bikes" style="--vw:${cols * W};--vh:${Math.ceil(k / cols) * H}">${Array.from({ length: k }, (_, i) => one((i % cols) * W, Math.floor(i / cols) * H, COLORS[i % 6])).join('')}</svg>`;
 }
 /* sobres de láminas: t = 5 (una fila) o 10 (dos filas de 5, como la decena) */
-function sobreSvg(k, t, cols = Math.min(k, 5)) {
+function sobreSvg(k, t, cols = mNarrow() ? Math.min(k, 3) : k > 4 ? Math.ceil(k / 2) : k) {
   const W = 86, h = t === 10 ? 46 : 28, H = h + 10;
   const one = (x, y, c) => `<g transform="translate(${x} ${y})"><rect x="2" y="2" width="78" height="${h}" rx="9" fill="${c}" opacity=".22"/><rect x="2" y="2" width="78" height="${h}" rx="9" fill="none" stroke="${c}" stroke-width="2.6"/>
     ${Array.from({ length: t }, (_, i) => `<rect x="${8 + (i % 5) * 14.5}" y="${7 + Math.floor(i / 5) * 18}" width="11" height="14" rx="2.5" fill="#ffc233" stroke="#e09a00" stroke-width="1.6"/>`).join('')}</g>`;
-  return `<svg viewBox="0 0 ${cols * W} ${Math.ceil(k / cols) * H}" class="grp mg sobres" style="--vw:${cols * W}">${Array.from({ length: k }, (_, i) => one((i % cols) * W, Math.floor(i / cols) * H, COLORS[(i + 3) % 6])).join('')}</svg>`;
+  return `<svg viewBox="0 0 ${cols * W} ${Math.ceil(k / cols) * H}" class="grp mg sobres" style="--vw:${cols * W};--vh:${Math.ceil(k / cols) * H}">${Array.from({ length: k }, (_, i) => one((i % cols) * W, Math.floor(i / cols) * H, COLORS[(i + 3) % 6])).join('')}</svg>`;
 }
 /* «parte y suma»: t · k = t · a + t · b */
 const partHtml = (t, k, a, { miss = false, sums = false, show = false } = {}) => `<div class="ptree"><span class="ptr">${ex(t, k)} <i>=</i> ${ex(t, a)} <i>+</i> ${ex(t, miss ? '<span class="mq">?</span>' : k - a)}</span>${sums ? `<span class="ptr">${t * a} <i>+</i> ${t * (k - a)} <i>=</i> ${show ? `<b>${t * k}</b>` : '<span class="mq">?</span>'}</span>` : ''}</div>`;
@@ -86,7 +90,7 @@ const unequal = (g, n) => { // g grupos casi iguales, uno distinto (siempre se n
 
 /* ---------- preguntas (juegos, Repaso y Gran Desafío) ---------- */
 function msQ(type) {
-  const th = pick(MTH, 1)[0], g = rnd(2, 5), n = rnd(2, 5), cols = g === 4 ? 2 : Math.min(g, 5), pic = grpSvg(Array(g).fill(n), th, { cols });
+  const th = pick(MTH, 1)[0], g = rnd(2, 5), n = rnd(2, 5), pic = grpSvg(Array(g).fill(n), th);
   const say = `¡Sí! Son ${vez(g, n)}: ${exV(g, n)} es ${g * n}.`, hint = `Cuenta los ${th.conts}: son las veces. Después mira cuántas cosas hay en cada uno.`;
   if (type === 'sum') {
     const wrong = [[g + 1, n], [g - 1, n], [g, n + 1], [g, n - 1]].filter(([a, b]) => a >= 2 && b >= 1 && !(a === g && b === n));
@@ -261,7 +265,7 @@ NUMLESSON.msuma = F => {
   const th = pick(MTH, 1)[0], g = pick([3, 4], 1)[0], n = pick([2, 3, 5], 1)[0];
   runSteps([
     { say: `Hay ${g} ${th.conts} con ${n} ${th.pl} cada uno. Sumamos ${Array(g).fill(n).join(' más ')}: ¡${g * n}!`,
-      render: b => b.innerHTML = `<div class="col">${grpSvg(Array(g).fill(n), th, { cols: g === 4 ? 2 : g })}<div class="mbig">${sumH(n, g)} <i>=</i> ${g * n}</div></div>` },
+      render: b => b.innerHTML = `<div class="col">${grpSvg(Array(g).fill(n), th)}<div class="mbig">${sumH(n, g)} <i>=</i> ${g * n}</div></div>` },
     { say: `Son ${vez(g, n)}. Se escribe ${exV(g, n)} igual a ${g * n}. El primer número dice cuántas veces; el segundo, cuánto hay en cada ${th.cont}.`,
       render: b => b.innerHTML = mBig(`<span class="mv">${g}</span><i class="por">·</i><span class="mn">${n}</span> <i>=</i> ${g * n}`, `<span class="mv">${g} veces</span> <span class="mn">${n}</span>`) },
     askStep('Ahora tú. ¿Qué suma muestra el dibujo?', NQ.ms_sum),
