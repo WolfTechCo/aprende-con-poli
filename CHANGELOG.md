@@ -6,6 +6,14 @@ Lo que ven los apoderados dentro de la app está en `js/novedades.js` (*Novedade
 Formato de versión **X.Y.Z**: X = cambio grande (nueva materia o rediseño) · Y = capítulo o función nueva · Z = ajustes y arreglos.
 La versión de los archivos (`?v=` en `index.html` y `VERSION` en `sw.js`) es un número interno aparte.
 
+## 3.1.1 — 2026-11-22 (archivos v35)
+Entrega 3.1, fase 1: el capítulo 5 aprovecha mejor el espacio de la pantalla.
+- **Escenario del capítulo 5** (`STAGE_CH = [5]` en `js/app.js`, bloque «Escenario» al final de `css/style.css`): la zona de juego mide su espacio (`container-type:size`) y dibujos y respuestas crecen con él. Preguntas con 86–96 % del alto útil (antes 36 % en celular de pie y 46 % acostado) y lecciones con 76–84 %, sin deslizar, medido en 8 tamaños.
+- **Distribución:** de pie, pregunta arriba, dibujo al centro y respuestas grandes abajo; acostado (celular, tablet y PC), dibujo y respuestas forman un grupo centrado con separación fija (opción B3).
+- **Dibujos:** bicicletas y platos quedan dentro de sus tarjetas en todos los tamaños; en Mi avance las pestañas de capítulos ya no se tapan.
+- **Herramienta de revisión** (`docs/pruebas-pantallas/revisar.js`): paralela, todos los capítulos, pasa / no pasa y láminas de capturas; la medición avisa si algo se sale.
+- Sin cambios en el guardado (`SAVEVER` sigue en 2). Sin novedades para familias ni cambio de recorrido.
+
 ## 3.1.0 — 2026-11-21 (archivos v34)
 Entrega 3: capítulo 5 de Multiplicación y barra de capítulos que crece. Método de referencia: texto de 2° básico de una editorial (páginas no incluidas en el repositorio); ejercicios, textos y dibujos son propios.
 - **Capítulo 5: Multiplicación** (`js/multiplicacion.js`): lección de inicio «¿Qué es multiplicar?» (contar de a grupos → suma de iguales → «veces» → signo «·», que Poli lee «por»), 4 islas con lección y 2 juegos (Sumas que se repiten · ¿Es multiplicación? · La tabla del 2 con «parte y suma» · Las tablas del 5 y del 10) y Gran Desafío (`challengeMul`). Se enchufa al motor del capítulo 3 (islas tipo `num`, `NQ`, `NUMLESSON`, `NUMGAME`, `quizGame`). Los 4 temas entran a `TOPICS` y `N_TOPIC` (Repaso y Mi avance). Reglas: en los dibujos el primer número son las veces y nunca se ofrece la multiplicación dada vuelta como respuesta incorrecta; en las tablas se pregunta por el resultado; números hasta 100. Probado con 54.000 preguntas: siempre una sola correcta y opciones distintas. Estrellas 82 → 98 y stickers 30 → 36.
