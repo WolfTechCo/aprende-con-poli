@@ -9,6 +9,7 @@ const { metric } = require('./metrica');
 const OUT = path.join(__dirname, 'propuesta-figuras'); fs.mkdirSync(OUT, { recursive: true });
 const BOS = fs.readFileSync(path.join(__dirname, 'boceto-figuras.js'), 'utf8');
 const KW = fs.readFileSync(path.join(__dirname, 'boceto-kawaii.js'), 'utf8'); // estilo K: kawaii (22-11-2026)
+const GEL = fs.readFileSync(path.join(__dirname, 'boceto-gel.js'), 'utf8'); // estilo G: Gel 3D, el elegido (22-11-2026)
 const DEV = { tabV: [820, 1180], tabH: [1180, 820], celV: [390, 844], celH: [844, 390], bajoV: [360, 640], bajoH1: [667, 375], pc: [1366, 768] };
 const SIZES = (process.argv[2] || 'tabV,celV,celH').split(','), STY = (process.argv[3] || 'hoy,A,B,C').split(',');
 /* pregunta:tema (el tema fija la cosa dibujada, para ver todas; «hoy» usa la más parecida de la app actual) */
@@ -26,7 +27,19 @@ const CSS = '.memo{gap:6px 10px}.memo .bf-st{width:clamp(56px,min(15vw,11vh),120
     await p.evaluate(() => { localStorage.clear(); for (const [k, x] of [['poli-recorrido-visto', '99'], ['poli-recorrido-ajustes-visto', '99'], ['poli-novedades-visto', '9.9.9']]) localStorage.setItem(k, x); });
     await p.reload(); await p.evaluate(() => { addProfile('Ana', 'a'); save.voice = false; persist(); });
     await p.addStyleTag({ content: '*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition:none!important}' });
-    if (st === 'K' || st === 'K2') {
+    if (st === 'G') {
+      await p.evaluate(GEL);
+      await p.evaluate(() => {
+        const K = window.BOCETO_GEL; window.BOCETO_FIG = { THEMES: K.THEMES };
+        MTH.splice(0, MTH.length, ...K.THEMES);
+        window.grpSvg = (sizes, th, o = {}) => K.grp(sizes, th, { ...o, cols: o.cols || mCols(sizes.length) });
+        window.bikeSvg = k => K.bikes(k, mNarrow() ? Math.min(k, 3) : k > 5 ? Math.ceil(k / 2) : k);
+        window.sobreSvg = (k, t, cols = mNarrow() ? Math.min(k, 3) : k > 4 ? Math.ceil(k / 2) : k) => K.sobres(k, t, cols);
+        window.arrSvg = (r, c, o = {}) => K.filas(r, c, { ...o, col: o.col === '#4ea8ff' ? 'azul' : 'rosa' });
+        STORIES.forEach((S, i) => { S.ico = K.storyIco(K.STORY_KEYS[i]); });
+      });
+      await p.addStyleTag({ content: CSS });
+    } else if (st === 'K' || st === 'K2') {
       if (st === 'K2') await p.evaluate(() => { window.APILA = true; }); // K2: de pie, hasta 3 grupos uno debajo del otro
       await p.evaluate(KW);
       await p.evaluate(() => {
