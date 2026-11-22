@@ -96,14 +96,14 @@
 @container (orientation:landscape){
   html.optB3 .stepbody>.qwrap:has(>.nshape){grid-template-areas:"q q" "s o";grid-template-columns:auto auto;justify-content:center;column-gap:clamp(24px,7cqw,110px);grid-template-rows:auto 1fr}
   html.optB3 .stepbody>.qwrap:has(>.nshape)>.opts{flex-direction:column;gap:2.6cqh;align-items:stretch}
-  html.optB3 .stepbody .qwrap:has(>.nshape) .opt{font-size:clamp(22px,min(12cqh,6cqw),46px);min-width:min(18cqw,40cqh,170px);padding:min(1.6cqh,12px) 2cqw}
+  html.optB3 .stepbody .qwrap:has(>.nshape) .opt{font-size:clamp(22px,min(12cqh,6cqw),56px);min-width:min(18cqw,40cqh,200px);padding:min(1.6cqh,14px) 2cqw}
   html.optB3 .stepbody svg.mg:not(.arr):not(.mgo){--H:66cqh;width:min(calc(var(--vw) * var(--U) * 1.8), 58cqw, calc(var(--H) * var(--vw) / var(--vh, 100)))}
 }
-/* B3 en pantallas grandes (tablet acostada, computador): el dibujo manda; las respuestas no pasan de 46 px y el dibujo crece más */
+/* B3 en pantallas grandes (tablet acostada, computador): dibujo y respuestas con peso parecido (respuestas hasta 56 px) */
 @container (orientation:landscape) and (min-height:420px){
-  html.optB3 .stepbody svg.mg:not(.arr):not(.mgo){--H:70cqh;width:min(calc(var(--vw) * var(--U) * 2.4), 60cqw, calc(var(--H) * var(--vw) / var(--vh, 100)))}
-  html.optB3 .stepbody svg.mg.arr{height:min(calc(var(--r) * 14cqh), 78cqh)}
-  html.optB3 .stepbody .mbig{font-size:clamp(36px,min(22cqh,10cqw),150px)}
+  html.optB3 .stepbody svg.mg:not(.arr):not(.mgo){--H:70cqh;width:min(calc(var(--vw) * var(--U) * 2.1), 58cqw, calc(var(--H) * var(--vw) / var(--vh, 100)))}
+  html.optB3 .stepbody svg.mg.arr{height:min(calc(var(--r) * 13cqh), 72cqh)}
+  html.optB3 .stepbody .mbig{font-size:clamp(36px,min(19cqh,9cqw),130px)}
   html.optB3 .stepbody .memo{font-size:clamp(26px,min(15cqh,6cqw),100px)}
   html.optB3 .stepbody .mstory{font-size:clamp(15px,min(6cqh,3cqw),40px)}
 }
