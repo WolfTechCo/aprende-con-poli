@@ -8,14 +8,14 @@ const OUT = './propuesta'; fs.mkdirSync(OUT, { recursive: true });
 const CSS = fs.readFileSync(__dirname + '/boceto-3-1.css', 'utf8');
 const DEV = { tabV: [820, 1180], tabH: [1180, 820], celV: [390, 844], celH: [844, 390], bajoV: [360, 640], bajoH1: [667, 375], bajoH2: [740, 360], pc: [1366, 768] };
 const ONLY = (process.argv[2] || 'tabV,tabH,celV,celH,bajoH1,pc').split(','), VARS = (process.argv[3] || 'hoy,A,B,C').split(',');
-const QS = ['ms_tot', 'ms_mul', 'me_yes', 'me_turn', 'm2_res', 'm5_bar', 'm5_prob', 'm2_bike'];
-const LS = [['intro5', 0], ['mesmul', 2], ['mtabla2', 1], ['mtabla2', 2], ['mtabla510', 3]];
+const QS = process.argv[4] ? process.argv[4].split(',') : ['ms_tot', 'ms_mul', 'me_yes', 'me_turn', 'm2_res', 'm5_bar', 'm5_prob', 'm2_bike'];
+const LS = process.argv[4] ? [] : [['intro5', 0], ['mesmul', 2], ['mtabla2', 1], ['mtabla2', 2], ['mtabla510', 3]];
 (async () => {
   const b = await chromium.launch(), rep = [];
   for (const dn of ONLY) {
     const [w, h] = DEV[dn], land = w > h;
     for (const v of VARS) {
-      if (!land && (v === 'B' || v === 'C')) continue;
+      if (!land && v !== 'hoy' && v !== 'A') continue;
       const ctx = await b.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1, hasTouch: dn !== 'pc' });
       const p = await ctx.newPage(); p.on('pageerror', e => rep.push(`${dn} ${v} ERROR ${e.message}`));
       await p.goto('http://127.0.0.1:8766/');
