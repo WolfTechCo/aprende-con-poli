@@ -1308,7 +1308,7 @@ i.por{font-style:normal;display:inline-block;margin:0 .16em;font-weight:900;tran
 .mstory{margin:0;background:#fff;border-radius:20px;padding:8px 18px;font-weight:700;font-size:clamp(17px,min(2.4vw,3.4vh),28px);text-align:center;box-shadow:0 5px 0 #c7c9f0;max-width:min(700px,92vw);line-height:1.3}
 .memo{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 8px;font-size:clamp(26px,min(5vw,7vh),52px);line-height:1.1;max-width:min(640px,92vw)}
 .tapg .pl{cursor:pointer}
-.tapg .pl.on>ellipse:first-child{stroke:#22c58b;stroke-width:5}
+.tapg .pl.on>rect:nth-of-type(2){stroke:#22c58b;stroke-width:5}
 .plc{font-family:'Baloo 2',Arial,sans-serif;font-weight:800;font-size:26px;fill:#e0651a}
 @media (max-width:640px){
   .opt.msum2{font-size:16px;padding:8px 10px}
@@ -1519,3 +1519,16 @@ svg.mg:not(.arr){width:calc(var(--vw) * var(--u, .8px));height:auto;max-width:10
   #app.stage .stepbody .mduo .panel{width:auto;max-width:none;flex:none}
   #app.stage .stepbody .mduo .panel svg.mg:not(.arr){--mw:34cqw;--H:44cqh}
 }
+
+/* ---------- entrega 3.1 · fase 2: figuras Gel 3D del capítulo 5 (js/multiplicacion.js, MG) ----------
+   Movimiento suave (regla de figuras): las cosas aparecen con un saltito una tras otra, el grupo rebota al tocarlo
+   y, al contar en la lección, cada cosa se ilumina. Los dibujos de los cuentos crecen como la letra (eran emojis). */
+svg.mg .bf-a{transform-box:fill-box;transform-origin:50% 80%;animation:mgPop .45s cubic-bezier(.3,1.6,.5,1) backwards;animation-delay:calc(var(--g,0) * 160ms + var(--d,0) * 55ms)}
+@keyframes mgPop{0%{transform:scale(.2) translateY(6px);opacity:0}100%{transform:none;opacity:1}}
+svg.mg .bf-g{transform-box:fill-box}
+svg.mg .bf-g.hop{animation:mgHop .4s ease}
+@keyframes mgHop{40%{translate:0 -7px}100%{translate:0 0}}
+svg.mg .bf-it.lit .bf-a{animation:mgLit .5s ease forwards}
+@keyframes mgLit{50%{transform:scale(1.25)}100%{transform:scale(1.08);filter:drop-shadow(0 0 2.5px #ffd23f) drop-shadow(0 0 1.5px #ffd23f)}}
+.memo .bf-st{width:1.15em;height:1.15em;vertical-align:middle}
+@media (prefers-reduced-motion:reduce){svg.mg .bf-a,svg.mg .bf-g.hop,svg.mg .bf-it.lit .bf-a{animation:none}}

@@ -30,6 +30,7 @@ node revisar.js tabV,celH 3,4       # solo esos tamaños y capítulos
 - `preguntas.js`: genera miles de preguntas al azar por tipo y comprueba que haya una sola respuesta correcta, opciones distintas,
   números de 1 a 100 y que no aparezca la multiplicación dada vuelta como respuesta incorrecta (capítulo 5).
 - `partida.js`: juega el capítulo 5 de punta a punta (lección de inicio, 8 juegos y Gran Desafío) y comprueba que lo ganado no se pierda.
+- `figuras.js` + `boceto-kawaii.js` (estilo `K`, el elegido) y `boceto-figuras.js` (estilos A, B y C de la primera propuesta): capturas de la app con figuras nuevas del capítulo 5, antes de construir. Ejemplo: `node figuras.js tabV,celV,celH hoy,K ms_tot:fruti,m2_bike`. Guarda en `./propuesta-figuras`.
 - `proponer.js` + `boceto-3-1.css`: capturas de la app contra un boceto de estilos (así se compararon las opciones A, B, B2 y B3 de la
   entrega 3.1). Sirve de molde para proponer cambios con capturas antes de construir. Guarda en `./propuesta`.
 - Las carpetas `capturas` y `propuesta` no se suben (están en `.gitignore`).

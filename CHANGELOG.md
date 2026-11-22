@@ -6,6 +6,14 @@ Lo que ven los apoderados dentro de la app está en `js/novedades.js` (*Novedade
 Formato de versión **X.Y.Z**: X = cambio grande (nueva materia o rediseño) · Y = capítulo o función nueva · Z = ajustes y arreglos.
 La versión de los archivos (`?v=` en `index.html` y `VERSION` en `sw.js`) es un número interno aparte.
 
+## 3.2.0 — 2026-11-22 (archivos v36)
+Entrega 3.1, fase 2: figuras nuevas del capítulo 5 en estilo **Gel 3D** (kawaii, elegido por la dueña; regla de figuras en `CLAUDE.md`).
+- **Dibujos Gel 3D** (`js/multiplicacion.js`, bloque `MG`; molde y capturas en `docs/pruebas-pantallas/boceto-gel.js` y `figuras.js`): degradado de volumen, contorno del mismo color más oscuro, brillos, ojos grandes con dos brillos, mejillas y sombra en el suelo. 19 cosas de todo el mundo que se sortean (frutilla, manzana, cereza, naranja, cupcake, dona, macarón, helado, dulce, sushi, autito, pelota, patito, osito, dinosaurio, pollito, pez, chinita, crayón), cada una con su recipiente gel y una tarjeta de color pastel que no se pierde en el cielo. Bicicletas, sobres de láminas, filas (ahora dulces con carita) y cuentos (dibujos propios en vez de emojis) con el mismo estilo.
+- **Textos:** «en cada bandeja / caja / tina…» (campo `c1` del tema) en vez de «en cada uno»; la lección de inicio sortea la cosa (antes siempre sopaipillas); las filas hablan de dulces.
+- **Movimiento suave** (`css/style.css`, bloque «figuras Gel 3D»): saltito al aparecer, rebote al tocar un grupo y cada cosa se ilumina al contar en la lección; respeta «reducir movimiento».
+- **Medidas:** los dibujos informan `--vw/--vh` en la escala de los platos de antes (`K104`), así las pantallas ya probadas calzan. Revisión completa del capítulo 5 en 9 tamaños: sin desbordes (solo queda el «¡Nuevo!» cortado, ya conocido). Preguntas (una sola correcta) y partida completa: sin cambios.
+- Sin cambios en el guardado (`SAVEVER` sigue en 2) ni en el recorrido.
+
 ## 3.1.1 — 2026-11-22 (archivos v35)
 Entrega 3.1, fase 1: el capítulo 5 aprovecha mejor el espacio de la pantalla.
 - **Escenario del capítulo 5** (`STAGE_CH = [5]` en `js/app.js`, bloque «Escenario» al final de `css/style.css`): la zona de juego mide su espacio (`container-type:size`) y dibujos y respuestas crecen con él. Preguntas con 86–96 % del alto útil (antes 36 % en celular de pie y 46 % acostado) y lecciones con 76–84 %, sin deslizar, medido en 8 tamaños.
