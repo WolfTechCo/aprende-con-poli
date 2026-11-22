@@ -204,6 +204,12 @@ Son retoques de diseño que no dependen de la reestructura; se hacen con **Sonne
   - *Dibujo grande, textos chicos* (al revés del capítulo 4): lecciones de figuras 3D, por ejemplo "El cubo", con el título y los recuadros "6 caras · 12 aristas · 8 vértices" muy pequeños junto al dibujo.
   - *El título de la pantalla repite la pregunta* en algunos juegos del capítulo 3 ("¿Cuál es?" / "¿Cuál es el 532?"): usar el nombre de la actividad, como ya se hizo en el capítulo 4.
   - Un solo criterio para todas las unidades: el contenido debe ocupar bien el alto y los textos deben ser proporcionales al dibujo.
+- **Anotado el 22-11-2026 (conversación de la entrega 3.1):**
+  - **Nombres de los capítulos:** el 3 siempre se llamó «Números» (antes la pestaña decía «3 · Números»; hoy solo se ve el ícono hasta elegirlo) y a la dueña le parece poco entendible. Conversar opciones; es probable que a futuro se **fusione contenido** entre capítulos.
+  - **Herramienta de revisión para otros proyectos:** separar en `docs/pruebas-pantallas/` la parte general (tamaños, paralelo, reglas, láminas) de la propia de Poli (qué pantallas recorrer, jugador de prueba). Pasar la parte general a un repositorio propio de herramientas (privado, gratis en GitHub; dar acceso a la app de Claude) **cuando haya un segundo proyecto**.
+  - **Los dos repositorios son públicos** (cualquiera ve el código; solo WolfTechCo lo cambia). Así GitHub Pages funciona gratis; para publicar desde uno privado habría que pagar. Tenerlo presente si algún día se guardan datos o claves.
+  - **Mis stickers de pie** (celular y tablet) usa ≈ 70 % del alto: aprovechar mejor el espacio.
+  - **Limpieza de ramas:** sumar a la lista la rama `ccr-c1892ab9-wh1ylw` de esta conversación una vez que la entrega 3.1 esté en `main`.
 - **Mejora posterior (idea de la dueña):** Poli en una esquina del Rincón de adultos (y de otras secciones) saludando y moviéndose, sin sonido.
 - Probar en aparatos reales: instalación, modo sin internet y voces.
 - Revisar el diploma impreso en papel.
