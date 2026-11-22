@@ -13,3 +13,10 @@ Uso (desde la carpeta de la app, con un servidor local en el puerto 8766: `pytho
   números de 1 a 100 y que no aparezca la multiplicación dada vuelta como respuesta incorrecta.
 - `partida.js`: juega el capítulo 5 de punta a punta (lección de inicio, 8 juegos y Gran Desafío) y comprueba que lo ganado no se pierda.
 Los scripts usan `require('playwright')` (ya instalado en el ambiente de Claude Code).
+
+**Entrega 3.1 (ajuste de espacios):**
+- `medir.js`: como `tamanos.js`, pero además mide la **ocupación** de cada pantalla (alto y ancho que usa el contenido, relleno en una
+  cuadrícula de 48×48, franja vacía más alta, letra de la pregunta, alto de las respuestas y del dibujo). `node medir.js tabV,celH 3` mide el capítulo 3.
+  La medida vive en `metrica.js` (la usan los dos scripts).
+- `proponer.js` + `boceto-3-1.css`: capturas de la app de hoy contra el boceto «escenario» (variantes A, B y C para pantallas acostadas),
+  con el mismo ejercicio en todas. Guarda en `./propuesta`. Las carpetas `capturas` y `propuesta` no se suben (están en `.gitignore`).
