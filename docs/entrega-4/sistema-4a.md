@@ -37,19 +37,22 @@ Lo que dice **«por decidir»** espera la respuesta de la dueña.
 - **Antes de ganarlo**, el premio de cada isla se ve **sombreado**, con un «?»: viene algo, pero no se sabe qué (pedido de la dueña).
 - **Ganado sin abrir:** el sobre **brinca y brilla** para llamar la atención.
 - **Abierto:** la isla **muestra el premio que salió**. Si fueron varios (por ejemplo, una caja), muestra uno al azar.
-- **Gran Desafío y pestaña del capítulo:** la mascota está oculta en un **huevo sombreado** y aparece al nacer.
+- **Gran Desafío:** guarda la **caja del capítulo** (sombreada hasta ganarla).
+- **Pestaña del capítulo:** muestra la mascota del capítulo (huevo hasta que nace) y **cómo crece mientras se juega**.
 - **Dos estilos (idea de la dueña):** el dibujo Gel, o un **sprite retro**: el mismo dibujo pasado a 16 × 16 cuadraditos, así que no se dibuja dos veces. **Aprendido en el boceto:** copiar la imagen en el navegador para sacar los pixeles no funciona igual en todos los aparatos (falló en la prueba de la dueña). Los cuadraditos se calculan **una vez, de antemano**, y se guardan como datos que se dibujan con rectángulos, así se ven igual en cualquier aparato. **Comparación con todo ganado (página, sección «Todo ganado»):** el retro automático a 16–22 cuadraditos pierde las caritas (los ojos quedan como manchas). Si se elige retro, las mascotas, la Llamita y Poli necesitan un **ajuste a mano** de su sprite (ojos y boca puestos pixel a pixel); los objetos sin cara (estrellas, fondos, medallas) quedan bien automáticos. Se pueden tener los dos. **Por confirmar:** cuál va en el mapa o si el niño elige.
 - **Cada isla tiene su propio sobre** (color y dibujo del tema de la isla), así se sienten únicos.
 
 ---
 
 ## 4. Mascotas por unidad
-- **Una por capítulo**, distinta y ojalá ligada al contenido. Ejemplos por pulir con la investigación de nombres:
-  - Capítulo 1, Polígonos: Hexabeja o Pentagüino.
-  - Capítulo 2, Figuras 2D y 3D: Cubúho.
-  - Capítulo 3, Números: Cienpiecito.
-  - Capítulo 4, Patrones: Pulpatrón.
-  - Capítulo 5, Multiplicación: Conejiplicador.
+- **Una por capítulo**, distinta y ligada al contenido. **El niño la ve evolucionar mientras juega:** nace apenas termina la lección de inicio, crece con cada isla completa y al terminar el capítulo es grande. El último paso, brillante, puede llegar después, practicando en el Repaso. Nombres elegidos por la dueña (`poli-referencias/recompensas/nombres.md`):
+  - Capítulo 1, Polígonos: **Tortugono** (su caparazón suma lados).
+  - Capítulo 2, Figuras 2D y 3D: **Cubúho**.
+  - Capítulo 3, Números: **Cienpiecito** (de brillante, **Milpiés**).
+  - Capítulo 4, Patrones: **Pulpatrón**.
+  - Capítulo 5, Multiplicación: **Chinitabla**.
+- **Mascotas extra (idea de la dueña):** las otras opciones de cada capítulo (Hexabeja, Pentagüino, Prismapache, Esferardilla, Decanguro, Cebrayita, Conejiplica) aparecen **después de terminar el capítulo**, **una a la vez** (propuesta: la primera con el Gran Desafío en 3 estrellas y la siguiente al dominar todos los temas). Llegan como cría y crecen practicando ese capítulo en el Repaso. **Por confirmar con la dueña.**
+- **Nombre de la sección:** «**Mascotas**» por ahora (ningún nombre de grupo convenció; se busca uno mejor más adelante).
 - **Etapas (5):** huevo → cría (empieza el capítulo) → joven (mitad de las islas completas) → grande (todas las islas) → **brillante** (Gran Desafío con 3 estrellas y todos los temas del capítulo en «¡Lo dominas!»).
 - **Dónde aparece:** en la pestaña del capítulo (mapa, Mi avance y álbum), en Mi avance como dibujo del avance del capítulo (con el porcentaje chico, como hoy) y en Mis premios.
 - **Doble uso (decisión de la dueña):** el niño elige **una mascota que acompaña a Poli** en la barra de abajo y en el mapa. Salta cuando acierta y celebra con Poli. En la 4B también vive en el cuarto.
