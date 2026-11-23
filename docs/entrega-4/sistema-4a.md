@@ -38,7 +38,7 @@ Lo que dice **«por decidir»** espera la respuesta de la dueña.
 - **Ganado sin abrir:** el sobre **brinca y brilla** para llamar la atención.
 - **Abierto:** la isla **muestra el premio que salió**. Si fueron varios (por ejemplo, una caja), muestra uno al azar.
 - **Gran Desafío y pestaña del capítulo:** la mascota está oculta en un **huevo sombreado** y aparece al nacer.
-- **Dos estilos (idea de la dueña):** el dibujo Gel, o un **sprite retro** (el mismo dibujo achicado a pocos cuadraditos y ampliado sin suavizar, así que no se dibuja dos veces). Se pueden tener los dos. **Por confirmar:** cuál va en el mapa o si el niño elige.
+- **Dos estilos (idea de la dueña):** el dibujo Gel, o un **sprite retro**: el mismo dibujo pasado a 16 × 16 cuadraditos, así que no se dibuja dos veces. **Aprendido en el boceto:** copiar la imagen en el navegador para sacar los pixeles no funciona igual en todos los aparatos (falló en la prueba de la dueña). Los cuadraditos se calculan **una vez, de antemano**, y se guardan como datos que se dibujan con rectángulos, así se ven igual en cualquier aparato. Se pueden tener los dos. **Por confirmar:** cuál va en el mapa o si el niño elige.
 - **Cada isla tiene su propio sobre** (color y dibujo del tema de la isla), así se sienten únicos.
 
 ---
@@ -60,18 +60,25 @@ Lo que dice **«por decidir»** espera la respuesta de la dueña.
 ## 5. La Llamita y la racha amable
 - La racha cuenta los días seguidos con práctica, con **un día de descanso por semana** que no la corta (se usa solo).
 - Si la racha se corta, **no se pierde nada**: la Llamita se queda dormida y despierta cuando el niño vuelve. Se guardan el **récord** y el **total de días**.
-- La **Llamita** aparece con la primera racha de 3 días y crece con el récord. Es la mascota más especial: tiene una **llamita en la cabeza que brilla más** con cada cofre.
+- **La Llamita es una llama de fuego kawaii** (propuesta tras la pregunta de la dueña; se prefiere al animal porque se entiende sola, evoluciona de forma natural y se distingue de las mascotas de los capítulos). Evoluciona con el récord: **chispa** (1–2 días) → **llamita** (3) → **fogata** (7) → **llama azul** (14) → **llama dorada con corona** (30 o más). Si la racha se corta, es una **brasa dormida** que brilla suave y se enciende al volver.
 - **Cofres dorados** a los 3, 7, 14 y 30 días, y después cada 30. Traen lo más especial del catálogo (por ejemplo, celebraciones doradas o fondos que brillan).
 - Textos de Poli siempre amables. Nunca «perdiste» ni «te extrañé, estoy triste».
 
 ---
+
+### 5a. Cuánto pesa la racha (observación de la dueña)
+Hoy la app tiene un solo ramo (matemáticas): un niño puede terminar el capítulo que necesita y no volver hasta el siguiente. Por eso, en la 4A **la racha pesa poco**:
+- Casi todo se gana por contenido: unos 25 sobres, 5 cajas, 5 mascotas y la mayoría de los logros.
+- La racha suma lo especial: cofres dorados, la Llamita y el logro Constancia. Ningún premio importante depende solo de ella.
+
+El peso queda en **un solo ajuste** (qué días dan cofre y qué traen), para subirlo cuando la app tenga más ramos y se use a diario. Si un jugador pasa varias semanas sin entrar, el Rincón de adultos **sugiere** la «temporada de estudio».
 
 ### 5b. Constancia a la medida (Rincón de adultos, por jugador)
 Para niños que usan la app solo cuando tienen prueba (caso de la dueña), con la racha diaria siempre se les corta. Referencias: la «posada» de Habitica (pausa sin castigo), los amuletos de fin de semana de Duolingo (quienes los tenían perdieron menos la racha y volvieron más, según la empresa) y las rachas semanales (Zwift).
 
 | Forma | Cómo cuenta |
 |---|---|
-| **Diaria** (por defecto) | Días seguidos con 1 día de descanso por semana |
+| **Diaria** (por defecto, decidido) | Días seguidos con 1 día de descanso por semana |
 | **Días elegidos** | El adulto marca los días de estudio; solo esos cuentan y los demás no cortan |
 | **Semanal** | Semanas seguidas con los días de práctica que el adulto pidió (1 a 5) |
 | **Temporada de estudio** | El adulto la activa antes de una prueba, con la fecha de término. Dentro de la temporada cuenta como la diaria. Fuera, la Llamita está **de vacaciones** y nada se corta |
