@@ -166,7 +166,7 @@ Son retoques de diseño que no dependen de la reestructura; se hacen con **Sonne
 | 4A-3 · Dibujos 4A | Mascotas en sus etapas, sobres, cajas y cofre por isla y capítulo, logros con niveles, Llamita, mochila, contenido de los sobres (Gel 3D, como el capítulo 5 o mejor) | Opus | — |
 | 4A-4 · Construcción | Lógica, guardado (`SAVEVER` 3, `MIGRATIONS`, `cleanProfile`), pantallas, avisos | Opus | — |
 | 4A-5 · Pruebas y publicación | Tablet → celular → PC, versión, CHANGELOG, novedades, recorrido, ambiente de pruebas y Pull Request | Sonnet | — |
-| 4B y 4C | Se planifican al cerrar la 4A (investigación de Poli y del cuarto ya hecha en las fases 1b y 1c) | Opus | — |
+| 4B y 4C | Se planifican al cerrar la 4A (investigación de Poli y del cuarto ya hecha en las fases 1b y 1c). **Para la 4B (idea de la dueña, 23-11-2026):** que Poli hable con una **burbuja que sale de él** en vez de la franja fija de abajo. Medido hoy: la franja ocupa 10 % del alto en tablet de pie, 11 % en celular de pie, 18 % en tablet y celular acostados y 20 % en PC. Se hace junto con el Poli nuevo (se dibuja y ubica una sola vez) y con una pasada completa de `revisar.js`, porque todas las pantallas se calcularon con la franja. Proponer 2 o 3 opciones con capturas (por ejemplo: Poli en una esquina con burbuja que aparece y se achica a un botón de «escuchar otra vez»). En la 4A la mascota va junto a Poli en la franja actual | Opus | — |
 
 **1. Stickers, medallas, ropa y racha: que trabajen juntos.**
 - **Problema:** con las medallas, los **stickers valen poco** (hoy solo se ven y se cuentan; no dan nada). Y la **ropa de Poli depende solo de medallas, y varias de esas son de racha**: un niño que estudia para una prueba y no vuelve en semanas no suma racha y no gana ropa.
