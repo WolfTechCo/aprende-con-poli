@@ -19,7 +19,8 @@ El proyecto vive en **tres repositorios**: dos públicos de la app y uno **priva
    - **Desarrollo** = la rama **más reciente que va por delante de `main`** (normalmente `claude/…` o `ccr-…`). Si hay dudas entre dos, preguntar a la dueña.
    - Comparar con la tabla «Estado de versiones» de `PLAN.md`. **Lo real manda:** si no coincide, corregir la tabla.
 3. **Crear la rama de la sesión desde la rama de desarrollo encontrada** (no desde `main`). La sesión suele tener otra rama asignada.
-4. **Al cerrar la sesión:** actualizar en `poli-referencias` la tabla «Estado de versiones», «Última actualización» y «Para retomar» de `planes/PLAN.md`, y subirlo.
+4. **Durante la sesión, no solo al final** (una sesión puede cortarse sin aviso por cuota o uso, y el contenedor se borra): hacer commit y push **seguido**, y actualizar en `poli-referencias` la tabla «Estado de versiones», «Última actualización» y «Para retomar» de `planes/PLAN.md` **al terminar cada fase o cambio importante**.
+5. **Si el plan quedó atrasado** (la rama de desarrollo o `poli-referencias` tienen commits más nuevos que su «Última actualización»), reconstruir lo hecho con `git log` de esas ramas (los mensajes de commit describen cada paso), actualizar el plan y avisar a la dueña antes de seguir.
 Nunca dar por hecho que «lo último» está en `main`.
 
 **Investigaciones y referencias de diseño** (por ejemplo, el análisis de Tuts+ que dio origen al estilo Gel 3D, o las recompensas de la entrega 4): en `poli-referencias`. Si la tarea es de **diseño, investigación o mercado**, leer su `LEEME.md` y los análisis antes de proponer, y guardar ahí lo nuevo. Sus imágenes son de terceros: solo estudio interno, **nunca copiarlas a los repositorios públicos** ni a la app. Si un sitio no se puede abrir desde la nube, se hace con una sesión local en el computador de la dueña (Chrome y `gh`), que sube el resultado a ese repositorio.
