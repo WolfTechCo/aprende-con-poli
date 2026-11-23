@@ -1,6 +1,6 @@
 # Entrega 4A · Sistema de premios (diseño, fase 4A-2)
 
-Borrador del 23-11-2026 para revisar con la dueña. Se basa en la investigación de las fases 1, 1b y 1c (repositorio privado `poli-referencias/recompensas/`) y en las decisiones anotadas en `PLAN.md` (sección 4.2).
+Diseño del 23-11-2026, con las 4 respuestas de la dueña (eligió la recomendación en todas). Se basa en la investigación de las fases 1, 1b y 1c (repositorio privado `poli-referencias/recompensas/`) y en las decisiones anotadas en `PLAN.md` (sección 4.2).
 Lo que dice **«por decidir»** espera la respuesta de la dueña.
 
 ---
@@ -34,8 +34,11 @@ Lo que dice **«por decidir»** espera la respuesta de la dueña.
 ---
 
 ## 3. Islas con el premio a la vista (idea de la dueña)
-- En el mapa, cada isla muestra un **sobrecito** chico si su sobre está por ganar. Al ganarlo, el sobrecito se vuelve una **estrellita de «hecho»**. Si se ganó pero aún no se abre, el sobrecito **brinca**.
-- La pestaña de cada capítulo muestra el **huevito** de su mascota hasta que nace, y después la mascota en su etapa.
+- **Antes de ganarlo**, el premio de cada isla se ve **sombreado**, con un «?»: viene algo, pero no se sabe qué (pedido de la dueña).
+- **Ganado sin abrir:** el sobre **brinca y brilla** para llamar la atención.
+- **Abierto:** la isla **muestra el premio que salió**. Si fueron varios (por ejemplo, una caja), muestra uno al azar.
+- **Gran Desafío y pestaña del capítulo:** la mascota está oculta en un **huevo sombreado** y aparece al nacer.
+- **Dos estilos (idea de la dueña):** el dibujo Gel, o un **sprite retro** (el mismo dibujo achicado a pocos cuadraditos y ampliado sin suavizar, así que no se dibuja dos veces). Se pueden tener los dos. **Por confirmar:** cuál va en el mapa o si el niño elige.
 - **Cada isla tiene su propio sobre** (color y dibujo del tema de la isla), así se sienten únicos.
 
 ---
@@ -50,7 +53,7 @@ Lo que dice **«por decidir»** espera la respuesta de la dueña.
 - **Etapas (5):** huevo → cría (empieza el capítulo) → joven (mitad de las islas completas) → grande (todas las islas) → **brillante** (Gran Desafío con 3 estrellas y todos los temas del capítulo en «¡Lo dominas!»).
 - **Dónde aparece:** en la pestaña del capítulo (mapa, Mi avance y álbum), en Mi avance como dibujo del avance del capítulo (con el porcentaje chico, como hoy) y en Mis premios.
 - **Doble uso (decisión de la dueña):** el niño elige **una mascota que acompaña a Poli** en la barra de abajo y en el mapa. Salta cuando acierta y celebra con Poli. En la 4B también vive en el cuarto.
-- **Por decidir:** ¿una mascota por capítulo (recomendado: 5 hoy, cada una especial y con tiempo para crecer) o una por isla (unas 25: más colección, pero más dibujo y menos especiales)?
+- **Decidido: una mascota por capítulo.** Nunca retrocede de etapa, aunque después baje un porcentaje. Cada cambio llega con el aviso chico y una animación de crecer.
 
 ---
 
@@ -62,6 +65,21 @@ Lo que dice **«por decidir»** espera la respuesta de la dueña.
 - Textos de Poli siempre amables. Nunca «perdiste» ni «te extrañé, estoy triste».
 
 ---
+
+### 5b. Constancia a la medida (Rincón de adultos, por jugador)
+Para niños que usan la app solo cuando tienen prueba (caso de la dueña), con la racha diaria siempre se les corta. Referencias: la «posada» de Habitica (pausa sin castigo), los amuletos de fin de semana de Duolingo (quienes los tenían perdieron menos la racha y volvieron más, según la empresa) y las rachas semanales (Zwift).
+
+| Forma | Cómo cuenta |
+|---|---|
+| **Diaria** (por defecto) | Días seguidos con 1 día de descanso por semana |
+| **Días elegidos** | El adulto marca los días de estudio; solo esos cuentan y los demás no cortan |
+| **Semanal** | Semanas seguidas con los días de práctica que el adulto pidió (1 a 5) |
+| **Temporada de estudio** | El adulto la activa antes de una prueba, con la fecha de término. Dentro de la temporada cuenta como la diaria. Fuera, la Llamita está **de vacaciones** y nada se corta |
+| **Pausa** | Congela la racha (vacaciones o enfermedad) hasta que el adulto la quite |
+
+- Los cofres dorados y el logro Constancia se ganan igual en todas las formas, según los días que cuenta cada una.
+- La temporada además ayuda a aprender: estudiar repartido en varios días rinde más que estudiar todo junto (Cepeda y otros; Rohrer y Taylor). Poli puede decir «¡Faltan 5 días para tu prueba!».
+- Se guarda en `racha.modo` (y sus días o fechas), y se limpia en `cleanProfile`.
 
 ## 6. Logros con niveles (antes medallas)
 Quedan **guardados para siempre** (no se recalculan) y cada uno sube de nivel: **bronce → plata → oro → diamante**.
@@ -83,7 +101,7 @@ Quedan **guardados para siempre** (no se recalculan) y cada uno sube de nivel: *
 
 ---
 
-## 7. Qué traen los sobres mientras no existe el cuarto (por decidir)
+## 7. Qué traen los sobres mientras no existe el cuarto (decidido: C)
 Sin el cuarto (que llega en la 4B), lo que salga de los sobres igual debe **usarse**. Opciones:
 - **A · Solo cosas que se usan ya:**
   - **celebraciones** (lo que pasa al acertar: confeti de estrellas, burbujas, fuegos artificiales chicos);
@@ -133,7 +151,7 @@ Campos nuevos en el perfil (también en `NEWSAVE` y en `cleanProfile`, que limpi
 ### Traspaso de lo ya ganado (nadie pierde nada)
 - **Medallas → logros:** cada medalla ganada se vuelve el nivel equivalente. Por ejemplo, `r7` se vuelve Constancia plata. Después se calculan los niveles que ya merece con lo guardado.
 - `mente` y `rey` se respetan. El rango no cambia en la 4A.
-- **Islas ya completas:** **por decidir**:
+- **Islas ya completas (decidido: A):**
   - **A (recomendada):** reciben sus sobres **guardados** en la mochila para abrirlos cuando quieran. Poli dice «¡Tienes 12 sobres por abrir!».
   - **B:** se juntan en una sola **caja de bienvenida**.
 - **Capítulos empezados:** su mascota nace directo en la etapa que corresponde, con una sola celebración.
@@ -142,8 +160,10 @@ Campos nuevos en el perfil (también en `NEWSAVE` y en `cleanProfile`, que limpi
 
 ---
 
-## 11. Preguntas para la dueña
-1. **Mascota por capítulo** (recomendado) o **por isla**.
-2. **Contenido de los sobres en la 4A:** A, B o C (recomendada).
-3. **Islas ya completas:** sobres guardados (recomendado) o caja de bienvenida.
-4. **Cuándo se gana el sobre:** al completar todas las actividades de la isla (recomendado: premia terminar), o al lograr 3 estrellas (premia la perfección, pero puede frustrar).
+## 11. Decisiones de la dueña (23-11-2026)
+1. Una mascota **por capítulo**.
+2. Sobres de la 4A: **C** (celebraciones, fondos del mapa y stickers; caja de mudanza en la 4B).
+3. Islas ya completas: **sobres guardados** para abrir.
+4. El sobre se gana al **completar todas las actividades** de la isla.
+5. Premios del mapa **ocultos y sombreados** hasta ganarlos, y después muestran lo que salió; estilo Gel y retro (por confirmar cuál va en el mapa).
+6. **Constancia a la medida** elegida por el adulto (sección 5b; por confirmar la forma por defecto).
