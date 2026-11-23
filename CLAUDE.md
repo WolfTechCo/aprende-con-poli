@@ -1,6 +1,7 @@
 # Aprende con Poli — guía para trabajar en el proyecto
 
-App web estática (HTML + CSS + JS puro, sin dependencias ni build) para niños de 2° básico, guiada por la mascota Poli.
+App web estática (HTML + CSS + JS puro, sin build) para niñas y niños de **toda la educación básica** (desde 1° básico; hoy con contenido de 2°), guiada por la mascota Poli.
+**Dependencias (dueña, 23-11-2026):** la regla de «sin dependencias» se va dejando por la evolución de la app: si el contenido lo necesita, se agregan de forma equilibrada (guardadas dentro de la app, para mantener la CSP `'self'` y el uso sin internet). El rendimiento del aparato no debe frenar el diseño.
 Publicada con GitHub Pages desde `main`: https://wolftechco.github.io/aprende-con-poli/
 Contexto general en `README.md`, historial técnico en `CHANGELOG.md`, ideas en `PENDIENTES.md`.
 **Antes de empezar, leer `PLAN.md`**: estado actual, reglas acordadas con la dueña y plan de las próximas entregas.
@@ -12,7 +13,7 @@ solo estudio interno, **nunca copiarlas a los repositorios públicos** ni a la a
 una sesión local en el computador de la dueña (Chrome y `gh`) que sube el resultado a ese repositorio (ver `PLAN.md`).
 
 ## Forma de trabajo
-- Todo en **español de Chile**, pensado para una niña o niño de 7–8 años: textos cortos, entretenidos y que inviten a descubrir.
+- Todo en **español de Chile**, pensado para **el niño o la niña en sí**, no para un rango de edad fijo (la app va de 1° básico en adelante; los niños aprenden rápido a usar apps): textos cortos, entretenidos y que inviten a descubrir.
   Lo que es para adultos va aparte y solo explica el uso.
 - Trabajar en una rama y dejar un **Pull Request hacia `main`**; la dueña del proyecto revisa y hace Merge.
 - Si pide "modo plan" o "muéstrame primero": diseñar y mostrar capturas, sin subir nada hasta que apruebe.
