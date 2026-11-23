@@ -51,10 +51,16 @@ Lo que dice **«por decidir»** espera la respuesta de la dueña.
   - Capítulo 3, Números: **Cienpiecito** (de brillante, **Milpiés**).
   - Capítulo 4, Patrones: **Pulpatrón**.
   - Capítulo 5, Multiplicación: **Chinitabla**.
-- **Mascotas extra (idea de la dueña):** las otras opciones de cada capítulo (Hexabeja, Pentagüino, Prismapache, Esferardilla, Decanguro, Cebrayita, Conejiplica) aparecen **después de terminar el capítulo**, **una a la vez** (propuesta: la primera con el Gran Desafío en 3 estrellas y la siguiente al dominar todos los temas). Llegan como cría y crecen practicando ese capítulo en el Repaso. **Por confirmar con la dueña.**
+- **Mascotas extra (idea de la dueña):** las otras opciones de cada capítulo (Hexabeja, Pentagüino, Prismapache, Esferardilla, Decanguro, Cebrayita, Conejiplica) aparecen **después de terminar el capítulo**, **una a la vez (decidido)**. Se ganan **practicando de nuevo ese capítulo**, en el Repaso o al volver a jugar sus islas (los ejercicios siempre son distintos): aparece un **huevo extra** en la pestaña que se agrieta con cada respuesta correcta del capítulo. Al abrirse nace la mascota como cría y aparece el huevo siguiente. Cuántas respuestas hacen falta se define al construir (por ejemplo, 20).
 - **Nombre de la sección:** «**Mascotas**» por ahora (ningún nombre de grupo convenció; se busca uno mejor más adelante).
 - **Etapas (5):** huevo → cría (empieza el capítulo) → joven (mitad de las islas completas) → grande (todas las islas) → **brillante** (Gran Desafío con 3 estrellas y todos los temas del capítulo en «¡Lo dominas!»).
 - **Dónde aparece:** en la pestaña del capítulo (mapa, Mi avance y álbum), en Mi avance como dibujo del avance del capítulo (con el porcentaje chico, como hoy) y en Mis premios.
+- **Dónde se ve y cómo interactúa:**
+  - Al nacer, en pantalla grande: el huevo se agrieta, el niño la toca y ella salta; Poli dice su nombre y ofrece llevarla.
+  - En la **franja de abajo, junto a Poli**, en todas las pantallas. Durante una pregunta queda quieta para no distraer. Celebra cuando el niño acierta, da ánimo con un gesto cuando se equivoca (sin tristeza) y hace algo chistoso si la tocan.
+  - En el mapa: en la pestaña de su capítulo y saltando junto a la isla actual.
+  - En la isla: muestra cuánto le falta para crecer («¡Una isla más y crezco!»).
+  - En Mi avance, en Mis premios → Mascotas (con sus próximas etapas sombreadas) y en el diploma. En la 4B, también en el cuarto.
 - **Doble uso (decisión de la dueña):** el niño elige **una mascota que acompaña a Poli** en la barra de abajo y en el mapa. Salta cuando acierta y celebra con Poli. En la 4B también vive en el cuarto.
 - **Decidido: una mascota por capítulo.** Nunca retrocede de etapa, aunque después baje un porcentaje. Cada cambio llega con el aviso chico y una animación de crecer.
 
