@@ -149,6 +149,17 @@ Son retoques de diseño que no dependen de la reestructura; se hacen con **Sonne
 - **Medalla «Mente brillante»:** hoy se calcula cada vez y se pierde si aparecen temas nuevos. Es un asunto de la **entrega 4**: debe quedar guardada una vez ganada y, como será la medalla final que crece con la app, tener **niveles o sub versiones** (por ejemplo, una por capítulo y una final). Lo mismo con el rango más alto («Reina / Rey de las formas», nombre por revisar).
 
 ## 4.2 Entrega 4: incentivos con sinergia y Poli niño o niña (siguiente después del capítulo 5; pedido de la dueña 21-11-2026)
+**Arranque (23-11-2026, Opus confirmado por la dueña).** Rama: `claude/peaceful-noether-3401hy` en `aprende-con-poli` (desde `main` 3.2.0); las mejoras se acumulan ahí fase a fase. Incluye **Poli niño o niña** (decisión de la dueña). Se sigue el **modelo de investigación del estilo Gel 3D**: investigar y guardar en `poli-referencias` → proponer 2 o 3 opciones con capturas y una recomendada → la dueña elige → recién ahí se construye. **Al terminar cada fase se detiene** para que la dueña revise su uso.
+| Fase | Qué | Modelo | Estado |
+|---|---|---|---|
+| 1 · Investigación | Qué funciona y qué daña en recompensas para niños de 6 a 8 años (motivación, rachas, colecciones, avatares, diseño ético) y cómo lo hacen otras apps; personajes con género. Guardado en `poli-referencias/recompensas/`, con página resumen | Opus | En curso |
+| 2 · Sistema de recompensas | 2 o 3 esquemas de sinergia (qué da cada sistema a los otros, qué se gana por contenido y qué por racha, «Mente brillante» con niveles, rango, cómo crece con cada capítulo), con diagrama y ejemplos; la dueña elige. Incluye qué se guarda (migración) | Opus | — |
+| 3 · Poli niña y Poli niño | 2 o 3 propuestas dibujadas en Gel 3D (cuerpo, cara, ropa base, Poli por defecto, accesorios propios y compartidos); la dueña elige | Opus | — |
+| 4 · Dibujos de premios y contador | Stickers, medallas, ropa y trofeos en Gel 3D; 2 o 3 opciones del contador estrellas ↔ «Trofeos» con capturas en celular de pie y acostado; la dueña elige | Opus | — |
+| 5 · Construir la lógica | Guardado (`MIGRATIONS`, `cleanProfile`), premios por contenido y racha, medallas guardadas con niveles | Opus | — |
+| 6 · Construir lo visual | Dibujos, Poli con género en todos los lugares (`POLI_SVG`/`poliSvg`, diploma), contador, Mis premios | Opus | — |
+| 7 · Pruebas y publicación | Tablet → celular → PC, versión, CHANGELOG, novedades, recorrido, ambiente de pruebas y Pull Request | Sonnet | — |
+
 **1. Stickers, medallas, ropa y racha: que trabajen juntos.**
 - **Problema:** con las medallas, los **stickers valen poco** (hoy solo se ven y se cuentan; no dan nada). Y la **ropa de Poli depende solo de medallas, y varias de esas son de racha**: un niño que estudia para una prueba y no vuelve en semanas no suma racha y no gana ropa.
 - **Principios acordados:** (a) **regalos por contenido** (terminar una isla o un capítulo, dominar un tema, ganar un Gran Desafío), no solo por constancia; (b) **el regalo por racha debe ser mejor** (más especial) que los demás; (c) **sinergia:** cada sistema (stickers, medallas, racha, ropa, rango, diploma) debe aportar a los otros y no repetirse; (d) **no hay que temer eliminar o cambiar uno** si otro lo mejora. La racha como sistema está bien y se mantiene.
