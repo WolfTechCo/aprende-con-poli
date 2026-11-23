@@ -98,6 +98,6 @@ GitHub Pages: *Settings → Pages → Deploy from a branch → `main` / `/ (root
 - `js/repaso.js`: Repaso del día, Mi avance, respaldo y limpieza de lo guardado
 - `js/adultos.js`: Rincón de adultos · `js/opinion.js`: reporte de uso y opinión
 - `js/novedades.js`: novedades para quien usa la app (`APPVER` y `NEWS`) · `js/recorrido.js`: recorrido con Poli (`TOURVER`)
-- `CHANGELOG.md`: historial técnico de versiones · `PLAN.md`: estado, reglas acordadas y próximas entregas
+- `CHANGELOG.md`: historial técnico de versiones · el plan (estado, reglas acordadas y próximas entregas) está en un repositorio privado del equipo
 - `PENDIENTES.md`: ideas anotadas para más adelante · `docs/`: investigación de mercado, plan de voz y boceto de diseño
 - `CLAUDE.md`: reglas del proyecto para las sesiones con Claude

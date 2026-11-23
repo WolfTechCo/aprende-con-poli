@@ -4,18 +4,25 @@ App web estática (HTML + CSS + JS puro, sin build) para niñas y niños de **to
 **Dependencias (dueña, 23-11-2026):** la regla de «sin dependencias» se va dejando por la evolución de la app: si el contenido lo necesita, se agregan de forma equilibrada (guardadas dentro de la app, para mantener la CSP `'self'` y el uso sin internet). El rendimiento del aparato no debe frenar el diseño.
 Publicada con GitHub Pages desde `main`: https://wolftechco.github.io/aprende-con-poli/
 Contexto general en `README.md`, historial técnico en `CHANGELOG.md`, ideas en `PENDIENTES.md`.
-**Antes de empezar, leer `PLAN.md`**: estado actual, reglas acordadas con la dueña y plan de las próximas entregas.
-**Antes de empezar, encontrar dónde quedó el trabajo (sin depender de un nombre de rama dado):**
-1. `git fetch origin` y listar las ramas remotas ordenadas por fecha: `git for-each-ref --sort=-committerdate --format='%(committerdate:short) %(refname:short)' refs/remotes/origin`. Para cada una, ver cuántos commits lleva por delante de `main` (`git rev-list --count origin/main..RAMA`).
-2. La rama con trabajo en curso es la **más reciente que va por delante de `main`** (normalmente `claude/…` o `ccr-…`). Confirmarlo leyendo su `PLAN.md`: la línea «Última actualización» y la sección «Para retomar» dicen qué sigue. Si hay dudas entre dos ramas, preguntar a la dueña.
-3. La sesión nueva suele tener **otra rama asignada**: crearla **desde la rama encontrada** (no desde `main`) para no perder lo avanzado.
-4. Hacer lo mismo en `poli-referencias` si la tarea es de diseño o investigación.
+
+## Al empezar cada chat (siempre, en este orden)
+El proyecto vive en **tres repositorios**: dos públicos de la app y uno **privado** con el plan.
+| Repositorio | Qué guarda | Ambiente |
+|---|---|---|
+| `WolfTechCo/aprende-con-poli` (público) | Código de la app final y reglas técnicas (este archivo) | **Producción**: su `main`, publicado para las familias |
+| `WolfTechCo/aprende-con-poli-pruebas` (público) | La misma app con lo «solo de pruebas» | **Pruebas**: su `main`, publicado con la etiqueta 🧪 |
+| `WolfTechCo/poli-referencias` (**privado**) | **El plan** (`planes/PLAN.md`), el diseño de cada entrega (`planes/entrega-N/`) y las investigaciones | — |
+
+1. **Conectar `poli-referencias`** (`add_repo`) y leer su `CLAUDE.md` y **`planes/PLAN.md`**: estado de versiones, reglas acordadas con la dueña, decisiones y lo que sigue. El plan ya no está en los repositorios públicos (desde el 23-11-2026), para no publicar la estrategia ni notas personales.
+2. **Encontrar la última versión de cada ambiente** sin depender de nombres de rama dados. En **cada uno de los tres repositorios**: `git fetch origin` y luego `git for-each-ref --sort=-committerdate --format='%(committerdate:short) %(refname:short)' refs/remotes/origin`. Ver cuántos commits lleva cada rama por delante de `main` (`git rev-list --count origin/main..RAMA`).
+   - **Producción** = `main` de `aprende-con-poli`. **Pruebas** = `main` de `aprende-con-poli-pruebas`. La versión se ve en `VERSION` de `sw.js` y en la primera entrada de `CHANGELOG.md`.
+   - **Desarrollo** = la rama **más reciente que va por delante de `main`** (normalmente `claude/…` o `ccr-…`). Si hay dudas entre dos, preguntar a la dueña.
+   - Comparar con la tabla «Estado de versiones» de `PLAN.md`. **Lo real manda:** si no coincide, corregir la tabla.
+3. **Crear la rama de la sesión desde la rama de desarrollo encontrada** (no desde `main`). La sesión suele tener otra rama asignada.
+4. **Al cerrar la sesión:** actualizar en `poli-referencias` la tabla «Estado de versiones», «Última actualización» y «Para retomar» de `planes/PLAN.md`, y subirlo.
 Nunca dar por hecho que «lo último» está en `main`.
-**Repositorio privado de referencias `WolfTechCo/poli-referencias` (privado):** investigaciones y referencias de diseño (por ejemplo el
-análisis de Tuts+ que dio origen al estilo Gel 3D). Si la tarea es de **diseño, investigación o mercado**, agregarlo a la sesión
-(`add_repo`) y leer su `LEEME.md` y los análisis antes de proponer. Guardar ahí las investigaciones nuevas. Sus imágenes son de terceros:
-solo estudio interno, **nunca copiarlas a los repositorios públicos** ni a la app. Si un sitio no se puede abrir desde la nube, se hace con
-una sesión local en el computador de la dueña (Chrome y `gh`) que sube el resultado a ese repositorio (ver `PLAN.md`).
+
+**Investigaciones y referencias de diseño** (por ejemplo, el análisis de Tuts+ que dio origen al estilo Gel 3D, o las recompensas de la entrega 4): en `poli-referencias`. Si la tarea es de **diseño, investigación o mercado**, leer su `LEEME.md` y los análisis antes de proponer, y guardar ahí lo nuevo. Sus imágenes son de terceros: solo estudio interno, **nunca copiarlas a los repositorios públicos** ni a la app. Si un sitio no se puede abrir desde la nube, se hace con una sesión local en el computador de la dueña (Chrome y `gh`), que sube el resultado a ese repositorio.
 
 ## Forma de trabajo
 - Todo en **español de Chile**, pensado para **el niño o la niña en sí**, no para un rango de edad fijo (la app va de 1° básico en adelante; los niños aprenden rápido a usar apps): textos cortos, entretenidos y que inviten a descubrir.
@@ -27,7 +34,7 @@ una sesión local en el computador de la dueña (Chrome y `gh`) que sube el resu
   Herramienta: `node docs/pruebas-pantallas/revisar.js` (rápida) o `revisar.js completo todos` (ver su `LEEME.md`). Además de las pruebas, **mirar las láminas de capturas**; cada error que se escape se agrega como regla nueva.
 - **Novedades** (`js/novedades.js`): solo lo importante o valioso para las familias; lo interno va solo en `CHANGELOG.md`.
 - **Textos de Poli:** el nombre se usa al saludar y al celebrar; no repetirlo dentro de una frase ni en pantallas seguidas.
-- **Modelos:** al empezar cada etapa, avisar a la dueña si conviene Sonnet u Opus y esperar su confirmación (reglas en `PLAN.md`, sección 2).
+- **Modelos:** al empezar cada etapa, avisar a la dueña si conviene Sonnet u Opus y esperar su confirmación (reglas en `planes/PLAN.md` de `poli-referencias`, sección 2).
 
 ## Reglas de la app
 - **Todo debe caber en pantalla sin deslizar** (notebook, tablet y celular, vertical y horizontal). Solo se desliza el mapa
