@@ -61,6 +61,8 @@ Lo que dice **«por decidir»** espera la respuesta de la dueña.
   - En el mapa: en la pestaña de su capítulo y saltando junto a la isla actual.
   - En la isla: muestra cuánto le falta para crecer («¡Una isla más y crezco!»).
   - En Mi avance, en Mis premios → Mascotas (con sus próximas etapas sombreadas) y en el diploma. En la 4B, también en el cuarto.
+- **Qué mascota acompaña (decidido):** por defecto, en cada capítulo la de ese capítulo; el niño puede cambiarla, por capítulo, por cualquiera de las suyas (en Mis premios → Mascotas).
+- **La mascota también habla** para ayudar a Poli (decisión de la dueña): **dos textos**. El de Poli es el principal y más fijo (la explicación o la pregunta). El de la mascota son mensajes cortos («¡Tú puedes!», «¡Fíjate en los grupos!»). En la 4A, con la franja de hoy, el texto de la mascota sale en un globito chico sobre ella y desaparece solo. El botón de escuchar otra vez repite los dos y los hace aparecer de nuevo. En la 4B se rediseña junto con la burbuja de Poli.
 - **Doble uso (decisión de la dueña):** el niño elige **una mascota que acompaña a Poli** en la barra de abajo y en el mapa. Salta cuando acierta y celebra con Poli. En la 4B también vive en el cuarto.
 - **Decidido: una mascota por capítulo.** Nunca retrocede de etapa, aunque después baje un porcentaje. Cada cambio llega con el aviso chico y una animación de crecer.
 

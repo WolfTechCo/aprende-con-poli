@@ -1,7 +1,39 @@
 # Plan de trabajo de Aprende con Poli
 
 Documento para retomar el proyecto en una conversación nueva. Léelo completo junto con `CLAUDE.md`.
-Última actualización: 23-11-2026 (entregas 2, 3 y 3.1 hasta la fase 2 en la app final, versión 3.2.0 con figuras Gel 3D, probada por la dueña. **Siguiente de la entrega 3.1:** pasar a Gel 3D los dibujos de cada isla y los stickers, y luego las fases 3 a 5 (ver «Para retomar» y la sección 5). Después la entrega 4. Respaldo de antes: rama `respaldo-2.4.1`).
+Última actualización: 23-11-2026, noche (**entrega 4A: diseño cerrado**; siguiente: dibujos de la 4A. Ver «Para retomar (entrega 4)» justo abajo. Lo de la entrega 3.1 que sigue más abajo quedó pendiente y su rama ya está en `main`).
+
+## Para retomar (entrega 4) · 23-11-2026
+- **Rama de trabajo:** `claude/peaceful-noether-3401hy` en `aprende-con-poli`, creada desde `main` (3.2.0). Tiene el plan, las reglas nuevas de `CLAUDE.md` (toda la básica; dependencias con equilibrio) y el diseño `docs/entrega-4/sistema-4a.md`. **Aún no hay código de la entrega 4.** En un chat nuevo, partir desde esa rama.
+- **Investigación** (repositorio privado `WolfTechCo/poli-referencias`, rama `claude/peaceful-noether-3401hy`, aún sin pasar a su `main`): `recompensas/investigacion.md`, `investigacion-2.md`, `investigacion-3.md` y `nombres.md`.
+- **Páginas:** investigación «Premios de Poli» https://claude.ai/artifact/FrMD7TRfqPCJowagmmtpih · diseño «Sistema de premios 4A» https://claude.ai/artifact/JVGr2qmBuqQnHhK5faKogz (bocetos para tocar; su código sirve de punto de partida para los dibujos: paleta y cara Gel, sobre, mapa, Pulpatrón, Llamita de fuego, logros y mochila).
+- **Modelo:** la dueña pidió **Opus para todo** en la entrega 4.
+- **Siguiente: fase 4A-3, dibujos de la 4A en Gel**, al nivel del capítulo 5 o mejor (molde `docs/pruebas-pantallas/boceto-gel.js`), **por partes**, deteniéndose al final de cada una para que la dueña revise su uso. Orden sugerido:
+  1. Las 5 mascotas en sus 5 etapas: Tortugono, Cubúho, Cienpiecito/Milpiés, Pulpatrón, Chinitabla.
+  2. La Llamita de fuego en sus 6 estados.
+  3. Sobres de cada isla (color y dibujo propio), cajas, cofre y su apertura de 3 toques.
+  4. Logros con 4 niveles, mochila y aviso de Poli.
+  5. El contenido de los sobres: unas 35 celebraciones, fondos del mapa y stickers para la tarjeta del jugador.
+  6. Más adelante, las mascotas extra (Hexabeja, Pentagüino, Prismapache, Esferardilla, Decanguro, Cebrayita, Conejiplica).
+
+  Mostrar con capturas en página y esperar el visto bueno antes de construir (fase 4A-4).
+- **Resumen de lo decidido en la 4A** (detalle en `docs/entrega-4/sistema-4a.md`):
+  - sobre por isla al completarla (sombreado hasta ganarlo; brinca si no se abre; después muestra lo que salió);
+  - mascota por capítulo que nace al empezar el capítulo y crece mientras se juega;
+  - mascotas extra una a la vez, ganadas practicando de nuevo el capítulo;
+  - la mascota acompaña a Poli y habla para ayudarlo (por defecto la del capítulo, cambiable por cualquiera de las suyas);
+  - caja por capítulo en el Gran Desafío;
+  - Llamita de fuego con racha diaria, día de descanso y formas a elegir por el adulto (temporada de estudio y otras);
+  - la racha pesa poco mientras haya un solo ramo;
+  - logros guardados con niveles;
+  - botón ⭐ con mochila que se vuelve sobre;
+  - avisos chico, mediano y grande, nunca durante una pregunta;
+  - solo estilo Gel;
+  - la sección se llama «Mascotas»;
+  - sobres de la 4A con celebraciones, fondos del mapa y stickers (caja de mudanza en la 4B);
+  - islas ya completas reciben sus sobres guardados;
+  - tienda preparada por dentro.
+- **Para la 4B (anotado):** Poli nuevo animado (niña, niño y por defecto); cuarto mixto que usa todo el cuarto, con Poli que se dirige; burbuja de Poli en vez de la franja, con **dos textos**: Poli, más fijo, y la mascota, mensajes cortos de ayuda; el botón de escuchar otra vez los hace aparecer de nuevo.
 
 ## Para retomar (22-11-2026)
 - **Rama de trabajo:** `ccr-c1892ab9-wh1ylw` en `aprende-con-poli` (la app final). Ahí están la fase 1, la revisión automática y este plan. **Aún no está en `main` ni en el ambiente de pruebas** (eso es la fase 3). En un chat nuevo: partir desde esa rama (`git fetch origin ccr-c1892ab9-wh1ylw`) o crear la rama nueva desde ella, no desde `main`.
