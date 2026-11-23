@@ -172,5 +172,6 @@ Campos nuevos en el perfil (también en `NEWSAVE` y en `cleanProfile`, que limpi
 2. Sobres de la 4A: **C** (celebraciones, fondos del mapa y stickers; caja de mudanza en la 4B).
 3. Islas ya completas: **sobres guardados** para abrir.
 4. El sobre se gana al **completar todas las actividades** de la isla.
-5. Premios del mapa **ocultos y sombreados** hasta ganarlos, y después muestran lo que salió; estilo Gel y retro (por confirmar cuál va en el mapa).
-6. **Constancia a la medida** elegida por el adulto (sección 5b; por confirmar la forma por defecto).
+5. Premios del mapa **ocultos y sombreados** hasta ganarlos, y después muestran lo que salió. **Solo estilo Gel** (el retro se probó y se descartó).
+6. **Constancia a la medida** elegida por el adulto (sección 5b), **diaria por defecto**.
+7. **Llamita de fuego** que evoluciona (sección 5).
