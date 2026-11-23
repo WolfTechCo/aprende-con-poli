@@ -5,7 +5,12 @@ App web estática (HTML + CSS + JS puro, sin build) para niñas y niños de **to
 Publicada con GitHub Pages desde `main`: https://wolftechco.github.io/aprende-con-poli/
 Contexto general en `README.md`, historial técnico en `CHANGELOG.md`, ideas en `PENDIENTES.md`.
 **Antes de empezar, leer `PLAN.md`**: estado actual, reglas acordadas con la dueña y plan de las próximas entregas.
-**Antes de empezar, listar las ramas remotas de los dos repositorios** (`git ls-remote --heads origin`, con cuántos commits lleva cada una por delante de `main`). Si hay una rama `ccr-…` o `claude/…` más reciente que `main`, puede tener trabajo en curso y un `PLAN.md` más nuevo: leer ese y partir desde ella, no desde `main`. Nunca dar por hecho que «lo último» está en `main`.
+**Antes de empezar, encontrar dónde quedó el trabajo (sin depender de un nombre de rama dado):**
+1. `git fetch origin` y listar las ramas remotas ordenadas por fecha: `git for-each-ref --sort=-committerdate --format='%(committerdate:short) %(refname:short)' refs/remotes/origin`. Para cada una, ver cuántos commits lleva por delante de `main` (`git rev-list --count origin/main..RAMA`).
+2. La rama con trabajo en curso es la **más reciente que va por delante de `main`** (normalmente `claude/…` o `ccr-…`). Confirmarlo leyendo su `PLAN.md`: la línea «Última actualización» y la sección «Para retomar» dicen qué sigue. Si hay dudas entre dos ramas, preguntar a la dueña.
+3. La sesión nueva suele tener **otra rama asignada**: crearla **desde la rama encontrada** (no desde `main`) para no perder lo avanzado.
+4. Hacer lo mismo en `poli-referencias` si la tarea es de diseño o investigación.
+Nunca dar por hecho que «lo último» está en `main`.
 **Repositorio privado de referencias `WolfTechCo/poli-referencias` (privado):** investigaciones y referencias de diseño (por ejemplo el
 análisis de Tuts+ que dio origen al estilo Gel 3D). Si la tarea es de **diseño, investigación o mercado**, agregarlo a la sesión
 (`add_repo`) y leer su `LEEME.md` y los análisis antes de proponer. Guardar ahí las investigaciones nuevas. Sus imágenes son de terceros:
