@@ -15,7 +15,7 @@
     azul: ['#d2ebff', '#5fb0ff', '#2f7fe0', '#1d55a8'], lila: ['#e9e0ff', '#a98cff', '#7a5ce0', '#4f36a8'],
     crema: ['#fffcf3', '#f8eed8', '#e0cfaa', '#a08a60'], oscuro: ['#8a809e', '#4a4060', '#2a2238', '#1a1426'],
     vainilla: ['#fffbe6', '#ffeeb0', '#f0d070', '#b09030'], hoja: ['#cff4c6', '#72d66c', '#39a83a', '#237a26'],
-    oro: ['#fffbe0', '#ffd84a', '#f2a900', '#b07800'],
+    oro: ['#fffbe0', '#ffd84a', '#f2a900', '#b07800'], cafe: ['#f5d9b8', '#d9a06a', '#a86b38', '#6e4220'], ceniza: ['#ffffff', '#e4e2ec', '#b8b4c8', '#8a85a0'],
     /* colores de posición del capítulo 3 (js/numeros.js: PV) para que Cienpiecito «hable» igual que las lecciones */
     pu: ['#d2f7e8', '#22c58b', '#169a6a', '#0d6e4a'], pd: ['#ffe3d0', '#ff8a3d', '#e0651a', '#a8460a'],
     pc: ['#dcecff', '#4ea8ff', '#2a7fd6', '#1d5aa0'],
