@@ -100,12 +100,12 @@
     /* alas: en la cría lisas; desde joven con plumas de prisma (rectángulos con su lado en sombra) */
     const ala = (sx) => `<g transform="translate(${sx < 0 ? -15.5 : 15.5} -18) scale(${sx} 1)">${gel(P('M0 -4Q-9 -2 -8.6 8Q-8 13 -3.6 12Q0 8 0 4Z'), body, 1.1)}`
       + (k >= 2 ? [[-6.6, 1.2], [-6.2, 5.2], [-4.8, 9]].map(([x, y]) => flat(R(x, y, 4.4, 2.6, .6), k === 4 ? PAL.rosa[1] : PAL.azul[1], k === 4 ? PAL.rosa[3] : PAL.azul[3], .6) + `<rect x="${x}" y="${y + 1.8}" width="4.4" height=".8" fill="${k === 4 ? PAL.rosa[2] : PAL.azul[2]}"/>`).join('') : '') + '</g>';
-    s += ala(-1) + `<g transform="translate(5.5 0)">${ala(1)}</g>`;
+    s += `<g class="v-ala">${ala(-1)}</g><g class="v-ala v-der"><g transform="translate(5.5 0)">${ala(1)}</g></g>`;
     /* discos de los ojos y cara (pico en vez de boca) */
-    s += gel(C(-7, -21, 7.4), 'crema', 1) + gel(C(7, -21, 7.4), 'crema', 1);
+    s += '<g class="v-cara">' + gel(C(-7, -21, 7.4), 'crema', 1) + gel(C(7, -21, 7.4), 'crema', 1);
     s += face(0, -20, 1.32, { sep: 5.3, boca: 'nada', mej: false });
     s += `<ellipse cx="-12.4" cy="-13.6" rx="2.6" ry="1.5" fill="url(#km-mej)"/><ellipse cx="12.4" cy="-13.6" rx="2.6" ry="1.5" fill="url(#km-mej)"/>`;
-    s += gel(P('M-2.4 -14.4Q0 -15.6 2.4 -14.4L.4 -11Q0 -10.4 -.4 -11Z'), 'naranja', .8);
+    s += gel(P('M-2.4 -14.4Q0 -15.6 2.4 -14.4L.4 -11Q0 -10.4 -.4 -11Z'), 'naranja', .8) + '</g>';
     /* penachos: cría con un rizo; joven redondos; grande y brillante con conos */
     if (k === 1) s += `<path d="M1 -39.4Q-1 -45 3.6 -45.4Q6.6 -45.4 5.6 -42.4" fill="none" stroke="${L[2]}" stroke-width="2" stroke-linecap="round"/>`;
     if (k === 2) s += gel(C(-9, -38.4, 3.2), body, 1) + gel(C(18, -40.4, 3.2), body, 1);
@@ -155,8 +155,8 @@
       const x = f1(-Q.w / 2 + i * Q.w / (Q.n - 1)), dir = x < -.1 ? -1 : 1, d = `M${x} -18Q${f1(x - dir * .8)} -2.6 ${f1(x + dir * 4)} -2.2Q${f1(x + dir * 7.8)} -2.2 ${f1(x + dir * 6.8)} -6`;
       const col = k === 4 ? RAINBOW[i] : Q.pat[i % Q.pat.length], nd = Q.dots(i);
       const spots = [[x - dir * .2, -12.6], [x + dir * .1, -8.2], [x + dir * 2.4, -3.8]].slice(0, nd);
-      tent.push(`<path d="${d}" fill="none" stroke="${B[3]}" stroke-width="7.2" stroke-linecap="round"/><path d="${d}" fill="none" stroke="url(#km-${body})" stroke-width="5.2" stroke-linecap="round"/>`
-        + spots.map(([sx, sy]) => `<circle cx="${f1(sx)}" cy="${f1(sy)}" r="1.75" fill="${col}" stroke="#fff" stroke-width=".6"/>`).join(''));
+      tent.push(`<g class="v-tent" style="animation-delay:${(i * .22).toFixed(2)}s"><path d="${d}" fill="none" stroke="${B[3]}" stroke-width="7.2" stroke-linecap="round"/><path d="${d}" fill="none" stroke="url(#km-${body})" stroke-width="5.2" stroke-linecap="round"/>`
+        + spots.map(([sx, sy], j) => `<circle class="v-luz" style="animation-delay:${(i * .3 + j * .1).toFixed(2)}s" cx="${f1(sx)}" cy="${f1(sy)}" r="1.75" fill="${col}" stroke="#fff" stroke-width=".6"/>`).join('') + '</g>');
     }
     s += tent.join('');
     s += gel(P('M-18.6 -16Q-24 -47 0 -49Q24 -47 18.6 -16Q9 -12.4 0 -14.2Q-9 -12.4 -18.6 -16Z'), body, 1.4);

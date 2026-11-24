@@ -29,14 +29,14 @@
     const hx = up ? 27 : 23, hy = up ? -27 : -15;
     let s = piso(34, -2);
     if (k >= 2) s += gel(P('M-25 -8Q-35 -8 -33 -2.6Q-29 -1.2 -24 -4Z'), 'menta', 1);
-    s += [-20, -8, 6].map(x => gel(R(x - 4.2, k >= 2 ? -11 : -10, 8.4, k >= 2 ? 11 : 10, 4), 'menta', 1)).join('');
+    s += [-20, -8, 6].map((x, i) => `<g class="v-pata" style="animation-delay:${(i * .27).toFixed(2)}s">` + gel(R(x - 4.2, k >= 2 ? -11 : -10, 8.4, k >= 2 ? 11 : 10, 4), 'menta', 1) + '</g>').join('');
     if (up) s += [[-16, -35.4], [-4, -40.6], [8, -35.4]].map(([x, y]) => gel(poly(x, y, 5.6, T.n), tile, 1)).join(''); /* cresta */
     s += up ? tent(`M14 -10Q22 -12 ${hx - 2} ${hy + 5}`, 'menta', 8) : gel(P(`M12 -9Q15 ${hy - 4} ${hx - 2} ${hy - 2}L${hx} -6Q17 -3 12 -5Z`), 'menta', 1);
     s += gel(P('M-29 -7.5Q-29 -11.5 -25 -11.5L19 -11.5Q23 -11.5 23 -7.5Q23 -3.8 19 -3.8L-25 -3.8Q-29 -3.8 -29 -7.5Z'), k === 4 ? 'oro' : 'vainilla', 1.1);
     s += gel(P('M-26 -10Q-28.5 -37 -3 -38Q22.5 -37 20 -10Q-3 -7 -26 -10Z'), 'verde', 1.4);
     s += T.p.map(([x, y, r]) => gel(poly(x, y, r, T.n), tile, 1)).join('') + (T.c ? gel(poly(T.c[0], T.c[1], T.c[2], T.c[3]), tile, 1.1) : '');
     s += arc('M-21 -17Q-20 -29 -9 -33', 2.2, .75) + dot(-22, -12.5, 1);
-    s += tHead(hx, hy, hs) + face(f1(hx + 2.4 * hs), f1(hy + .6 * hs), .9 * hs, { boca: k >= 3 ? 'abierta' : 'sonrisa' });
+    s += '<g class="v-cabeza">' + tHead(hx, hy, hs) + face(f1(hx + 2.4 * hs), f1(hy + .6 * hs), .9 * hs, { boca: k >= 3 ? 'abierta' : 'sonrisa' }) + '</g>';
     if (k === 4) s = aura(-20, 42) + s + corona(hx, f1(hy - 8.6), .95, 8) + chispas([[-30, -44, 3], [36, -12, 2.6], [-34, -18, 2.2]]);
     return s;
   };
@@ -56,7 +56,7 @@
     let s = '<defs><radialGradient id="km-cas" cx=".35" cy=".2" r=".95"><stop offset="0" stop-color="#f3eeff"/><stop offset=".55" stop-color="#cdbcff"/><stop offset="1" stop-color="#9c84ec"/></radialGradient></defs>' + piso(24, cx);
     s += `<path d="M${cx - hw} -8${back.map(([x, y]) => `L${x} ${y}`).join('')}L${cx + hw} -8Q${cx} -3 ${cx - hw} -8Z" fill="#a993ea" stroke="${L[3]}" stroke-width="1.1" stroke-linejoin="round"/>`
       + `<path d="M${cx - hw + 3} -10Q${cx} -6 ${cx + hw - 3} -10" fill="none" stroke="#8f78d8" stroke-width="2" opacity=".6"/>`; /* sombra adentro */
-    s += `<g transform="translate(0 -3)">${boxBody(13, 27, 'lila')}${owlFace(-28, 6.6)}<path d="M1 -34.4Q-1 -40 3.6 -40.4Q6.6 -40.4 5.6 -37.4" fill="none" stroke="${L[2]}" stroke-width="2" stroke-linecap="round"/></g>`;
+    s += `<g transform="translate(0 -3)">${boxBody(13, 27, 'lila')}<g class="v-cara">${owlFace(-28, 6.6)}</g><path d="M1 -34.4Q-1 -40 3.6 -40.4Q6.6 -40.4 5.6 -37.4" fill="none" stroke="${L[2]}" stroke-width="2" stroke-linecap="round"/></g>`;
     const fd = `M${front[0][0]} ${front[0][1]}${front.slice(1).map(([x, y]) => `L${x} ${y}`).join('')}Q${cx + hw + 1} 1.4 ${cx} 1.4Q${cx - hw - 1} 1.4 ${front[0][0]} ${front[0][1]}Z`;
     s += `<path d="${fd}" fill="url(#km-cas)" stroke="${L[3]}" stroke-width="1.2" stroke-linejoin="round"/>`;
     s += [[-9, -4], [12, -5.2]].map(([x, y]) => `<g transform="translate(${x} ${y})"><path d="M-2.4 -.6L0 -2L2.4 -.6V2L0 3.2L-2.4 2Z" fill="${L[0]}" stroke="${L[3]}" stroke-width=".5"/><path d="M-2.4 -.6L0 .8L2.4 -.6M0 .8V3.2" fill="none" stroke="${L[3]}" stroke-width=".5"/></g>`).join('');
@@ -83,9 +83,9 @@
     s += Q.s.filter(([, y]) => y > -9).map(([x, y, c]) => [-2.6, 2.6].map(dx => `<path d="M${f1(x + dx)} ${f1(y + r * .6)}L${f1(x + dx * 1.2)} -1.2" stroke="${PAL[c][3]}" stroke-width="1.6" stroke-linecap="round"/>`
       + (gold ? gel(E(f1(x + dx * 1.2 + .6), -1, 1.9, 1.2), 'oro', .5) : `<circle cx="${f1(x + dx * 1.2)}" cy="-1.1" r="1.1" fill="${PAL[c][2]}"/>`)).join('')).join('');
     s += Q.s.filter(([, y]) => y <= -9).map(([x, y, c]) => [-1, 1].map(g => `<path d="M${f1(x + g * r * .8)} ${f1(y + 1)}l${g * 2.6} 1.6" stroke="${PAL[c][3]}" stroke-width="1.4" stroke-linecap="round"/>`).join('')).join('');
-    if (Q.arms) s += [-1, 1].map(g => `<path d="M${f1(1 + g * 5)} ${Q.arms}Q${f1(1 + g * 11)} ${Q.arms + 1} ${f1(1 + g * 12)} ${Q.arms - 5}" fill="none" stroke="${PAL.pu[3]}" stroke-width="2.4" stroke-linecap="round"/><circle cx="${f1(1 + g * 12)}" cy="${Q.arms - 5.6}" r="1.8" fill="${PAL.pu[1]}" stroke="${PAL.pu[3]}" stroke-width=".6"/>`).join('');
-    s += Q.s.map(([x, y, c]) => gel(C(x, y, r), c, 1.1) + arc(`M${f1(x - r * .62)} ${f1(y - r * .1)}Q${f1(x - r * .5)} ${f1(y - r * .66)} ${f1(x - r * .02)} ${f1(y - r * .72)}`, 1.4, .8)).join('');
-    s += tileHead(hx, hy, hsz, gold);
+    if (Q.arms) s += [-1, 1].map(g => `<g class="v-brazo" style="animation-delay:${g > 0 ? .5 : 0}s"><path d="M${f1(1 + g * 5)} ${Q.arms}Q${f1(1 + g * 11)} ${Q.arms + 1} ${f1(1 + g * 12)} ${Q.arms - 5}" fill="none" stroke="${PAL.pu[3]}" stroke-width="2.4" stroke-linecap="round"/><circle cx="${f1(1 + g * 12)}" cy="${Q.arms - 5.6}" r="1.8" fill="${PAL.pu[1]}" stroke="${PAL.pu[3]}" stroke-width=".6"/></g>`).join('');
+    s += Q.s.map(([x, y, c], i) => `<g class="v-seg" style="animation-delay:${(i * .13).toFixed(2)}s">` + gel(C(x, y, r), c, 1.1) + arc(`M${f1(x - r * .62)} ${f1(y - r * .1)}Q${f1(x - r * .5)} ${f1(y - r * .66)} ${f1(x - r * .02)} ${f1(y - r * .72)}`, 1.4, .8) + '</g>').join('');
+    s += '<g class="v-cabezac">' + tileHead(hx, hy, hsz, gold) + '</g>';
     if (gold) s = aura(-22, 46) + s + corona(hx, f1(hy - hsz * .6), .9, -6) + chispas([[-30, -24, 3], [26, -40, 2.6], [24, -10, 2.2]]);
     return s;
   };
@@ -111,11 +111,11 @@
     let s = piso(28), b = '';
     if (k === 3) b += [-1, 1].map(g => `<path d="M${g * 6} -4L${g * 7} 4.6" stroke="${PAL.oscuro[2]}" stroke-width="2.8" stroke-linecap="round"/>` + gel(E(g * 8, 5, 3, 1.6), 'oscuro', .6)).join('');
     else b += [[-15], [-6.5], [6.5], [15]].map(([x]) => `<path d="M${x} -6L${f1(x * 1.15)} -1" stroke="${PAL.oscuro[2]}" stroke-width="2" stroke-linecap="round"/><circle cx="${f1(x * 1.15)}" cy="-1" r="1.4" fill="${PAL.oscuro[1]}"/>`).join('');
-    if (k >= 2) b += [-1, 1].map(g => `<path d="M${g * 20} -14Q${g * 27} -15 ${g * 28} -23" fill="none" stroke="${PAL.oscuro[2]}" stroke-width="2.4" stroke-linecap="round"/><circle cx="${g * 28.2}" cy="-23.6" r="2" fill="${PAL.oscuro[1]}"/>`).join('');
+    if (k >= 2) b += [-1, 1].map(g => `<g class="v-brazo" style="animation-delay:${g > 0 ? .6 : 0}s"><path d="M${g * 20} -14Q${g * 27} -15 ${g * 28} -23" fill="none" stroke="${PAL.oscuro[2]}" stroke-width="2.4" stroke-linecap="round"/><circle cx="${g * 28.2}" cy="-23.6" r="2" fill="${PAL.oscuro[1]}"/></g>`).join('');
     b += gel(P('M-22.6 -6.4Q-27.6 -41 0 -42.6Q27.6 -41 22.6 -6.4Q0 1.6 -22.6 -6.4Z'), 'rojo', 1.4) + `<path d="M0 -42.4V-17" stroke="${PAL.rojo[3]}" stroke-width="1.3" stroke-linecap="round"/>`;
     b += D.p.map(([x, y]) => spot(x, y, D.r) + spot(-x, y, D.r)).join('');
     b += arc('M-21.4 -15Q-22.4 -27 -18.4 -33.4', 2, .75) + arc('M-6 -39.6Q-2.6 -41 1 -40.8', 1.4, .7);
-    b += antenas(-3, 1.1) + helmet(-3, 1.16);
+    b += '<g class="v-ant">' + antenas(-3, 1.1) + '</g>' + helmet(-3, 1.16);
     return s + `<g transform="translate(0 ${oy})">${b}</g>`;
   };
 

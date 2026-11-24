@@ -1,7 +1,7 @@
 /* Arma la página de revisión de las mascotas (fase 4A-3, parte 1) con boceto-mascotas.js tal cual.
    Uso: node docs/pruebas-pantallas/pagina-mascotas.js SALIDA.html */
 const fs = require('fs'), path = require('path');
-const SRC = fs.readFileSync(path.join(__dirname, 'boceto-mascotas.js'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, 'boceto-mascotas-b.js'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, 'boceto-mascotas-c.js'), 'utf8');
+const SRC = fs.readFileSync(path.join(__dirname, 'boceto-mascotas.js'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, 'boceto-mascotas-b.js'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, 'boceto-mascotas-c.js'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, 'boceto-vida.js'), 'utf8');
 /* Poli de hoy, tal como está en la app (js/app.js: POLI_SVG) */
 const APP = fs.readFileSync(path.join(__dirname, '../../js/app.js'), 'utf8');
 const POLI = APP.match(/const POLI_SVG = `([\s\S]*?)`;/)[1].trim();
@@ -49,6 +49,9 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
 .btn.ghost{background:var(--accentbg);color:var(--accent)}
 #tanda .btn[aria-pressed="false"]{background:var(--accentbg);color:var(--accent)}
 #tanda .btn[aria-pressed="true"]{background:var(--accent);color:#fff}
+#modo .btn[aria-pressed="false"]{background:var(--accentbg);color:var(--accent)}
+#modo .btn[aria-pressed="true"]{background:var(--accent);color:#fff}
+.hint{font-size:.85rem;color:var(--muted);text-align:center;min-height:1.3em}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .demo{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .hatch{background:linear-gradient(#fff6df,#ffe9f3);border-radius:16px;height:clamp(200px,34vw,300px);max-width:100%;overflow:hidden;cursor:pointer}
@@ -80,6 +83,8 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
   <h1>Las mascotas de Poli</h1>
   <p class="lead"><b>Elegiste la tanda C.</b> Quedan las tres para comparar. La <b>tanda C</b> parte de la A, que es la que más te gustó, con los mismos animales redonditos, y les suma una <b>postura que evoluciona</b>: se paran, levantan los brazos, vuelan. Además, ninguna cabeza es un círculo. La <b>tanda A</b> es la primera y la <b>tanda B</b> cambia la forma completa. Toca una mascota para que salte y toca las etapas para verla crecer.</p>
   <div class="row" id="tanda" role="group" aria-label="Tanda"><button class="btn" data-t="C" aria-pressed="true">Tanda C · elegida ✓</button><button class="btn ghost" data-t="A" aria-pressed="false">Tanda A · la primera</button><button class="btn ghost" data-t="B" aria-pressed="false">Tanda B · cambian de forma</button></div>
+  <div class="row" id="modo" role="group" aria-label="Momento"><button class="btn" data-m="vida" aria-pressed="true">Con vida · mapa y premios</button><button class="btn ghost" data-m="quieta" aria-pressed="false">Tranquila · durante una pregunta</button></div>
+  <p class="note"><b>Nuevo: vida propia.</b> Con vida, cada mascota se mueve como su animal y suelta partículas de su tema. Al tocarla, mezcla el <b>salto</b> (igual en todas) con su <b>gesto propio</b>: la tortuga se esconde, el búho gira la cabeza, el ciempiés hace la ola, el pulpo suelta tinta de confeti y la chinita vuela. Durante una pregunta solo respira y parpadea.</p>
 </header>
 
 <section>
@@ -130,9 +135,9 @@ ${SRC}
 (() => {
   const M = window.BOCETO_MASC;
   document.getElementById('defs').innerHTML = M.DEFS;
-  const st = document.createElement('style'); st.textContent = M.CSS; document.head.appendChild(st);
+  const st = document.createElement('style'); st.textContent = M.CSS + M.VIDA.CSS; document.head.appendChild(st);
   const VB = '-48 -64 96 72';
-  let tanda = 'C'; const T = () => tanda === 'A' ? M : M[tanda];
+  let modo = 'vida'; let tanda = 'C'; const T = () => tanda === 'A' ? M : M[tanda];
   const HOW_C = {
     tortugono: 'Su caparazón <b>suma lados</b> (triángulos, cuadrados, pentágonos y hexágono, octágonos dorados). Tiene cabeza con hocico; de grande estira el cuello y le crece una <b>cresta de placas</b> con la figura de su etapa.',
     cubuho: 'El búho <b>cubo</b> de la tanda A: sale con su cascarón, le crecen plumas de <b>prisma</b>, orejas de <b>cono</b> y botones de <b>esfera</b>, y de brillante abre las alas.',
@@ -156,23 +161,28 @@ ${SRC}
   };
   const pets = document.getElementById('pets');
   const draw = () => { pets.innerHTML = M.MASC.map(m => \`<article class="pet" data-id="\${m.id}"><div class="top"><h3>\${m.name}</h3><small>Capítulo \${m.ch} · \${m.cap}</small></div>
-    <div class="scene" role="button" tabindex="0" aria-label="Tocar a \${m.name}"><svg viewBox="\${VB}"></svg></div><p class="cap"></p>
+    <div class="scene" role="button" tabindex="0" aria-label="Tocar a \${m.name}"><svg viewBox="\${VB}"></svg></div><p class="cap"></p><p class="hint"></p>
     <div class="strip">\${M.ETAPAS.map((t, k) => \`<button data-k="\${k}" aria-pressed="false"><svg viewBox="\${VB}">\${T().masc(m.id, k)}</svg>\${t}</button>\`).join('')}</div>
     <p class="how">\${({ A: HOW, B: HOW_B, C: HOW_C })[tanda][m.id]}</p></article>\`).join('');
     pets.querySelectorAll('.pet').forEach(c => show(c, 3)); drawSmall(); if (typeof drawH === 'function') drawH(); };
   const show = (card, k) => {
     const id = card.dataset.id, svg = card.querySelector('.scene svg');
-    svg.innerHTML = \`<g class="pop">\${T().masc(id, k)}</g>\`;
+    svg.innerHTML = \`<g class="pop">\${k && tanda === 'C' ? M.VIDA.part(id) : ''}<g class="mv">\${T().masc(id, k)}</g></g>\`;
+    svg.classList.toggle('vida', modo === 'vida' && tanda === 'C');
+    const h = card.querySelector('.hint'); if (h) h.textContent = '';
     card.dataset.k = k;
     card.querySelector('.cap').textContent = M.nombre(id, k) + ' · ' + M.ETAPAS[k];
     card.querySelectorAll('.strip button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.k === k));
   };
+  const tocar = card => { const mv = card.querySelector('.scene .mv'), id = card.dataset.id;
+    if (tanda !== 'C' || +card.dataset.k === 0) { jump(card.querySelector('.scene svg')); return; }
+    const hecho = M.VIDA.reaccion(mv, id); const h = card.querySelector('.hint'); if (h) h.textContent = 'Hizo: ' + hecho.replace('gesto', 'su gesto'); };
   const jump = el => { el.classList.remove('jump'); void el.getBoundingClientRect(); requestAnimationFrame(() => el.classList.add('jump')); };
   pets.addEventListener('click', e => {
     const b = e.target.closest('.strip button'), card = e.target.closest('.pet');
-    if (b) show(card, +b.dataset.k); else if (e.target.closest('.scene')) jump(card.querySelector('.scene svg'));
+    if (b) show(card, +b.dataset.k); else if (e.target.closest('.scene')) tocar(card);
   });
-  pets.addEventListener('keydown', e => { const s = e.target.closest('.scene'); if (s && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); jump(s.querySelector('svg')); } });
+  pets.addEventListener('keydown', e => { const s = e.target.closest('.scene'); if (s && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); tocar(s.closest('.pet')); } });
 
   /* nacer */
   let hid = 'pulpatron', hk = 0;
@@ -199,6 +209,7 @@ ${SRC}
   document.getElementById('franja').innerHTML = M.MASC.map((m, i) => \`<span style="display:flex;align-items:flex-end">\${poli}<svg viewBox="-40 -58 80 64">\${T().masc(m.id, [1, 2, 3, 3, 1][i])}</svg></span>\`).join('');
   }
   draw();
+  document.getElementById('modo').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; modo = b.dataset.m; document.querySelectorAll('#modo button').forEach(x => x.setAttribute('aria-pressed', x === b)); pets.querySelectorAll('.scene svg').forEach(v => v.classList.toggle('vida', modo === 'vida' && tanda === 'C')); });
   document.getElementById('tanda').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; tanda = b.dataset.t; document.querySelectorAll('#tanda button').forEach(x => x.setAttribute('aria-pressed', x === b)); draw(); });
 })();
 </script>`;
