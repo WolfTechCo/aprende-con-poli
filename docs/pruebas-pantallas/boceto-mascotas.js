@@ -237,5 +237,6 @@
 .aura{animation:km-aura 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
 @keyframes km-aura{50%{opacity:.6;transform:scale(.92)}}
 @media (prefers-reduced-motion:reduce){.idle,.wob,.ojos,.tw,.aura{animation:none}}`;
-  root.BOCETO_MASC = { PAL, DEFS, CSS, MASC, ETAPAS, SCALE, masc, huevo, nombre, DRAW };
+  root.BOCETO_MASC = { PAL, DEFS, CSS, MASC, ETAPAS, SCALE, masc, huevo, nombre, DRAW,
+    H: { P, C, E, R, gel, flat, arc, dot, piso, face, poly, starD, heartD, aura, corona, chispas, f1 } }; /* H: piezas para la tanda B */
 })(typeof window !== 'undefined' ? window : module.exports);

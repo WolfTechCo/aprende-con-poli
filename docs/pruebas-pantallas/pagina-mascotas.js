@@ -1,7 +1,7 @@
 /* Arma la página de revisión de las mascotas (fase 4A-3, parte 1) con boceto-mascotas.js tal cual.
    Uso: node docs/pruebas-pantallas/pagina-mascotas.js SALIDA.html */
 const fs = require('fs'), path = require('path');
-const SRC = fs.readFileSync(path.join(__dirname, 'boceto-mascotas.js'), 'utf8');
+const SRC = fs.readFileSync(path.join(__dirname, 'boceto-mascotas.js'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, 'boceto-mascotas-b.js'), 'utf8');
 /* Poli de hoy, tal como está en la app (js/app.js: POLI_SVG) */
 const APP = fs.readFileSync(path.join(__dirname, '../../js/app.js'), 'utf8');
 const POLI = APP.match(/const POLI_SVG = `([\s\S]*?)`;/)[1].trim();
@@ -35,18 +35,20 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
 .pet{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .pet .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
 .pet .top small{color:var(--muted);font-weight:700}
-.scene{background:radial-gradient(ellipse at 50% 92%,#ffffff 0 30%,transparent 31%),linear-gradient(#cfe9ff,#eaf6ff);border-radius:16px;display:block;aspect-ratio:96/66;max-height:340px;max-width:100%;cursor:pointer;overflow:hidden}
+.scene{background:radial-gradient(ellipse at 50% 92%,#ffffff 0 30%,transparent 31%),linear-gradient(#cfe9ff,#eaf6ff);border-radius:16px;display:block;aspect-ratio:96/72;max-height:360px;max-width:100%;cursor:pointer;overflow:hidden}
 .scene svg{display:block;width:100%;height:100%;overflow:visible}
 .cap{font:800 1.05rem var(--display);text-align:center;min-height:1.4em}
 .strip{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .strip button{all:unset;cursor:pointer;background:var(--stage);border-radius:12px;padding:4px 2px 2px;display:flex;flex-direction:column;align-items:center;gap:0;font:700 .74rem var(--body);color:var(--muted);border:2px solid transparent;min-width:0}
-.strip button svg{width:100%;height:auto;aspect-ratio:92/66;overflow:visible}
+.strip button svg{width:100%;height:auto;aspect-ratio:96/72;overflow:visible}
 .strip button[aria-pressed="true"]{border-color:var(--accent);background:var(--accentbg);color:var(--fg)}
 .strip button:focus-visible,.scene:focus-visible,.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .how{font-size:.92rem;color:var(--muted)}
 .how b{color:var(--fg)}
 .btn{font:800 .92rem var(--body);border:0;border-radius:99px;padding:8px 16px;background:var(--accent);color:#fff;cursor:pointer}
 .btn.ghost{background:var(--accentbg);color:var(--accent)}
+#tanda .btn[aria-pressed="false"]{background:var(--accentbg);color:var(--accent)}
+#tanda .btn[aria-pressed="true"]{background:var(--accent);color:#fff}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .demo{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .hatch{background:linear-gradient(#fff6df,#ffe9f3);border-radius:16px;height:clamp(200px,34vw,300px);max-width:100%;overflow:hidden;cursor:pointer}
@@ -74,9 +76,10 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" id="defs"></svg>
 <div class="wrap">
 <header>
-  <span class="eyebrow">Entrega 4A · Dibujos · Parte 1 de 5 · 24-11-2026</span>
+  <span class="eyebrow">Entrega 4A · Dibujos · Parte 1 de 5 · 24-11-2026 · tanda B</span>
   <h1>Las mascotas de Poli</h1>
-  <p class="lead">Las 5 mascotas, una por capítulo, en sus 5 etapas y en estilo Gel. Cada una crece mostrando lo que el niño aprende en su capítulo. Toca una mascota para que salte y toca las etapas para verla crecer.</p>
+  <p class="lead">Dos tandas para elegir. En la <b>tanda B</b> (nueva) cada mascota <b>cambia de forma</b> al crecer, como una evolución, y su cuerpo y su cabeza toman la figura del tema, como el búho cubo. La <b>tanda A</b> es la primera: la misma forma que crece y suma detalles. Toca una mascota para que salte y toca las etapas para verla crecer.</p>
+  <div class="row" id="tanda" role="group" aria-label="Tanda"><button class="btn" data-t="B" aria-pressed="true">Tanda B · cambian de forma</button><button class="btn ghost" data-t="A" aria-pressed="false">Tanda A · la primera</button></div>
 </header>
 
 <section>
@@ -109,10 +112,10 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
 <section>
   <h2>Para que decidas</h2>
   <ol class="qs">
-    <li><b>Chinitabla: cabeza negra con ojos blancos.</b> Es la única con la cara oscura, como una chinita de verdad. Para que sus ojos se vean, lleva el blanco alrededor.<small>Recomiendo dejarla así. La otra opción es una cara clara, pero deja de parecer chinita.</small></li>
-    <li><b>Cubúho: penachos de cono azules.</b> Desde la etapa grande, sus orejitas de búho son conos (figura 3D del capítulo), y las alas llevan plumas de prisma.<small>Recomiendo azul, para que se note que son otra figura. También pueden ser del color del cuerpo.</small></li>
-    <li><b>Milpiés: un anillo dorado al final.</b> De brillante suma el anillo de los miles, con los colores de la app para centenas (azul), decenas (naranjo) y unidades (verde).<small>Recomiendo dejarlo así: repite los colores que el niño ya conoce de las lecciones.</small></li>
-    <li><b>Huevos con el color y el dibujo de su mascota.</b> Así el niño adivina quién viene: triángulos, cubitos, pintas de colores, rayas o puntos de chinita.<small>Antes de empezar el capítulo se ven sombreados.</small></li>
+    <li><b>¿Tanda A, tanda B o una mezcla?</b> Se puede elegir por mascota: por ejemplo, Cubúho y Cienpiecito de la B y otra de la A.<small>Recomiendo la B para todas: se nota más que la mascota evoluciona y cada etapa enseña una figura o un número distinto.</small></li>
+    <li><b>Chinitabla se para y abre su caparazón.</b> De grande abre el caparazón como una capa y asoman sus alas; de brillante vuela.<small>Recomiendo dejarla así. Si prefieres, la grande puede seguir con el caparazón cerrado y solo la brillante vuela.</small></li>
+    <li><b>Cienpiecito hecho de bloques de base 10.</b> Son los mismos bloques de las lecciones de unidad, decena y centena, con sus colores.<small>Recomiendo dejarlo así: une la mascota con el material que el niño ya usa.</small></li>
+    <li><b>Huevos con el color y el dibujo de su mascota</b>, iguales en las dos tandas.<small>Antes de empezar el capítulo se ven sombreados.</small></li>
   </ol>
   <div class="box w"><h3>Lo que viene</h3><ul>
     <li><b>Parte 2:</b> la Llamita de fuego en sus 6 estados.</li>
@@ -128,7 +131,15 @@ ${SRC}
   const M = window.BOCETO_MASC;
   document.getElementById('defs').innerHTML = M.DEFS;
   const st = document.createElement('style'); st.textContent = M.CSS; document.head.appendChild(st);
-  const VB = '-48 -58 96 66';
+  const VB = '-48 -64 96 72';
+  let tanda = 'B'; const T = () => tanda === 'B' ? M.B : M;
+  const HOW_B = {
+    tortugono: 'Se para y cambia de figura: cabeza, panza y caparazón son <b>triángulo</b>, luego <b>cuadrado</b>, luego <b>pentágono y hexágono</b> y, de brillante, <b>octágono</b>.',
+    cubuho: 'Sale del huevo siendo un <b>cubo</b>, le salen alas de <b>prisma</b>, crece hasta ser un <b>prisma alto</b> con orejas de <b>cono</b>, patas de <b>cilindro</b> y botones de <b>esfera</b>, y de brillante abre las alas.',
+    cienpiecito: 'Está hecho de <b>bloques de base 10</b>: gatea con <b>unidades</b>, se arquea siendo una <b>decena</b>, se levanta con <b>centenas, decenas y unidades</b> y, de brillante, Milpiés abraza un <b>cubo de mil</b>.',
+    pulpatron: 'Gotita con <b>AB</b>, campana con franja <b>AB</b>, pulpo dumbo con un patrón <b>ABC</b> que crece (1, 2, 3 pintas) y, de brillante, flota con tentáculos <b>arcoíris</b>.',
+    chinitabla: 'Bolita con pintas de <b>2</b>, caparazón de corazón con <b>5 y 5</b>, se para y abre el caparazón como capa con <b>10 y 10</b> y, de brillante, vuela.',
+  };
   const HOW = {
     tortugono: 'Su caparazón <b>suma lados</b>: triángulos, cuadrados, pentágonos con un hexágono y, de brillante, octágonos dorados.',
     cubuho: 'Su cuerpo es un <b>cubo</b>. Al crecer le salen plumas de <b>prisma</b>, orejitas de <b>cono</b> y botones de <b>esfera</b>.',
@@ -137,18 +148,18 @@ ${SRC}
     chinitabla: 'Sus pintas van en <b>grupos iguales</b> en cada ala: de 2, de 5 y de 10.',
   };
   const pets = document.getElementById('pets');
-  pets.innerHTML = M.MASC.map(m => \`<article class="pet" data-id="\${m.id}"><div class="top"><h3>\${m.name}</h3><small>Capítulo \${m.ch} · \${m.cap}</small></div>
+  const draw = () => { pets.innerHTML = M.MASC.map(m => \`<article class="pet" data-id="\${m.id}"><div class="top"><h3>\${m.name}</h3><small>Capítulo \${m.ch} · \${m.cap}</small></div>
     <div class="scene" role="button" tabindex="0" aria-label="Tocar a \${m.name}"><svg viewBox="\${VB}"></svg></div><p class="cap"></p>
-    <div class="strip">\${M.ETAPAS.map((t, k) => \`<button data-k="\${k}" aria-pressed="false"><svg viewBox="\${VB}">\${M.masc(m.id, k)}</svg>\${t}</button>\`).join('')}</div>
-    <p class="how">\${HOW[m.id]}</p></article>\`).join('');
+    <div class="strip">\${M.ETAPAS.map((t, k) => \`<button data-k="\${k}" aria-pressed="false"><svg viewBox="\${VB}">\${T().masc(m.id, k)}</svg>\${t}</button>\`).join('')}</div>
+    <p class="how">\${(tanda === 'B' ? HOW_B : HOW)[m.id]}</p></article>\`).join('');
+    pets.querySelectorAll('.pet').forEach(c => show(c, 3)); drawSmall(); if (typeof drawH === 'function') drawH(); };
   const show = (card, k) => {
     const id = card.dataset.id, svg = card.querySelector('.scene svg');
-    svg.innerHTML = \`<g class="pop">\${M.masc(id, k)}</g>\`;
+    svg.innerHTML = \`<g class="pop">\${T().masc(id, k)}</g>\`;
     card.dataset.k = k;
     card.querySelector('.cap').textContent = M.nombre(id, k) + ' · ' + M.ETAPAS[k];
     card.querySelectorAll('.strip button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.k === k));
   };
-  pets.querySelectorAll('.pet').forEach(c => show(c, 3));
   const jump = el => { el.classList.remove('jump'); void el.offsetWidth; el.classList.add('jump'); };
   pets.addEventListener('click', e => {
     const b = e.target.closest('.strip button'), card = e.target.closest('.pet');
@@ -160,10 +171,10 @@ ${SRC}
   let hid = 'pulpatron', hk = 0;
   const hpick = document.getElementById('hpick'), hsvg = document.getElementById('hsvg');
   hpick.innerHTML = M.MASC.map(m => \`<button class="btn ghost" data-id="\${m.id}" aria-pressed="false">\${m.name}</button>\`).join('');
-  const drawH = () => {
+  var drawH = () => {
     hpick.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.id === hid));
     hsvg.innerHTML = hk < 3 ? \`<g transform="scale(1.15)" class="\${hk ? 'shake' : 'wob'}" style="transform-box:fill-box;transform-origin:50% 100%">\${M.huevo(hid, hk)}</g>\`
-      : \`<g class="pop">\${M.masc(hid, 1)}</g><text y="10.5" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="5" fill="#6a49f0">¡Nació \${M.nombre(hid, 1)}!</text>\`;
+      : \`<g class="pop">\${T().masc(hid, 1)}</g><text y="10.5" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="5" fill="#6a49f0">¡Nació \${M.nombre(hid, 1)}!</text>\`;
   };
   const tap = () => { hk = hk >= 3 ? 3 : hk + 1; drawH(); };
   hpick.addEventListener('click', e => { const b = e.target.closest('button'); if (b) { hid = b.dataset.id; hk = 0; drawH(); } });
@@ -174,10 +185,14 @@ ${SRC}
   drawH();
 
   /* tamaño real */
-  const small = (id, k, sombra) => \`<svg viewBox="-40 -54 80 60">\${M.masc(id, k, { sombra })}</svg>\`;
+  function drawSmall() {
+  const small = (id, k, sombra) => \`<svg viewBox="-40 -60 80 66">\${T().masc(id, k, { sombra })}</svg>\`;
   document.getElementById('tabs').innerHTML = M.MASC.map((m, i) => \`<span class="tab">\${small(m.id, i === 4 ? 0 : [1, 2, 3, 4][i], i === 4)}\${m.ch} · \${i === 4 ? 'aún no empieza' : M.nombre(m.id, [1, 2, 3, 4][i])}</span>\`).join('');
-  const poli = ${JSON.stringify(POLI)}.replace('<svg ', '<svg class="poli" ');
-  document.getElementById('franja').innerHTML = M.MASC.map((m, i) => \`<span style="display:flex;align-items:flex-end">\${poli}<svg viewBox="-40 -50 80 56">\${M.masc(m.id, [1, 2, 3, 3, 1][i])}</svg></span>\`).join('');
+  var poli = ${JSON.stringify(POLI)}.replace('<svg ', '<svg class="poli" ');
+  document.getElementById('franja').innerHTML = M.MASC.map((m, i) => \`<span style="display:flex;align-items:flex-end">\${poli}<svg viewBox="-40 -58 80 64">\${T().masc(m.id, [1, 2, 3, 3, 1][i])}</svg></span>\`).join('');
+  }
+  draw();
+  document.getElementById('tanda').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; tanda = b.dataset.t; document.querySelectorAll('#tanda button').forEach(x => x.setAttribute('aria-pressed', x === b)); draw(); });
 })();
 </script>`;
 fs.writeFileSync(out, html);
