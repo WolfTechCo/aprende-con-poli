@@ -76,10 +76,10 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" id="defs"></svg>
 <div class="wrap">
 <header>
-  <span class="eyebrow">Entrega 4A · Dibujos · Parte 1 de 5 · 24-11-2026 · tanda C</span>
+  <span class="eyebrow">Entrega 4A · Dibujos · Parte 1 de 5 · 24-11-2026 · elegida: tanda C</span>
   <h1>Las mascotas de Poli</h1>
-  <p class="lead">Tres tandas para comparar. La <b>tanda C</b> (nueva) parte de la A, que es la que más te gustó, con los mismos animales redonditos, y les suma una <b>postura que evoluciona</b>: se paran, levantan los brazos, vuelan. Además, ninguna cabeza es un círculo. La <b>tanda A</b> es la primera y la <b>tanda B</b> cambia la forma completa. Toca una mascota para que salte y toca las etapas para verla crecer.</p>
-  <div class="row" id="tanda" role="group" aria-label="Tanda"><button class="btn" data-t="C" aria-pressed="true">Tanda C · la A con poses</button><button class="btn ghost" data-t="A" aria-pressed="false">Tanda A · la primera</button><button class="btn ghost" data-t="B" aria-pressed="false">Tanda B · cambian de forma</button></div>
+  <p class="lead"><b>Elegiste la tanda C.</b> Quedan las tres para comparar. La <b>tanda C</b> parte de la A, que es la que más te gustó, con los mismos animales redonditos, y les suma una <b>postura que evoluciona</b>: se paran, levantan los brazos, vuelan. Además, ninguna cabeza es un círculo. La <b>tanda A</b> es la primera y la <b>tanda B</b> cambia la forma completa. Toca una mascota para que salte y toca las etapas para verla crecer.</p>
+  <div class="row" id="tanda" role="group" aria-label="Tanda"><button class="btn" data-t="C" aria-pressed="true">Tanda C · elegida ✓</button><button class="btn ghost" data-t="A" aria-pressed="false">Tanda A · la primera</button><button class="btn ghost" data-t="B" aria-pressed="false">Tanda B · cambian de forma</button></div>
 </header>
 
 <section>
@@ -112,7 +112,7 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
 <section>
   <h2>Para que decidas</h2>
   <ol class="qs">
-    <li><b>¿Tanda A, B o C, o una mezcla?</b> Se puede elegir por mascota.<small>Recomiendo la C: tiene los animales de la A, que te gustaron, y se nota que evolucionan porque cambian de postura. Cubúho es casi igual en la A y en la C.</small></li>
+    <li><b>Elegida: tanda C.</b> Cubúho cría ahora está dentro de la mitad de abajo de su huevo, con la pared de atrás y la cáscara de adelante.<small>Se construye así en la fase 4A-4.</small></li>
     <li><b>Tortugono con cresta.</b> En la C, de grande le crecen placas sobre el caparazón con la figura de su etapa (pentágonos y, de brillante, octágonos dorados).<small>Recomiendo dejarla: cambia su silueta sin perder la tortuga.</small></li>
     <li><b>Eclosión en 4 toques</b>: grieta, hoyito con un ojo que mira y una parte que asoma, la tapa que salta con la carita, y nace.<small>Funciona igual con cualquier tanda.</small></li>
     <li><b>Huevos con el color y el dibujo de su mascota</b>, iguales en las tres tandas.<small>Antes de empezar el capítulo se ven sombreados.</small></li>

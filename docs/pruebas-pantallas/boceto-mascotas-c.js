@@ -43,7 +43,27 @@
 
   /* ---------- 2 · Cubúho: el de la tanda A, con cascarón al nacer y alas abiertas al brillar ---------- */
   const fan = (x, y, sg) => [70, 100, 130, 160].map((r, i) => `<g transform="translate(${x} ${y}) rotate(${sg * r})">${gel(R(-2.6, 0, 5.2, 17 - i * 1.4, 1.4), i % 2 ? 'lila' : 'rosa', .7)}</g>`).join('');
-  const cubuhoC = k => k === 1 ? M.B.DRAW.cubuho(1) : k === 4 ? fan(-13, -16, 1) + fan(21, -18, -1) + M.DRAW.cubuho(4) : M.DRAW.cubuho(k);
+  /* cría: el cubo todavía está DENTRO de la mitad de abajo del huevo (pared de atrás oscura, cáscara de adelante curva) */
+  const { boxBody, owlFace } = M.B.H;
+  const cascara = (cx, hw, top) => { /* zigzag del borde: puntas arriba y abajo */
+    const n = 10, pts = [...Array(n + 1)].map((_, i) => [f1(cx - hw + i * 2 * hw / n), f1(top + (i % 2 ? 3.6 : 0))]);
+    return pts;
+  };
+  const cubuhoCria = () => {
+    const cx = 3, hw = 24, L = PAL.lila;
+    const back = cascara(cx, hw - 1.4, -18).map(([x, y], i) => [x, y - (i % 2 ? 0 : 1.6)]);
+    const front = cascara(cx, hw, -10.6);
+    let s = '<defs><radialGradient id="km-cas" cx=".35" cy=".2" r=".95"><stop offset="0" stop-color="#f3eeff"/><stop offset=".55" stop-color="#cdbcff"/><stop offset="1" stop-color="#9c84ec"/></radialGradient></defs>' + piso(24, cx);
+    s += `<path d="M${cx - hw} -8${back.map(([x, y]) => `L${x} ${y}`).join('')}L${cx + hw} -8Q${cx} -3 ${cx - hw} -8Z" fill="#a993ea" stroke="${L[3]}" stroke-width="1.1" stroke-linejoin="round"/>`
+      + `<path d="M${cx - hw + 3} -10Q${cx} -6 ${cx + hw - 3} -10" fill="none" stroke="#8f78d8" stroke-width="2" opacity=".6"/>`; /* sombra adentro */
+    s += `<g transform="translate(0 -3)">${boxBody(13, 27, 'lila')}${owlFace(-28, 6.6)}<path d="M1 -34.4Q-1 -40 3.6 -40.4Q6.6 -40.4 5.6 -37.4" fill="none" stroke="${L[2]}" stroke-width="2" stroke-linecap="round"/></g>`;
+    const fd = `M${front[0][0]} ${front[0][1]}${front.slice(1).map(([x, y]) => `L${x} ${y}`).join('')}Q${cx + hw + 1} 1.4 ${cx} 1.4Q${cx - hw - 1} 1.4 ${front[0][0]} ${front[0][1]}Z`;
+    s += `<path d="${fd}" fill="url(#km-cas)" stroke="${L[3]}" stroke-width="1.2" stroke-linejoin="round"/>`;
+    s += [[-9, -4], [12, -5.2]].map(([x, y]) => `<g transform="translate(${x} ${y})"><path d="M-2.4 -.6L0 -2L2.4 -.6V2L0 3.2L-2.4 2Z" fill="${L[0]}" stroke="${L[3]}" stroke-width=".5"/><path d="M-2.4 -.6L0 .8L2.4 -.6M0 .8V3.2" fill="none" stroke="${L[3]}" stroke-width=".5"/></g>`).join('');
+    s += arc(`M${cx - hw + 3} -6Q${cx - hw + 5} -1.6 ${cx - hw + 10} -.8`, 1.6, .8) + dot(cx + 3, -3, .8);
+    return s;
+  };
+  const cubuhoC = k => k === 1 ? cubuhoCria() : k === 4 ? fan(-13, -16, 1) + fan(21, -18, -1) + M.DRAW.cubuho(4) : M.DRAW.cubuho(k);
 
   /* ---------- 3 · Cienpiecito: anillos redondos y cabeza de baldosa; de grande se levanta ---------- */
   const tileHead = (x, y, s, gold) => [-1, 1].map(g => `<path d="M${f1(x + g * s * .2)} ${f1(y - s * .46)}Q${f1(x + g * s * .28)} ${f1(y - s * .86)} ${f1(x + g * s * .5)} ${f1(y - s * .92)}" fill="none" stroke="${PAL.naranja[3]}" stroke-width="1.2" stroke-linecap="round"/>`
