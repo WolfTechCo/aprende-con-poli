@@ -201,13 +201,37 @@
     pulpatron: { c: 'rosa', m: () => [-15, -8].map((y, j) => `<path d="M-9.6 ${y}Q-6 ${y - 2.6} -2.4 ${y}T4.8 ${y}T12 ${y}" fill="none" stroke="${j ? '#5fb0ff' : '#ffd23c'}" stroke-width="1.6" stroke-linecap="round"/>`).join('') },
     chinitabla: { c: 'rojo', m: () => [[-4.6, -17], [-6.6, -11.6], [4.6, -17], [6.6, -11.6]].map(([x, y]) => gel(C(x, y, 1.8), 'oscuro', .4)).join('') + `<path d="M0 -27.6V-4" stroke="${PAL.rojo[3]}" stroke-width=".9" opacity=".6"/>` },
   };
-  /* grietas: 0 sin, 1 una, 2 a punto de abrirse (para la animación de nacer) */
+  /* eclosión: 0 entero · 1 grieta · 2 hoyito con un ojo que mira y una parte que asoma · 3 sin tapa, se asoma la carita */
+  const PEEK = {
+    tortugono: { c: 'menta', out: () => [-1, 1].map(g => gel(E(g * 7.4, -1.6, 3.2, 2.4), 'menta', .9)).join(''), top: () => '' },
+    cubuho: { c: 'lila', out: () => '', top: y => `<path d="M.6 ${y - 7.6}Q-1.4 ${y - 12.6} 2.8 ${y - 13}Q5.4 ${y - 13} 4.6 ${y - 10.4}" fill="none" stroke="${PAL.lila[2]}" stroke-width="1.6" stroke-linecap="round"/>` },
+    cienpiecito: { c: 'amarillo', out: () => [-1, 1].map(g => `<circle cx="${g * 9.6}" cy="-1.4" r="1.4" fill="${PAL.pu[1]}" stroke="${PAL.pu[3]}" stroke-width=".5"/>`).join(''),
+      top: y => [-1, 1].map(g => `<path d="M${g * 2.4} ${y - 7}Q${g * 3.4} ${y - 12} ${g * 5.6} ${y - 12.6}" fill="none" stroke="${PAL.naranja[3]}" stroke-width="1" stroke-linecap="round"/><circle cx="${g * 6}" cy="${y - 12.8}" r="1.5" fill="${PAL.rosa[1]}" stroke="${PAL.rosa[3]}" stroke-width=".5"/>`).join('') },
+    pulpatron: { c: 'rosa', out: () => [-1, 1].map(g => `<path d="M${g * 8.6} -3Q${g * 12.6} -1.6 ${g * 12.4} -4.6" fill="none" stroke="${PAL.rosa[3]}" stroke-width="3.6" stroke-linecap="round"/><path d="M${g * 8.6} -3Q${g * 12.6} -1.6 ${g * 12.4} -4.6" fill="none" stroke="${PAL.rosa[1]}" stroke-width="2.2" stroke-linecap="round"/>`).join(''), top: () => '' },
+    chinitabla: { c: 'oscuro', blancos: true, out: () => '', top: y => [-1, 1].map(g => `<path d="M${g * 2.4} ${y - 6.6}Q${g * 3.2} ${y - 11} ${g * 5.4} ${y - 11.6}" fill="none" stroke="${PAL.oscuro[2]}" stroke-width="1" stroke-linecap="round"/><circle cx="${g * 5.8}" cy="${y - 11.8}" r="1.4" fill="${PAL.oscuro[1]}"/>`).join('') },
+  };
+  const ZIG = [[-11.7, -15], [-8.4, -12.4], [-5.4, -16], [-2.2, -12.6], [1, -16.2], [4.2, -12.6], [7.4, -16], [11.7, -14.2]];
   const huevo = (id, grietas = 0) => {
-    const e = EGG[id], egg = 'M0 -28Q11 -28 11.6 -12Q12 0 0 0Q-12 0 -11.6 -12Q-11 -28 0 -28Z';
-    const cl = `<clipPath id="km-hc-${id}"><path d="${egg}"/></clipPath>`;
-    return piso(12) + cl + gel(P(egg), e.c, 1.3) + `<g clip-path="url(#km-hc-${id})">${e.m()}</g>` + arc('M-7 -16Q-6.4 -23.6 -1.6 -25.4', 1.8, .8) + dot(-7.6, -12.4, .9)
-      + (grietas >= 1 ? `<path d="M-6 -18L-3 -15.6L-.4 -18.4L2.2 -15.4L5 -17.6" fill="none" stroke="${PAL[e.c][3]}" stroke-width=".9" stroke-linecap="round" stroke-linejoin="round"/>` : '')
-      + (grietas >= 2 ? `<path d="M-9 -10L-6.6 -8.4L-4 -10.6M4 -9.6L6.4 -7.6L9 -9.4" fill="none" stroke="${PAL[e.c][3]}" stroke-width=".9" stroke-linecap="round" stroke-linejoin="round"/>` : '');
+    const e = EGG[id], egg = 'M0 -28Q11 -28 11.6 -12Q12 0 0 0Q-12 0 -11.6 -12Q-11 -28 0 -28Z', K = PAL[e.c][3], pk = PEEK[id];
+    const crack = (d) => `<path d="${d}" fill="none" stroke="${K}" stroke-width=".9" stroke-linecap="round" stroke-linejoin="round"/>`;
+    if (grietas < 3) {
+      const cl = `<clipPath id="km-hc-${id}"><path d="${egg}"/></clipPath>`;
+      let s = piso(12) + cl + gel(P(egg), e.c, 1.3) + `<g clip-path="url(#km-hc-${id})">${e.m()}</g>` + arc('M-7 -16Q-6.4 -23.6 -1.6 -25.4', 1.8, .8) + dot(-7.6, -12.4, .9);
+      if (grietas >= 1) s += crack('M-6 -18L-3 -15.6L-.4 -18.4L2.2 -15.4L5 -17.6');
+      if (grietas >= 2) s += crack('M-9 -10L-6.6 -8.4L-4 -10.6M4 -9.6L6.4 -7.6L9 -9.4')
+        + `<path d="M.4 -24.6L3 -26.4L6.6 -24.8L7.6 -21.2L5.2 -18.6L1.6 -19.4L-.4 -22Z" fill="#3a2a4a" stroke="${K}" stroke-width=".8" stroke-linejoin="round"/>`
+        + (pk.blancos ? `<ellipse cx="3.8" cy="-22.4" rx="2" ry="2.3" fill="#fff"/>` : '') + `<ellipse cx="3.8" cy="-22.4" rx="1.5" ry="1.8" fill="url(#km-ojo)"/><circle cx="4.4" cy="-23.2" r=".6" fill="#fff"/>`
+        + pk.out() + pk.top(-17.6).replace(/^/, '');
+      return s;
+    }
+    /* sin tapa: la carita se asoma entre el cascarón de abajo y la tapa levantada */
+    const bottom = 'M' + ZIG.map(([x, y]) => x + ' ' + y).join('L') + 'Q12 0 0 0Q-12 0 -11.7 -15Z';
+    const cap = 'M-11.7 -15Q-11 -28 0 -28Q11 -28 11.7 -14.2' + ZIG.slice().reverse().slice(1).map(([x, y]) => 'L' + x + ' ' + y).join('') + 'Z';
+    const head = pk.c === 'lila' || pk.c === 'amarillo' ? gel(R(-8.6, -24.6, 17.2, 16, 5), pk.c, 1.1) : gel(P('M-9 -12Q-10 -24 0 -24.6Q10 -24 9 -12Z'), pk.c, 1.1);
+    return piso(12) + pk.top(-17.6) + head + face(0, -16.8, .8, { boca: 'abierta', blancos: !!pk.blancos }) + pk.out()
+      + `<clipPath id="km-hb-${id}"><path d="${bottom}"/></clipPath><clipPath id="km-ht-${id}"><path d="${cap}"/></clipPath>`
+      + gel(P(bottom), e.c, 1.3) + `<g clip-path="url(#km-hb-${id})">${e.m()}</g>` + dot(-7.6, -9.6, .9)
+      + `<g transform="translate(-6 -12) rotate(-28 0 -20)">${gel(P(cap), e.c, 1.3)}<g clip-path="url(#km-ht-${id})">${e.m()}</g>${arc('M-7 -18Q-6.4 -23.6 -1.6 -25.4', 1.6, .8)}</g>`;
   };
 
   const DRAW = { tortugono, cubuho, cienpiecito, pulpatron, chinitabla };

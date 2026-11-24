@@ -219,5 +219,6 @@
     const art = k === 0 ? `<g class="wob">${M.huevo(id)}</g>` : `<g class="idle">${DRAW_B[id](k)}</g>`;
     return `<g transform="scale(${k === 0 ? 1.1 : SCALE_B[k]})"${sombra ? ' filter="url(#km-sombra)"' : ''}>${art}</g>`;
   };
-  M.B = { DRAW: DRAW_B, SCALE: SCALE_B, masc: mascB };
+  M.B = { DRAW: DRAW_B, SCALE: SCALE_B, masc: mascB,
+    H: { rpoly, helmet, antenas, elytron, tent, pin, TEN, boxBody, owlFace, prismFeathers, spot } }; /* H: piezas para la tanda C */
 })(typeof window !== 'undefined' ? window : global);

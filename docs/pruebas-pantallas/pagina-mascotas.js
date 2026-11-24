@@ -1,7 +1,7 @@
 /* Arma la página de revisión de las mascotas (fase 4A-3, parte 1) con boceto-mascotas.js tal cual.
    Uso: node docs/pruebas-pantallas/pagina-mascotas.js SALIDA.html */
 const fs = require('fs'), path = require('path');
-const SRC = fs.readFileSync(path.join(__dirname, 'boceto-mascotas.js'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, 'boceto-mascotas-b.js'), 'utf8');
+const SRC = fs.readFileSync(path.join(__dirname, 'boceto-mascotas.js'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, 'boceto-mascotas-b.js'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, 'boceto-mascotas-c.js'), 'utf8');
 /* Poli de hoy, tal como está en la app (js/app.js: POLI_SVG) */
 const APP = fs.readFileSync(path.join(__dirname, '../../js/app.js'), 'utf8');
 const POLI = APP.match(/const POLI_SVG = `([\s\S]*?)`;/)[1].trim();
@@ -76,10 +76,10 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" id="defs"></svg>
 <div class="wrap">
 <header>
-  <span class="eyebrow">Entrega 4A · Dibujos · Parte 1 de 5 · 24-11-2026 · tanda B</span>
+  <span class="eyebrow">Entrega 4A · Dibujos · Parte 1 de 5 · 24-11-2026 · tanda C</span>
   <h1>Las mascotas de Poli</h1>
-  <p class="lead">Dos tandas para elegir. En la <b>tanda B</b> (nueva) cada mascota <b>cambia de forma</b> al crecer, como una evolución, y su cuerpo y su cabeza toman la figura del tema, como el búho cubo. La <b>tanda A</b> es la primera: la misma forma que crece y suma detalles. Toca una mascota para que salte y toca las etapas para verla crecer.</p>
-  <div class="row" id="tanda" role="group" aria-label="Tanda"><button class="btn" data-t="B" aria-pressed="true">Tanda B · cambian de forma</button><button class="btn ghost" data-t="A" aria-pressed="false">Tanda A · la primera</button></div>
+  <p class="lead">Tres tandas para comparar. La <b>tanda C</b> (nueva) parte de la A, que es la que más te gustó, con los mismos animales redonditos, y les suma una <b>postura que evoluciona</b>: se paran, levantan los brazos, vuelan. Además, ninguna cabeza es un círculo. La <b>tanda A</b> es la primera y la <b>tanda B</b> cambia la forma completa. Toca una mascota para que salte y toca las etapas para verla crecer.</p>
+  <div class="row" id="tanda" role="group" aria-label="Tanda"><button class="btn" data-t="C" aria-pressed="true">Tanda C · la A con poses</button><button class="btn ghost" data-t="A" aria-pressed="false">Tanda A · la primera</button><button class="btn ghost" data-t="B" aria-pressed="false">Tanda B · cambian de forma</button></div>
 </header>
 
 <section>
@@ -91,7 +91,7 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
 <section>
   <h2>Así nace</h2>
   <div class="demo">
-    <p class="note">En la app será la pantalla grande del aviso: el huevo tiembla, se agrieta con cada toque y sale la cría. Prueba con cualquiera:</p>
+    <p class="note">En la app será la pantalla grande del aviso. Con cada toque el huevo se agrieta, se abre un hoyito por donde mira un ojo y asoma una parte (patitas, antenas, tentáculos, un rizo), después salta la tapa y se asoma la carita, y al final nace. Prueba con cualquiera:</p>
     <div class="row" id="hpick"></div>
     <div class="hatch" id="hatch" role="button" tabindex="0" aria-label="Tocar el huevo"><svg viewBox="-60 -50 120 66" id="hsvg"></svg></div>
     <div class="row"><button class="btn" id="htap">Tocar el huevo</button><button class="btn ghost" id="hreset">Otra vez</button></div>
@@ -112,10 +112,10 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
 <section>
   <h2>Para que decidas</h2>
   <ol class="qs">
-    <li><b>¿Tanda A, tanda B o una mezcla?</b> Se puede elegir por mascota: por ejemplo, Cubúho y Cienpiecito de la B y otra de la A.<small>Recomiendo la B para todas: se nota más que la mascota evoluciona y cada etapa enseña una figura o un número distinto.</small></li>
-    <li><b>Chinitabla se para y abre su caparazón.</b> De grande abre el caparazón como una capa y asoman sus alas; de brillante vuela.<small>Recomiendo dejarla así. Si prefieres, la grande puede seguir con el caparazón cerrado y solo la brillante vuela.</small></li>
-    <li><b>Cienpiecito hecho de bloques de base 10.</b> Son los mismos bloques de las lecciones de unidad, decena y centena, con sus colores.<small>Recomiendo dejarlo así: une la mascota con el material que el niño ya usa.</small></li>
-    <li><b>Huevos con el color y el dibujo de su mascota</b>, iguales en las dos tandas.<small>Antes de empezar el capítulo se ven sombreados.</small></li>
+    <li><b>¿Tanda A, B o C, o una mezcla?</b> Se puede elegir por mascota.<small>Recomiendo la C: tiene los animales de la A, que te gustaron, y se nota que evolucionan porque cambian de postura. Cubúho es casi igual en la A y en la C.</small></li>
+    <li><b>Tortugono con cresta.</b> En la C, de grande le crecen placas sobre el caparazón con la figura de su etapa (pentágonos y, de brillante, octágonos dorados).<small>Recomiendo dejarla: cambia su silueta sin perder la tortuga.</small></li>
+    <li><b>Eclosión en 4 toques</b>: grieta, hoyito con un ojo que mira y una parte que asoma, la tapa que salta con la carita, y nace.<small>Funciona igual con cualquier tanda.</small></li>
+    <li><b>Huevos con el color y el dibujo de su mascota</b>, iguales en las tres tandas.<small>Antes de empezar el capítulo se ven sombreados.</small></li>
   </ol>
   <div class="box w"><h3>Lo que viene</h3><ul>
     <li><b>Parte 2:</b> la Llamita de fuego en sus 6 estados.</li>
@@ -132,7 +132,14 @@ ${SRC}
   document.getElementById('defs').innerHTML = M.DEFS;
   const st = document.createElement('style'); st.textContent = M.CSS; document.head.appendChild(st);
   const VB = '-48 -64 96 72';
-  let tanda = 'B'; const T = () => tanda === 'B' ? M.B : M;
+  let tanda = 'C'; const T = () => tanda === 'A' ? M : M[tanda];
+  const HOW_C = {
+    tortugono: 'Su caparazón <b>suma lados</b> (triángulos, cuadrados, pentágonos y hexágono, octágonos dorados). Tiene cabeza con hocico; de grande estira el cuello y le crece una <b>cresta de placas</b> con la figura de su etapa.',
+    cubuho: 'El búho <b>cubo</b> de la tanda A: sale con su cascarón, le crecen plumas de <b>prisma</b>, orejas de <b>cono</b> y botones de <b>esfera</b>, y de brillante abre las alas.',
+    cienpiecito: 'Anillos con los colores de las lecciones (<b>unidades</b>, <b>decenas</b>, <b>centenas</b>) y cabeza de baldosa. De grande <b>se levanta y saluda</b>; de brillante, Milpiés suma el anillo de los miles.',
+    pulpatron: 'El pulpo de la tanda A, con su <b>patrón</b> AB, ABC y uno que crece. De grande <b>levanta dos tentáculos</b> con el patrón y de brillante <b>flota</b>.',
+    chinitabla: 'La chinita de la tanda A, con pintas en <b>grupos iguales</b> de 2, 5 y 10 y cabeza de casco. De joven saluda, de grande <b>se para</b> y de brillante <b>vuela</b>.',
+  };
   const HOW_B = {
     tortugono: 'Se para y cambia de figura: cabeza, panza y caparazón son <b>triángulo</b>, luego <b>cuadrado</b>, luego <b>pentágono y hexágono</b> y, de brillante, <b>octágono</b>.',
     cubuho: 'Sale del huevo siendo un <b>cubo</b>, le salen alas de <b>prisma</b>, crece hasta ser un <b>prisma alto</b> con orejas de <b>cono</b>, patas de <b>cilindro</b> y botones de <b>esfera</b>, y de brillante abre las alas.',
@@ -151,7 +158,7 @@ ${SRC}
   const draw = () => { pets.innerHTML = M.MASC.map(m => \`<article class="pet" data-id="\${m.id}"><div class="top"><h3>\${m.name}</h3><small>Capítulo \${m.ch} · \${m.cap}</small></div>
     <div class="scene" role="button" tabindex="0" aria-label="Tocar a \${m.name}"><svg viewBox="\${VB}"></svg></div><p class="cap"></p>
     <div class="strip">\${M.ETAPAS.map((t, k) => \`<button data-k="\${k}" aria-pressed="false"><svg viewBox="\${VB}">\${T().masc(m.id, k)}</svg>\${t}</button>\`).join('')}</div>
-    <p class="how">\${(tanda === 'B' ? HOW_B : HOW)[m.id]}</p></article>\`).join('');
+    <p class="how">\${({ A: HOW, B: HOW_B, C: HOW_C })[tanda][m.id]}</p></article>\`).join('');
     pets.querySelectorAll('.pet').forEach(c => show(c, 3)); drawSmall(); if (typeof drawH === 'function') drawH(); };
   const show = (card, k) => {
     const id = card.dataset.id, svg = card.querySelector('.scene svg');
@@ -173,10 +180,10 @@ ${SRC}
   hpick.innerHTML = M.MASC.map(m => \`<button class="btn ghost" data-id="\${m.id}" aria-pressed="false">\${m.name}</button>\`).join('');
   var drawH = () => {
     hpick.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.id === hid));
-    hsvg.innerHTML = hk < 3 ? \`<g transform="scale(1.15)" class="\${hk ? 'shake' : 'wob'}" style="transform-box:fill-box;transform-origin:50% 100%">\${M.huevo(hid, hk)}</g>\`
+    hsvg.innerHTML = hk < 4 ? \`<g transform="scale(1.15)" class="\${hk ? 'shake' : 'wob'}" style="transform-box:fill-box;transform-origin:50% 100%">\${M.huevo(hid, hk)}</g>\`
       : \`<g class="pop">\${T().masc(hid, 1)}</g><text y="10.5" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="5" fill="#6a49f0">¡Nació \${M.nombre(hid, 1)}!</text>\`;
   };
-  const tap = () => { hk = hk >= 3 ? 3 : hk + 1; drawH(); };
+  const tap = () => { hk = hk >= 4 ? 4 : hk + 1; drawH(); };
   hpick.addEventListener('click', e => { const b = e.target.closest('button'); if (b) { hid = b.dataset.id; hk = 0; drawH(); } });
   document.getElementById('htap').addEventListener('click', tap);
   document.getElementById('hatch').addEventListener('click', tap);
