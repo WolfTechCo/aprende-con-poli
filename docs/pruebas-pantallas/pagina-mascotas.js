@@ -167,7 +167,7 @@ ${SRC}
     card.querySelector('.cap').textContent = M.nombre(id, k) + ' · ' + M.ETAPAS[k];
     card.querySelectorAll('.strip button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.k === k));
   };
-  const jump = el => { el.classList.remove('jump'); void el.offsetWidth; el.classList.add('jump'); };
+  const jump = el => { el.classList.remove('jump'); void el.getBoundingClientRect(); requestAnimationFrame(() => el.classList.add('jump')); };
   pets.addEventListener('click', e => {
     const b = e.target.closest('.strip button'), card = e.target.closest('.pet');
     if (b) show(card, +b.dataset.k); else if (e.target.closest('.scene')) jump(card.querySelector('.scene svg'));
