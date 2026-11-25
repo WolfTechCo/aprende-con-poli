@@ -192,6 +192,19 @@
     return `<g transform="translate(${x} ${y}) rotate(${r})"><path d="M0 -.4C${an} .2 ${n3(an * .9)} ${n3(l * .7)} 0 ${l}C${n3(-an * .9)} ${n3(l * .7)} ${-an} .2 0 -.4Z" fill="${c[1]}" stroke="${c[3]}" stroke-width=".55" stroke-linejoin="round"/>`
       + `<path d="M0 -.2C${n3(an * .85)} .3 ${n3(an * .8)} ${n3(l * .7)} 0 ${n3(l - .3)}Z" fill="${c[2]}" opacity=".85"/><path d="M0 .4V${n3(l - 1)}" stroke="${c[3]}" stroke-width=".4" opacity=".6"/>`
       + `<path d="M${n3(-an * .55)} ${n3(l * .2)}Q${n3(-an * .6)} ${n3(l * .5)} ${n3(-an * .3)} ${n3(l * .68)}" fill="none" stroke="#fff" stroke-width=".45" stroke-linecap="round" opacity=".7"/></g>`; };
+  /* contorno de una caja proyectada: casco convexo con las esquinas redondeadas (así las caras se ven unidas, como gomita) */
+  const casco = pts => {
+    const q = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]), cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    const lo = [], up = [];
+    q.forEach(p => { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); });
+    q.slice().reverse().forEach(p => { while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop(); up.push(p); });
+    lo.pop(); up.pop(); return lo.concat(up);
+  };
+  const redondo = (h, r) => { let d = ''; const n = h.length;
+    h.forEach((p, i) => { const a = h[(i + n - 1) % n], b = h[(i + 1) % n], la = Math.hypot(a[0] - p[0], a[1] - p[1]) || 1, lb = Math.hypot(b[0] - p[0], b[1] - p[1]) || 1;
+      const ta = Math.min(r, la / 2) / la, tb = Math.min(r, lb / 2) / lb;
+      d += (i ? 'L' : 'M') + n3(p[0] + (a[0] - p[0]) * ta) + ' ' + n3(p[1] + (a[1] - p[1]) * ta) + 'Q' + n3(p[0]) + ' ' + n3(p[1]) + ' ' + n3(p[0] + (b[0] - p[0]) * tb) + ' ' + n3(p[1] + (b[1] - p[1]) * tb); });
+    return d + 'Z'; };
   const cubuhoPose = k => {
     const id = 'kb' + (++nB), SC = M.C.SCALE[k], body = k === 4 ? 'oro' : 'lila', BC = PAL[body], L = PAL.lila, cria = k === 1;
     const W = cria ? 13 : 16, TOP = cria ? -31 : -33, BOT = cria ? -4 : -1, SPLIT = cria ? -7.4 : -9.2, D = 2 * W;
@@ -219,8 +232,9 @@
       const w = Math.hypot(...f.u), h = Math.hypot(...f.v), top = f.n === 'ar';
       const fill = top ? `fill="${BC[0]}"` : `fill="url(#km-${body})"`;
       const dentro = f.n === 'fr' ? caraFrente : f.n === 'at' ? caraAtras : top ? `<path d="M${n3(w * .2)} ${n3(h * .82)}H${n3(w * .8)}" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".7"/>` : caraLado;
-      return `<g id="${id}-c${f.n}"><rect width="${n3(w)}" height="${n3(h)}" rx="${top ? 4 : 6}" ${fill} stroke="${BC[3]}" stroke-width="1.3" stroke-linejoin="round"/>`
-        + (top ? '' : `<rect id="${id}-s${f.n}" width="${n3(w)}" height="${n3(h)}" rx="6" fill="#2a1640" opacity="0"/>${arc(`M4 ${n3(h * .55)}Q3.6 4 9 3.4`, 1.6, .7)}`) + dentro + '</g>';
+      return `<g id="${id}-c${f.n}"><rect x="-.3" y="-.3" width="${n3(w + .6)}" height="${n3(h + .6)}" ${fill}/>`
+        + (top ? '' : `<rect id="${id}-s${f.n}" width="${n3(w)}" height="${n3(h)}" fill="#2a1640" opacity="0"/>${arc(`M4 ${n3(h * .55)}Q3.6 4 9 3.4`, 1.6, .7)}`)
+        + `<rect width="${n3(w)}" height="${n3(h)}" fill="none" stroke="${BC[3]}" stroke-width=".7" opacity=".4"/>` + dentro + '</g>';
     };
     const OREJAS = [[-9.5, 6], [9.5, 6]]; /* sobre la tapa, cerca del frente */
     const oreja = (i) => k >= 3
@@ -230,14 +244,18 @@
     /* cuerpo (capa de abajo), quieto: costado, tapa (se ve en las esquinas cuando la cabeza gira) y frente */
     const cuerpo = () => {
       const p = (x, y, z) => proj(x, y, z).map(n3).join(' ');
-      let s = `<path d="M${p(W, SPLIT, 0)}L${p(W, SPLIT, D)}L${p(W, BOT - 2, D)}Q${p(W, BOT, D)} ${p(W, BOT, D - 3)}L${p(W, BOT, 0)}Z" fill="${BC[2]}" stroke="${BC[3]}" stroke-width="1.2" stroke-linejoin="round"/>`;
-      s += `<path d="M${p(-W, SPLIT, 0)}L${p(-W, SPLIT, D)}L${p(W, SPLIT, D)}L${p(W, SPLIT, 0)}Z" fill="${BC[2]}" stroke="${BC[3]}" stroke-width="1.1" stroke-linejoin="round"/>`;
-      s += `<path d="M${-W} ${SPLIT}H${W}V${BOT - 4}Q${W} ${BOT} ${W - 4} ${BOT}H${-W + 4}Q${-W} ${BOT} ${-W} ${BOT - 4}Z" fill="url(#km-${body})" stroke="${BC[3]}" stroke-width="1.3" stroke-linejoin="round"/>`;
+      const pts = []; [-W, W].forEach(x => [0, D].forEach(z => [SPLIT, BOT].forEach(y => pts.push(proj(x, y, z)))));
+      const sil = redondo(casco(pts), 3.6);
+      let s = `<clipPath id="${id}-bc"><path d="${sil}"/></clipPath><path d="${sil}" fill="${BC[2]}"/><g clip-path="url(#${id}-bc)">`;
+      s += `<path d="M${p(-W, SPLIT, 0)}L${p(-W, SPLIT, D)}L${p(W, SPLIT, D)}L${p(W, SPLIT, 0)}Z" fill="${BC[2]}"/>`;
+      s += `<path d="M${p(W, SPLIT, 0)}L${p(W, SPLIT, D)}L${p(W, BOT, D)}L${p(W, BOT, 0)}Z" fill="${BC[2]}" stroke="${BC[3]}" stroke-width=".7" stroke-opacity=".45"/>`;
+      s += `<rect x="${-W}" y="${SPLIT}" width="${2 * W}" height="${BOT - SPLIT + 1}" fill="url(#km-${body})"/></g><path d="${sil}" fill="none" stroke="${BC[3]}" stroke-width="1.4" stroke-linejoin="round"/>`;
       if (!cria) s += flat(E(0, n3((SPLIT + BOT) / 2 + .6), 9, n3((BOT - SPLIT) / 2 - .6)), BC[0], BC[2], .9) + [-3.4, 3.4].map(x => `<path d="M${x - 1.4} ${SPLIT + 2.6}L${x} ${SPLIT + 3.8}L${x + 1.4} ${SPLIT + 2.6}" fill="none" stroke="${BC[2]}" stroke-width=".8" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
       if (k >= 3) s += [-4.5, 0, 4.5].map(x => gel(C(x, -3.2, 1.4), k === 4 ? 'rosa' : 'amarillo', .5) + dot(x - .5, -3.7, .4)).join('');
       return s;
     };
-    const cabeza = () => `<g id="${id}-cab">${CARAS.map(cuerpoCara).join('')}${[0, 1].map(oreja).join('')}`
+    const cabeza = () => `<g id="${id}-cab"><clipPath id="${id}-hc"><path id="${id}-hcp"/></clipPath><path id="${id}-hs" fill="url(#km-${body})"/>`
+      + `<g clip-path="url(#${id}-hc)">${CARAS.map(cuerpoCara).join('')}</g><path id="${id}-hs2" fill="none" stroke="${BC[3]}" stroke-width="1.4" stroke-linejoin="round"/>${[0, 1].map(oreja).join('')}`
       + (cria ? `<g id="${id}-ri"><path d="M-2 -0.4Q-4 -6 .6 -6.4Q3.6 -6.4 2.6 -3.4" fill="none" stroke="${L[2]}" stroke-width="2" stroke-linecap="round"/></g>` : '')
       + (k === 4 ? `<g id="${id}-co">${corona(0, 0, 1.05)}</g>` : '') + '</g>';
     const build = () => {
@@ -258,11 +276,11 @@
       }
       g += [-7, 7].map((x, i) => `<g id="${id}-pi${i}">${k >= 3 ? gel(R(x - 3.4, -6, 6.8, 6, 2), 'naranja', .9) + `<ellipse cx="${x}" cy="-6" rx="3.4" ry="1.2" fill="${PAL.naranja[0]}"/>` : gel(E(x, -1.2, 4.4, 2.4), 'naranja', .9)}</g>`).join('');
       g += cuerpo() + cabeza();
-      g += `<g id="${id}-a0"><g transform="translate(-15.5 -14.6) scale(-1 1)">${ala()}</g></g><g id="${id}-a1"><g transform="translate(21 -16)">${ala()}</g></g>`;
+      g += `<g id="${id}-a0"><g transform="translate(${-W + 1.6} ${SPLIT - 1.4}) scale(.82)">${ala()}</g></g><g id="${id}-a1"><g transform="translate(${W + 6.6} ${SPLIT - 3.6}) scale(-.82 .82)">${ala()}</g></g>`;
       return `<g transform="scale(${SC})">${pre}<g id="${id}-sh">${piso(26, 2)}</g><g id="${id}-all">${g}</g></g>`;
     };
     const refs = el => { const q = s => el.querySelector('#' + id + '-' + s);
-      return { sh: q('sh'), all: q('all'), cab: q('cab'), caras: CARAS.map(f => ({ f, g: q('c' + f.n), s: q('s' + f.n) })), o: [q('o0'), q('o1')], e: [q('e0'), q('e1')], ei: [q('ei0'), q('ei1')], ri: q('ri'), co: q('co'),
+      return { sh: q('sh'), all: q('all'), cab: q('cab'), hcp: q('hcp'), hs: q('hs'), hs2: q('hs2'), caras: CARAS.map(f => ({ f, g: q('c' + f.n), s: q('s' + f.n) })), o: [q('o0'), q('o1')], e: [q('e0'), q('e1')], ei: [q('ei0'), q('ei1')], ri: q('ri'), co: q('co'),
         a: [q('a0'), q('a1')], pi: [q('pi0'), q('pi1')], f: [q('f0'), q('f1')], cu: q('cu'), cs: q('cs') }; };
     const update = (r, p) => {
       const th = p.teta * Math.PI / 180, c = Math.cos(th), s = Math.sin(th);
@@ -276,6 +294,8 @@
         g.setAttribute('transform', `matrix(${n3((U[0] + PX * U[2]) / w)} ${n3((U[1] + PY * U[2]) / w)} ${n3((V[0] + PX * V[2]) / h)} ${n3((V[1] + PY * V[2]) / h)} ${n3(ex)} ${n3(ey)})`);
         if (sh) sh.setAttribute('opacity', n3(clamp((.8 - (-.5 * n[0] - .86 * n[2])) * .3, 0, .42))); /* sombra según hacia dónde mira la cara */
       });
+      const hp = []; [-W, W].forEach(x => [0, D].forEach(z => { const [rx, rz] = rot(x, z, c, s); [TOP, SPLIT].forEach(y => hp.push(proj(rx, y, rz))); }));
+      const hd = redondo(casco(hp), 3.8); r.hcp.setAttribute('d', hd); r.hs.setAttribute('d', hd); r.hs2.setAttribute('d', hd);
       /* orejas, rizo y corona: puntos sobre la tapa que giran con la cabeza */
       const sobre = (x, z) => { const [rx, rz] = rot(x, z, c, s); return proj(rx, TOP, rz); };
       OREJAS.forEach(([x, z], i) => { if (!r.e[i]) return; const [px, py] = sobre(x, z); r.e[i].setAttribute('transform', `translate(${n3(px)} ${n3(py + .6)})`);
@@ -284,9 +304,10 @@
       if (r.co) { const [px, py] = sobre(0, W); r.co.setAttribute('transform', `translate(${n3(px)} ${n3(py - 2)})`); }
       r.cab.setAttribute('transform', `translate(${n3(p.cabX)} ${n3(p.cabY)}) rotate(${n3(p.ladeo)} 0 ${SPLIT})`);
       r.o.forEach((o, i) => o.setAttribute('transform', `scale(1 ${n3(Math.max(.08, p.ojos * (i === 0 ? p.guino : 1)))})`));
-      const fl = p.aleteo * Math.sin((p.t || 0) * 34) * 22;
-      if (r.a[0]) r.a[0].setAttribute('transform', `rotate(${n3(p.alaI + p.esponja * 10 + Math.max(0, fl))} -15.5 -18.6)`);
-      if (r.a[1]) r.a[1].setAttribute('transform', `rotate(${n3(-p.alaD - p.esponja * 10 - Math.max(0, fl))} 21 -20)`);
+      const fl = p.aleteo * Math.sin((p.t || 0) * 34) * 22, resp = (p.vivo || 0) * Math.sin((p.t || 0) * 2 * Math.PI / 3.6) * 2.5; /* las dos alas juntas */
+      const ang = p.alaI + p.alaD + p.esponja * 12 + Math.max(0, fl) + resp;
+      if (r.a[0]) r.a[0].setAttribute('transform', `rotate(${n3(ang)} ${-W + 1.6} ${n3(SPLIT - 4.6)})`);
+      if (r.a[1]) r.a[1].setAttribute('transform', `rotate(${n3(-ang)} ${W + 6.6} ${n3(SPLIT - 6.8)})`);
       r.f.forEach((f, i) => f && f.setAttribute('transform', `translate(${i ? 21 : -13} ${i ? -16 : -14}) rotate(${n3((i ? -1 : 1) * (Math.sin((p.t || 0) * 1.6) * 3 * (p.vivo || 0) + fl * .6))})`));
       r.pi.forEach((f, i) => f && f.setAttribute('transform', `translate(0 ${n3(-Math.max(0, Math.sin((p.t || 0) * 9 + i * Math.PI)) * 1.6 * p.pasito)})`));
       if (r.cu) r.cu.setAttribute('transform', `translate(0 ${n3(p.sube)})`);
@@ -311,7 +332,7 @@
       m => { const g = lado(); return m.hacer([[0, { ladeo: 12 * g, orejas: .6 * g }, 380], [1200, { ladeo: 0, orejas: 0 }, 420]]); }, /* ladea la cabeza */
       m => m.hacer([[0, { guino: 0 }, 120, 'entra'], [520, { guino: 1 }, 160, 'sale']]), /* guiña un ojo */
       m => m.hacer([[0, { esponja: 1, aleteo: .25 }, 260, 'sale'], [520, { esponja: 0, aleteo: 0 }, 360, 'rebote']]), /* esponja las plumas */
-      m => m.hacer([[0, { alaD: 50 }, 420, 'sale'], [1000, { alaD: 0 }, 380]]), /* estira un ala */
+      m => m.hacer([[0, { alaD: 38 }, 420, 'sale'], [1000, { alaD: 0 }, 380]]), /* estira las alas, las dos a la vez */
       m => m.hacer([[0, { pasito: 1 }, 200], [1500, { pasito: 0 }, 200]]), /* da pasitos */
     ],
     gesto: (m, d) => { const g = lado(); return m.hacer([ /* vuelta completa de la cabeza, con anticipación y llegada suave */
