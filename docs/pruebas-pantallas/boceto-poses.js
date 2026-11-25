@@ -227,9 +227,9 @@
   const cub = (a, b, c, d, t) => { const u = 1 - t; return [u * u * u * a[0] + 3 * u * u * t * b[0] + 3 * u * t * t * c[0] + t * t * t * d[0], u * u * u * a[1] + 3 * u * u * t * b[1] + 3 * u * t * t * c[1] + t * t * t * d[1]]; };
   const cubuhoPose = k => {
     const id = 'kb' + (++nB), SC = M.C.SCALE[k], body = k === 4 ? 'oro' : 'lila', BC = PAL[body], L = PAL.lila, cria = k === 1;
-    const W = cria ? 13 : 16, TOP = cria ? -31 : -33, BOT = cria ? -4 : -1, SPLIT = cria ? -7.4 : -10, D = 2 * W;
+    const W = cria ? 13 : 16, TOP = cria ? -31 : -35, BOT = cria ? -4 : -1, SPLIT = cria ? -7.4 : -14, D = 2 * W;
     const PX = (cria ? 8.5 : 9) / D, PY = -7 / D; /* proyección del fondo: hacia la derecha y hacia arriba, como el cubo de siempre */
-    const HH = SPLIT - TOP, ER = cria ? 6.6 : 7.4, FV = 12; /* alto de la cabeza; radio de los discos; altura de los ojos en la cara */
+    const HH = SPLIT - TOP, ER = cria ? 6.6 : 7.4, FV = cria ? 12 : 10.4; /* alto de la cabeza; radio de los discos; altura de los ojos en la cara */
     const proj = (x, y, z) => [x + PX * z, y + PY * z];
     const rot = (x, z, c, s) => [x * c + (z - W) * s, W - x * s + (z - W) * c]; /* gira alrededor del eje vertical que pasa por el centro */
     /* caras de la cabeza: origen, eje U (ancho), eje V (alto o fondo), normal (y hacia abajo como en SVG) */
@@ -242,9 +242,11 @@
     ];
     const ojo = (x, i) => `<g transform="translate(${x} ${FV + .5})"><g id="${id}-o${i}"><ellipse rx="${n3(2.3 * 1.32)}" ry="${n3(2.7 * 1.32)}" fill="url(#km-ojo)"/><circle cx="${n3(.8 * 1.32)}" cy="${n3(-1.1 * 1.32)}" r="${n3(1.32)}" fill="#fff"/><circle cx="${n3(-.7 * 1.32)}" cy="${n3(1.2 * 1.32)}" r=".6" fill="#fff"/></g></g>`;
     /* contenido de cada cara, en coordenadas de la cara (0..ancho, 0..alto) */
-    const caraFrente = gel(C(W - 7, FV, ER), 'crema', 1) + gel(C(W + 7, FV, ER), 'crema', 1) + ojo(W - 7, 0) + ojo(W + 7, 1)
+    const disco = cria ? '' : `<path d="M${W} ${FV - 6}C${W - 4} ${FV - 9.6} ${W - 15.4} ${FV - 9.2} ${W - 15} ${FV + 1}C${W - 14.2} ${FV + 7.6} ${W - 6} ${FV + 9} ${W} ${FV + 11.4}C${W + 6} ${FV + 9} ${W + 14.2} ${FV + 7.6} ${W + 15} ${FV + 1}C${W + 15.4} ${FV - 9.2} ${W + 4} ${FV - 9.6} ${W} ${FV - 6}Z" fill="${BC[0]}" opacity=".85" stroke="${BC[2]}" stroke-width=".6" stroke-opacity=".45"/>`;
+    const cejas = cria ? '' : [-1, 1].map(g => `<path d="M${W + g * 1.6} ${n3(FV - 7.2)}Q${W + g * 7} ${n3(FV - 10.6)} ${W + g * 13.6} ${n3(FV - 8.2)}" fill="none" stroke="${BC[2]}" stroke-width="2.3" stroke-linecap="round"/><path d="M${W + g * 4} ${n3(FV - 9)}Q${W + g * 7.4} ${n3(FV - 10.4)} ${W + g * 10.6} ${n3(FV - 9.6)}" fill="none" stroke="#fff" stroke-width=".7" stroke-linecap="round" opacity=".55"/>`).join('');
+    const caraFrente = disco + gel(C(W - 7, FV, ER), 'crema', 1) + gel(C(W + 7, FV, ER), 'crema', 1) + ojo(W - 7, 0) + ojo(W + 7, 1)
       + `<ellipse cx="${W - 12.4}" cy="${FV + 7.2}" rx="2.6" ry="1.5" fill="url(#km-mej)"/><ellipse cx="${W + 12.4}" cy="${FV + 7.2}" rx="2.6" ry="1.5" fill="url(#km-mej)"/>`
-      + gel(P(`M${W - 2.4} ${FV + 6.4}Q${W} ${FV + 5.2} ${W + 2.4} ${FV + 6.4}L${W + .4} ${FV + 9.8}Q${W} ${FV + 10.4} ${W - .4} ${FV + 9.8}Z`), 'naranja', .8);
+      + gel(P(`M${W - 2.4} ${FV + 6.4}Q${W} ${FV + 5.2} ${W + 2.4} ${FV + 6.4}L${W + .4} ${FV + 9.8}Q${W} ${FV + 10.4} ${W - .4} ${FV + 9.8}Z`), 'naranja', .8) + cejas;
     const caraAtras = `<ellipse cx="${W}" cy="${FV + 1}" rx="${W - 4}" ry="${n3(HH / 2 - 2)}" fill="${BC[0]}" opacity=".5"/>`
       + [-1, 0, 1].map(j => [-6, 0, 6].map(x => `<path d="M${W + x - 2.2} ${FV - 3 + j * 4.4}L${W + x} ${FV - 1.2 + j * 4.4}L${W + x + 2.2} ${FV - 3 + j * 4.4}" fill="none" stroke="${BC[2]}" stroke-width=".95" stroke-linecap="round" stroke-linejoin="round"/>`).join('')).join('');
     const caraLado = `<path d="M${W - 5} ${n3(HH * .45)}L${W} ${n3(HH * .45 + 2.4)}L${W + 5} ${n3(HH * .45)}M${W - 5} ${n3(HH * .45 + 4.4)}L${W} ${n3(HH * .45 + 6.8)}L${W + 5} ${n3(HH * .45 + 4.4)}" fill="none" stroke="${BC[3]}" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity=".35"/>`;
@@ -264,17 +266,24 @@
     /* ala plegada contra el cuerpo: nace en el hombro (0, 0), cae hacia abajo y atrás, plumas con la punta hacia abajo y atrás */
     /* ala pegada al costado: dibujada en el plano del costado (u = hacia atrás, v = hacia abajo), nace en el hombro (0, 0) */
     /* ala vista de tres cuartos: nace en el hombro (0, 0), cubre el costado abultándose hacia afuera y su punta va hacia atrás (abajo a la derecha) */
-    const ALA_D = 'M0 0C5.2 -1.4 9.8 1.8 11.2 6.6C12.2 10.6 11 14 8.4 14.8C5.2 15.6 1.6 13 .2 8.8C-.8 5.8 -.8 2.2 0 0Z';
-    const alaLado = () => `<path d="${ALA_D}" transform="translate(1.2 1.6)" fill="#2a1640" opacity=".22"/>` /* sombra sobre el cuerpo: da volumen */
-      + gel(P(ALA_D), body, 1.2) + `<path d="M2.4 4.4Q7.6 6.4 9.6 11.8" fill="none" stroke="${BC[3]}" stroke-width="1" opacity=".4"/>` + arc('M2 1.6Q6.4 .6 9 4', 1.2, .75)
-      + [[6.4, 10.8, -24, 5.4], [8.4, 9.8, -38, 5.2], [9.8, 8, -52, 4.8], [4.2, 11.4, -10, 5]].map(([x, y, r, l]) => pluma(x, y, r, l, k === 4 ? 'rosa' : 'lila', 2.3)).join('');
+    /* ala que cuelga desde el hombro (0, 0), pegada al costado; afuera = x positivo */
+    /* orilla de abajo con tres puntas redondeadas de pluma (parte del contorno, nada cuelga suelto) */
+    const ALA_D = 'M0 0C3.8 -.4 6.4 2.6 6.6 7L6.5 11.2Q6 13.8 4.6 12.4Q3.5 14.6 2.3 12.8Q.9 14.4 .1 12.2L-.4 7.4C-.8 4.4 -.6 1.6 0 0Z';
+    const colP = k === 4 ? 'rosa' : 'lila';
+    /* 3 filas de plumas de hoja, más largas abajo; cada fila es un grupo que se abre en abanico al levantar el ala */
+    /* filas de plumas en escamas sobre el ala (dentro del contorno) */
+    const fila = y => `<path d="M-.2 ${y}Q1.4 ${n3(y + 2.6)} 3.1 ${y}Q4.8 ${n3(y + 2.6)} 6.5 ${y}L6.5 ${n3(y - 1)}Q3.2 ${n3(y - 2.2)} -.2 ${n3(y - 1)}Z" fill="${BC[1]}" stroke="${BC[2]}" stroke-width=".55" stroke-linejoin="round" opacity=".95"/>`;
+    const alaLado = () => `<path d="${ALA_D}" transform="translate(-1 1.4)" fill="#2a1640" opacity=".2"/>` /* sombra sobre el cuerpo: da volumen */
+      + gel(P(ALA_D), body, 1.2) + arc('M.8 1.4Q3.6 .8 5 3.6', 1.1, .75)
+      + `<clipPath id="${id}-acl"><path d="${ALA_D}"/></clipPath><g clip-path="url(#${id}-acl)">` + [4.8, 7.6, 10.4].map((y, i) => `<g class="fila" data-i="${i}">${fila(y)}</g>`).join('') + '</g>'
+      + (k === 4 ? `<path d="M1.2 12.4Q3.4 13.6 5.4 12.4" fill="none" stroke="${PAL.rosa[1]}" stroke-width="1.1" stroke-linecap="round"/>` : '');
     const alaPlegada = alaLado;
     /* cuerpo (capa de abajo), quieto: costado, tapa (se ve en las esquinas cuando la cabeza gira) y frente */
     const BY = -.4; /* base de la panza */
     const frente = () => { /* contorno del frente de la panza: lados que se abomban y base redonda */
-      const L = [[-W, SPLIT], [-W - .3, -8.4]], R = [[W + .3, -8.4], [W, SPLIT]];
-      const c1 = [...Array(9)].map((_, i) => cub([-W - .3, -8.4], [-W - 1.6, -3.2], [-12.4, BY], [-6, BY], i / 8));
-      const c2 = [...Array(9)].map((_, i) => cub([6, BY], [12.4, BY], [W + 1.6, -3.2], [W + .3, -8.4], i / 8));
+      const L = [[-W, SPLIT], [-W - .6, -11], [-W - .3, -8.4]], R = [[W + .3, -8.4], [W + .6, -11], [W, SPLIT]];
+      const c1 = [...Array(9)].map((_, i) => cub([-W - .3, -8.4], [-W - 2.8, -3.4], [-12.6, BY], [-6, BY], i / 8));
+      const c2 = [...Array(9)].map((_, i) => cub([6, BY], [12.6, BY], [W + 2.8, -3.4], [W + .3, -8.4], i / 8));
       return [...L, ...c1.slice(1), ...c2, ...R.slice(1)];
     };
     const panza = () => {
@@ -287,8 +296,12 @@
       let o = `<path d="${redondo(h, 1.5)}" fill="${BC[2]}"/>`; /* volumen: el costado en sombra */
       o += `<path d="${dF}" fill="url(#${id}-g)"/>`;
       o += `<path d="${abierto(h, esUnion, 2.4)}" fill="none" stroke="${BC[3]}" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>`;
-      o += flat(E(0, -5.2, 9.4, 4.4), BC[0], BC[2], .9) + [[-4.2, -7.4], [0, -8], [4.2, -7.4], [-2.1, -4.6], [2.1, -4.6]].map(([x, y]) => `<path d="M${x - 1.4} ${y - .7}L${x} ${y + .6}L${x + 1.4} ${y - .7}" fill="none" stroke="${BC[2]}" stroke-width=".8" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
-      if (k >= 3) o += [-4.5, 0, 4.5].map(x => gel(C(x, -2.6, 1.3), k === 4 ? 'rosa' : 'amarillo', .5) + dot(x - .5, -3.1, .4)).join('');
+      /* panza clara abajo y banda de plumas en escamas bajo la cara (ahí queda el corte del giro) */
+      o += `<clipPath id="${id}-pz"><path d="${dF}"/></clipPath><g clip-path="url(#${id}-pz)">`;
+      o += `<ellipse cx="0" cy="-3.6" rx="12.6" ry="6.6" fill="${BC[0]}" opacity=".9"/>` + [[-5, -5.6], [0, -6.4], [5, -5.6], [-2.5, -2.8], [2.5, -2.8]].map(([x, y]) => `<path d="M${x - 1} ${y}L${x} ${y + .9}L${x + 1} ${y}" fill="none" stroke="${BC[2]}" stroke-width=".7" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>`).join('');
+      [[SPLIT + .4, 0], [SPLIT + 3, 2.2], [SPLIT + 5.6, 0]].forEach(([y, dx]) => { for (let x = -W - 1 + dx; x <= W + 2; x += 4.4) o += `<path d="M${n3(x - 2.4)} ${n3(y)}Q${n3(x)} ${n3(y + 3.8)} ${n3(x + 2.4)} ${n3(y)}Z" fill="${BC[1]}" stroke="${BC[2]}" stroke-width=".6" stroke-linejoin="round"/>`; });
+      o += '</g>';
+      if (k >= 3) o += [-4.5, 0, 4.5].map(x => gel(C(x, -2.2, 1.2), k === 4 ? 'rosa' : 'amarillo', .5) + dot(x - .5, -2.7, .4)).join('');
       return o;
     };
     const cuerpo = () => {
@@ -331,15 +344,17 @@
         + `<radialGradient id="${id}-gf" gradientUnits="userSpaceOnUse" cx="${-7 + W}" cy="${-27 - TOP}" r="40"><stop offset="0" stop-color="${gl}"/><stop offset=".5" stop-color="${gb}"/><stop offset="1" stop-color="${gd}"/></radialGradient>`
         + `<clipPath id="${id}-ru"><path d="M-80 -120H90V${n3(SPLIT - 1 - 7.6 - 60 * 7 / 9)}L${n3(W + 9.6)} ${n3(SPLIT - 1 - 7.6)}L${W - .4} ${n3(SPLIT - 1)}H-80Z"/></clipPath></defs>`;
       /* ala lejana: en el costado izquierdo (de espaldas a nosotros), detrás del cuerpo; asoma solo la punta de atrás */
-      g += `<g id="${id}-a0"><g transform="translate(${-W + 10.4} ${SPLIT - 4.6}) scale(-.84 .84)"><g id="${id}-ai0">${alaPlegada()}</g></g></g>`;
+      g += '';
       g += cuerpo();
       /* ala cercana: en el plano del costado derecho, pegada y hacia atrás */
-      g += `<g id="${id}-a1"><g transform="translate(${W - 1.8} ${SPLIT - 5}) scale(.86)"><g id="${id}-ai1">${alaPlegada()}</g></g></g>`;
+      /* las dos alas delante de los costados: la izquierda enmarca el cuerpo; la derecha (de tres cuartos) va sobre el costado */
+      g += `<g id="${id}-a0"><g transform="translate(${-W + .6} ${SPLIT + .6}) scale(-.95 1)"><g id="${id}-ai0">${alaPlegada()}</g></g></g>`;
+      g += `<g id="${id}-a1"><g transform="translate(${W + 2.4} ${SPLIT - 1}) skewY(-22) scale(.92 1)"><g id="${id}-ai1">${alaPlegada()}</g></g></g>`;
       g += patas() + cabeza();
       return `<g transform="scale(${SC})">${pre}<g id="${id}-sh">${piso(26, 2)}</g><g id="${id}-all">${g}</g></g>`;
     };
     const refs = el => { const q = s => el.querySelector('#' + id + '-' + s);
-      return { sh: q('sh'), all: q('all'), cab: q('cab'), hcp: q('hcp'), hs: q('hs'), hs2: q('hs2'), ai: [q('ai0'), q('ai1')], aristas: [...el.querySelectorAll('#' + id + '-cab .arista')], caras: CARAS.map(f => ({ f, g: q('c' + f.n), s: q('s' + f.n) })), o: [q('o0'), q('o1')], e: [q('e0'), q('e1')], ei: [q('ei0'), q('ei1')], ri: q('ri'), co: q('co'),
+      return { sh: q('sh'), all: q('all'), cab: q('cab'), hcp: q('hcp'), hs: q('hs'), hs2: q('hs2'), ai: [q('ai0'), q('ai1')], filas: [q('ai0'), q('ai1')].map(a => a ? [...a.querySelectorAll('.fila')] : []), aristas: [...el.querySelectorAll('#' + id + '-cab .arista')], caras: CARAS.map(f => ({ f, g: q('c' + f.n), s: q('s' + f.n) })), o: [q('o0'), q('o1')], e: [q('e0'), q('e1')], ei: [q('ei0'), q('ei1')], ri: q('ri'), co: q('co'),
         a: [q('a0'), q('a1')], pi: [q('pi0'), q('pi1')], f: [q('f0'), q('f1')], cu: q('cu'), cs: q('cs') }; };
     const update = (r, p) => {
       const th = p.teta * Math.PI / 180, c = Math.cos(th), s = Math.sin(th), clave = n3(p.teta);
@@ -375,8 +390,10 @@
         const abre = clamp((p.alaD + p.alaI) / 38 + p.esponja * .25 + p.aleteo, 0, 1), giro = -abre * (70 + (p.aleteo ? Math.sin((p.t || 0) * 30) * 28 : 0)) - resp * .6;
         /* se levantan desde el hombro, sin despegarse: hasta unos 75° al aletear, poquito al esponjarse */
         const sube = clamp(abre, 0, 1) * (p.aleteo ? 45 + Math.sin((p.t || 0) * 30) * 30 : 55) + resp * .8;
-        sa(r.ai[0], 'transform', `rotate(${n3(-sube)})`);
-        sa(r.ai[1], 'transform', `rotate(${n3(-sube)})`);
+        sa(r.ai[0], 'transform', `rotate(${n3(-Math.min(75, sube))})`);
+        sa(r.ai[1], 'transform', `rotate(${n3(-Math.min(75, sube))})`);
+        const abanico = clamp(sube / 75, 0, 1);
+        r.filas.forEach(fs => fs.forEach((f, i) => sa(f, 'transform', `translate(0 ${n3(abanico * i * 1.2)}) rotate(${n3(abanico * (i - 1) * 7)} 3 ${4.8 + i * 2.8})`)));
       } else {
         sa(r.a[0], 'transform', `rotate(${n3(ang * .8)} ${-W + 2.4} ${n3(SPLIT - 2.6)})`);
         sa(r.a[1], 'transform', `rotate(${n3(-ang)} ${n3(W + 7.4)} ${n3(SPLIT - 6)})`);
