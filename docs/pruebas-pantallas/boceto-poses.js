@@ -124,17 +124,17 @@
       c += T.p.map(([x, y, r]) => gel(poly(x, y, r, T.n), tile, 1)).join('') + (T.c ? gel(poly(T.c[0], T.c[1], T.c[2], T.c[3]), tile, 1.1) : '');
       c += arc('M-21 -17Q-20 -29 -9 -33', 2.2, .75) + dot(-22, -12.5, 1);
       /* abertura: sombra que sigue el borde delantero, solo visible con la cabeza adentro */
-      c += `<path id="${id}-ab" d="M20.4 -10.4Q22.4 -17.6 19.4 -25Q12.6 -17.6 20.4 -10.4Z" fill="#123a2e" stroke="${PAL.verde[3]}" stroke-width=".8" opacity="0"/>`;
-      c += `<g id="${id}-as" opacity="0">${[16.6, 19].map(x => `<g transform="translate(${x} -17.6) scale(.42)"><ellipse rx="2.3" ry="2.7" fill="#fff8d0"/><ellipse rx="1.4" ry="1.8" fill="#3a1f3a"/><circle cx=".5" cy="-.7" r=".6" fill="#fff"/></g>`).join('')}</g>`;
+      c += `<path id="${id}-ab" d="M20.8 -9.6Q24 -18.4 19.6 -27.4Q8.4 -18.6 20.8 -9.6Z" fill="#123a2e" stroke="${PAL.verde[3]}" stroke-width=".8" opacity="0"/>`;
+      c += `<g id="${id}-as" opacity="0">${`<g transform="translate(17.2 -18.6) scale(${n3(fs)})"><g id="${id}-ao"><ellipse rx="2.3" ry="2.7" fill="url(#km-ojo)"/><circle cx=".8" cy="-1.1" r="1" fill="#fff"/><circle cx="-.7" cy="1.2" r=".45" fill="#fff"/></g></g>`}</g>`;
       return `<g transform="scale(${SC})">${g}<g id="${id}-all"><g id="${id}-cap">${c}</g></g></g>`;
     };
-    const refs = el => { const q = s => el.querySelector('#' + id + '-' + s); return { sh: q('sh'), all: q('all'), cap: q('cap'), co: q('co'), p: [0, 1, 2].map(i => q('p' + i)), c1: q('c1'), c2: q('c2'), cab: q('cab'), cr: [0, 1, 2].map(i => q('cr' + i)), ab: q('ab'), as: q('as'), o: [0, 1].map(i => q('o' + i)), bc: q('bc'), bo: q('bo') }; };
+    const refs = el => { const q = s => el.querySelector('#' + id + '-' + s); return { sh: q('sh'), all: q('all'), cap: q('cap'), co: q('co'), p: [0, 1, 2].map(i => q('p' + i)), c1: q('c1'), c2: q('c2'), cab: q('cab'), cr: [0, 1, 2].map(i => q('cr' + i)), ab: q('ab'), as: q('as'), ao: q('ao'), o: [0, 1].map(i => q('o' + i)), bc: q('bc'), bo: q('bo') }; };
     const update = (r, p) => {
       const u = clamp(p.cuello, 0, 1.25);
       /* la cabeza se desliza en línea (con un leve arco) entre adentro y afuera */
       const hx = IN[0] + (O[0] - IN[0]) * u, hy = IN[1] + (O[1] - IN[1]) * u - Math.sin(Math.min(1, u) * Math.PI) * 1.5 + p.cabY;
       r.cab.setAttribute('transform', `translate(${n3(hx - O[0])} ${n3(hy - O[1])}) rotate(${n3(p.cabRot)} ${O[0]} ${n3(O[1] + 4)})`);
-      const ex = hx - 3 * hs, ey = hy + 4 * hs, d = `M${NB[0]} ${NB[1]}Q${n3(NB[0] + (ex - NB[0]) * .55)} ${n3(NB[1] + 1)} ${n3(ex)} ${n3(ey)}`;
+      const ex = hx - 3 * hs, ey = hy + 4 * hs, d = `M${NB[0]} ${NB[1]}C${n3(NB[0] + Math.max(4, (ex - NB[0]) * .75))} ${n3(NB[1] + 1.5)} ${n3(ex - 1)} ${n3(ey + Math.max(0, (NB[1] - ey) * .5))} ${n3(ex)} ${n3(ey)}`;
       r.c1.setAttribute('d', d); r.c2.setAttribute('d', d);
       const ojo = Math.max(.08, p.ojos);
       r.o.forEach((o, i) => o.setAttribute('transform', `translate(${n3((i ? 3.4 : -3.4) + p.mira * 1.1)} -.8) scale(1 ${n3(ojo)})`));
@@ -146,7 +146,7 @@
       if (r.co) r.co.setAttribute('transform', `translate(${n3(p.patas * 6)} 0)`);
       r.cr.forEach((g, i) => g && g.setAttribute('transform', `rotate(${n3(Math.sin((p.t || 0) * 2 + i) * 2 * (p.vivo || 0))} ${[-16, -4, 8][i]} ${[-30, -35, -30][i]})`));
       r.ab.setAttribute('opacity', n3(clamp((.6 - p.cuello) / .4, 0, 1)));
-      r.as.setAttribute('opacity', n3(clamp(p.asoma, 0, 1) * (p.ojos > .3 ? 1 : 0)));
+      r.as.setAttribute('opacity', n3(clamp(p.asoma, 0, 1))); if (r.ao) r.ao.setAttribute('transform', `scale(1 ${n3(Math.max(.08, p.ojos))})`);
       r.cap.setAttribute('transform', `rotate(${n3(p.capRot)} -3 -4)`);
       r.all.setAttribute('transform', `translate(0 ${n3(p.y)}) scale(${n3(p.sx)} ${n3(p.sy)})`);
       r.sh.setAttribute('transform', `scale(${n3(1 - Math.min(.4, -p.y / 40))} 1)`);
