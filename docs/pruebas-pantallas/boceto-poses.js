@@ -225,6 +225,9 @@
   };
   /* punto de una curva cúbica */
   const cub = (a, b, c, d, t) => { const u = 1 - t; return [u * u * u * a[0] + 3 * u * u * t * b[0] + 3 * u * t * t * c[0] + t * t * t * d[0], u * u * u * a[1] + 3 * u * u * t * b[1] + 3 * u * t * t * c[1] + t * t * t * d[1]]; };
+  /* pie de búho: tres deditos redondeados con garritas suaves */
+  const pieBuho = (x, k) => { const e = k >= 3 ? 1.12 : 1; return [-1, 0, 1].map(j => `<g transform="translate(${n3(x + j * 2.3 * e)} ${n3(-.2 + Math.abs(j) * -.3)})">${gel(E(0, 0, n3(1.5 * e), n3(2 * e)), 'naranja', .7)}`
+    + `<path d="M${n3(-.6 * e)} ${n3(1.7 * e)}Q0 ${n3(2.9 * e)} ${n3(.6 * e)} ${n3(1.7 * e)}" fill="${PAL.naranja[3]}" opacity=".75"/>${dot(n3(-.5 * e), n3(-.8 * e), .35)}</g>`).join(''); };
   const cubuhoPose = k => {
     const id = 'kb' + (++nB), SC = M.C.SCALE[k], body = k === 4 ? 'oro' : 'lila', BC = PAL[body], L = PAL.lila, cria = k === 1;
     const W = cria ? 13 : 16, TOP = cria ? -31 : -35, BOT = cria ? -4 : -1, SPLIT = cria ? -7.4 : -14, D = 2 * W;
@@ -298,10 +301,10 @@
       o += `<path d="${abierto(h, esUnion, 2.4)}" fill="none" stroke="${BC[3]}" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>`;
       /* panza clara abajo y banda de plumas en escamas bajo la cara (ahí queda el corte del giro) */
       o += `<clipPath id="${id}-pz"><path d="${dF}"/></clipPath><g clip-path="url(#${id}-pz)">`;
-      o += `<ellipse cx="0" cy="-3.6" rx="12.6" ry="6.6" fill="${BC[0]}" opacity=".9"/>` + [[-5, -5.6], [0, -6.4], [5, -5.6], [-2.5, -2.8], [2.5, -2.8]].map(([x, y]) => `<path d="M${x - 1} ${y}L${x} ${y + .9}L${x + 1} ${y}" fill="none" stroke="${BC[2]}" stroke-width=".7" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>`).join('');
+      o += `<ellipse cx="0" cy="-3.6" rx="12.6" ry="6.6" fill="${BC[0]}" opacity=".9"/>` + (k >= 3 ? [[-5, -5.6], [5, -5.6], [-4.4, -2.8], [4.4, -2.8]] : [[-5, -5.6], [0, -6.4], [5, -5.6], [-2.5, -2.8], [2.5, -2.8]]).map(([x, y]) => `<path d="M${x - 1} ${y}L${x} ${y + .9}L${x + 1} ${y}" fill="none" stroke="${BC[2]}" stroke-width=".7" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>`).join('');
       [[SPLIT + .4, 0], [SPLIT + 3, 2.2], [SPLIT + 5.6, 0]].forEach(([y, dx]) => { for (let x = -W - 1 + dx; x <= W + 2; x += 4.4) o += `<path d="M${n3(x - 2.4)} ${n3(y)}Q${n3(x)} ${n3(y + 3.8)} ${n3(x + 2.4)} ${n3(y)}Z" fill="${BC[1]}" stroke="${BC[2]}" stroke-width=".6" stroke-linejoin="round"/>`; });
       o += '</g>';
-      if (k >= 3) o += [-4.5, 0, 4.5].map(x => gel(C(x, -2.2, 1.2), k === 4 ? 'rosa' : 'amarillo', .5) + dot(x - .5, -2.7, .4)).join('');
+      if (k >= 3) o += [-7.2, -4.8, -2.4].map(y => gel(C(0, y, 1.15), k === 4 ? 'rosa' : 'amarillo', .5) + dot(-.4, n3(y - .4), .38)).join(''); /* botones de esfera, como de chaqueta */
       return o;
     };
     const cuerpo = () => {
@@ -318,7 +321,7 @@
       return s;
     };
     /* patas delante del cuerpo, asomando por debajo (no se pierden al crecer) */
-    const patas = () => [-7, 7].map((x, i) => `<g id="${id}-pi${i}">${k >= 3 ? gel(R(x - 3.2, -3, 6.4, 4.4, 2), 'naranja', .9) + `<ellipse cx="${x}" cy="-3" rx="3.2" ry="1.1" fill="${PAL.naranja[0]}"/>` : gel(E(x, .3, 4.2, 2.2), 'naranja', .9) + arc(`M${x - 2.4} -.4Q${x - 1} -1.2 ${x + .6} -1`, .8, .7)}</g>`).join('');
+    const patas = () => [-6.6, 6.6].map((x, i) => `<g id="${id}-pi${i}">${pieBuho(x, k)}</g>`).join('');
     const cabeza = () => `<g id="${id}-cab"><clipPath id="${id}-hc"><path id="${id}-hcp"/></clipPath><path id="${id}-hs" fill="url(#km-${body})"/>`
       + `<g clip-path="url(#${id}-hc)">${CARAS.map(cuerpoCara).join('')}</g><path id="${id}-hs2" fill="none" stroke="${BC[3]}" stroke-width="1.4" stroke-linejoin="round"/>${[0, 1].map(oreja).join('')}`
       + (cria ? `<g id="${id}-ri"><path d="M-2 -0.4Q-4 -6 .6 -6.4Q3.6 -6.4 2.6 -3.4" fill="none" stroke="${L[2]}" stroke-width="2" stroke-linecap="round"/></g>` : '')
@@ -465,7 +468,7 @@
       g += gel(R(-16, -33, 32, 32, 6.5), body, 1.4);
       g += arc('M-12.4 -24Q-12.6 -29.4 -7 -29.6', 1.8, .8) + `<path d="M-4 -37.4H16" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".7"/>`;
       g += flat(E(0, -7.5, 10, 5.6), BC[0], BC[2], .9) + [[-5, -9], [0, -10], [5, -9], [-2.5, -5.6], [2.5, -5.6]].map(([x, y]) => `<path d="M${x - 1.5} ${y - .8}L${x} ${y + .6}L${x + 1.5} ${y - .8}" fill="none" stroke="${BC[2]}" stroke-width=".8" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
-      if (k >= 3) g += [-4.5, 0, 4.5].map(x => gel(C(x, -3.4, 1.5), k === 4 ? 'rosa' : 'amarillo', .5) + dot(x - .5, -3.9, .45)).join('');
+      if (k >= 3) g += [-8.4, -5.8, -3.2].map(y => gel(C(0, y, 1.25), k === 4 ? 'rosa' : 'amarillo', .5) + dot(-.45, n3(y - .45), .4)).join('');
       g += `<g id="${id}-a0"><g transform="translate(-15.5 -18) scale(-1 1)">${ala()}</g></g><g id="${id}-a1"><g transform="translate(21 -18)">${ala()}</g></g>`;
       g += `<g id="${id}-fa">${gel(C(-7, -21, 7.4), 'crema', 1)}${gel(C(7, -21, 7.4), 'crema', 1)}${ojo(-7, 0)}${ojo(7, 1)}`
         + `<ellipse cx="-12.4" cy="-13.6" rx="2.6" ry="1.5" fill="url(#km-mej)"/><ellipse cx="12.4" cy="-13.6" rx="2.6" ry="1.5" fill="url(#km-mej)"/>`
@@ -473,7 +476,7 @@
       if (k === 2) g += `<g transform="translate(-9 -38.4)"><g id="${id}-ei0">${gel(C(0, 0, 3.2), body, 1)}</g></g><g transform="translate(18 -40.4)"><g id="${id}-ei1">${gel(C(0, 0, 3.2), body, 1)}</g></g>`;
       if (k >= 3) g += `<g transform="translate(-8.6 -38.2)"><g id="${id}-ei0">${cono(k)}</g></g><g transform="translate(19 -40)"><g id="${id}-ei1">${cono(k)}</g></g>`;
       if (k === 4) g += corona(5.6, -41.6, 1.05);
-      g += [-7, 7].map((x, i) => `<g id="${id}-pi${i}">${k >= 3 ? gel(R(x - 3.2, -3, 6.4, 4.4, 2), 'naranja', .9) + `<ellipse cx="${x}" cy="-3" rx="3.2" ry="1.1" fill="${PAL.naranja[0]}"/>` : gel(E(x, .3, 4.2, 2.2), 'naranja', .9) + arc(`M${x - 2.4} -.4Q${x - 1} -1.2 ${x + .6} -1`, .8, .7)}</g>`).join('');
+      g += [-6.6, 6.6].map((x, i) => `<g id="${id}-pi${i}">${pieBuho(x, k)}</g>`).join('');
       return `<g transform="scale(${SC})">${pre}<g id="${id}-sh">${piso(26, 2)}</g><g id="${id}-all">${g}</g></g>`;
     };
     const refs = el => { const q = s => el.querySelector('#' + id + '-' + s); return { sh: q('sh'), all: q('all'), fa: q('fa'), o: [q('o0'), q('o1')], ei: [q('ei0'), q('ei1')], a: [q('a0'), q('a1')], pi: [q('pi0'), q('pi1')], f: [q('f0'), q('f1')] }; };
