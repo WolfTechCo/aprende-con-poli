@@ -212,9 +212,22 @@
   /* oreja de cono: base plana sobre la cabeza (sin elipse hacia el frente); se inclina con skewX, que no gira la base */
   const cono = k => `${gel(P('M-4.3 1.2Q0 2.2 4.3 1.2L1.3 -6Q0 -8 -1.3 -6Z'), k === 4 ? 'rosa' : 'azul', 1)}${arc('M-1.9 -.4L-.6 -4.6', .8, .8)}`;
   const conoT = (lado, o) => `skewX(${n3(lado * (14 + o * 16))}) scale(1 ${n3(1 - Math.abs(o) * .08)})`;
+  /* contorno abierto: el casco convexo sin los bordes que unen puntos «de la unión» (así, quieto, no se ve corte) */
+  const abierto = (h, esUnion, r) => {
+    const n = h.length, j = h.findIndex((p, i) => esUnion(p) && !esUnion(h[(i + 1) % n])); /* último punto de la unión */
+    if (j < 0) return redondo(h, r);
+    const out = [h[j]]; for (let k = 1; k <= n; k++) { const p = h[(j + k) % n]; out.push(p); if (esUnion(p)) break; } /* recorre hasta volver a la unión */
+    let d = 'M' + n3(out[0][0]) + ' ' + n3(out[0][1]);
+    for (let k = 1; k < out.length - 1; k++) { const a = out[k - 1], p = out[k], b = out[k + 1], la = Math.hypot(a[0] - p[0], a[1] - p[1]) || 1, lb = Math.hypot(b[0] - p[0], b[1] - p[1]) || 1;
+      const ta = Math.min(r, la / 2) / la, tb = Math.min(r, lb / 2) / lb;
+      d += 'L' + n3(p[0] + (a[0] - p[0]) * ta) + ' ' + n3(p[1] + (a[1] - p[1]) * ta) + 'Q' + n3(p[0]) + ' ' + n3(p[1]) + ' ' + n3(p[0] + (b[0] - p[0]) * tb) + ' ' + n3(p[1] + (b[1] - p[1]) * tb); }
+    const z = out[out.length - 1]; return d + 'L' + n3(z[0]) + ' ' + n3(z[1]);
+  };
+  /* punto de una curva cúbica */
+  const cub = (a, b, c, d, t) => { const u = 1 - t; return [u * u * u * a[0] + 3 * u * u * t * b[0] + 3 * u * t * t * c[0] + t * t * t * d[0], u * u * u * a[1] + 3 * u * u * t * b[1] + 3 * u * t * t * c[1] + t * t * t * d[1]]; };
   const cubuhoPose = k => {
     const id = 'kb' + (++nB), SC = M.C.SCALE[k], body = k === 4 ? 'oro' : 'lila', BC = PAL[body], L = PAL.lila, cria = k === 1;
-    const W = cria ? 13 : 16, TOP = cria ? -31 : -33, BOT = cria ? -4 : -1, SPLIT = cria ? -7.4 : -9.2, D = 2 * W;
+    const W = cria ? 13 : 16, TOP = cria ? -31 : -33, BOT = cria ? -4 : -1, SPLIT = cria ? -7.4 : -10, D = 2 * W;
     const PX = (cria ? 8.5 : 9) / D, PY = -7 / D; /* proyección del fondo: hacia la derecha y hacia arriba, como el cubo de siempre */
     const HH = SPLIT - TOP, ER = cria ? 6.6 : 7.4, FV = 12; /* alto de la cabeza; radio de los discos; altura de los ojos en la cara */
     const proj = (x, y, z) => [x + PX * z, y + PY * z];
@@ -237,19 +250,41 @@
     const caraLado = `<path d="M${W - 5} ${n3(HH * .45)}L${W} ${n3(HH * .45 + 2.4)}L${W + 5} ${n3(HH * .45)}M${W - 5} ${n3(HH * .45 + 4.4)}L${W} ${n3(HH * .45 + 6.8)}L${W + 5} ${n3(HH * .45 + 4.4)}" fill="none" stroke="${BC[3]}" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity=".35"/>`;
     const cuerpoCara = (f) => {
       const w = Math.hypot(...f.u), h = Math.hypot(...f.v), top = f.n === 'ar';
-      const fill = top ? `fill="${BC[0]}"` : `fill="url(#km-${body})"`;
+      const fill = top ? `fill="${BC[0]}"` : f.n === 'fr' && !cria ? `fill="url(#${id}-gf)"` : `fill="url(#km-${body})"`;
       const dentro = f.n === 'fr' ? caraFrente : f.n === 'at' ? caraAtras : top ? `<path d="M${n3(w * .2)} ${n3(h * .82)}H${n3(w * .8)}" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".7"/>` : caraLado;
       return `<g id="${id}-c${f.n}"><rect x="-.3" y="-.3" width="${n3(w + .6)}" height="${n3(h + .6)}" ${fill}/>`
         + (top ? '' : `<rect id="${id}-s${f.n}" width="${n3(w)}" height="${n3(h)}" fill="#2a1640" opacity="0"/>${arc(`M4 ${n3(h * .55)}Q3.6 4 9 3.4`, 1.6, .7)}`)
-        + `<rect width="${n3(w)}" height="${n3(h)}" fill="none" stroke="${BC[3]}" stroke-width=".7" opacity=".4"/>` + dentro + '</g>';
+        + `<rect class="arista" width="${n3(w)}" height="${n3(h)}" fill="none" stroke="${BC[3]}" stroke-width=".7" opacity="${cria ? .4 : 0}"/>` + dentro + '</g>';
     };
     const OREJAS = [[-9.5, 6], [9.5, 6]]; /* sobre la tapa, cerca del frente */
     const oreja = (i) => k >= 3
       ? `<g id="${id}-e${i}"><g id="${id}-ei${i}">${cono(k)}</g></g>`
       : k === 2 ? `<g id="${id}-e${i}"><g id="${id}-ei${i}">${gel(C(0, -1.6, 3.2), body, 1)}</g></g>` : '';
     const ala = () => `${gel(P('M0 -4Q-9 -2 -8.6 8Q-8 13 -3.6 12Q0 8 0 4Z'), body, 1.1)}${k >= 2 ? [[-7.4, 4.6, 14, 4.6], [-6.2, 7.6, 8, 4.8], [-4.4, 9.8, 0, 4.4]].map(([x, y, r, l]) => pluma(x, y, r, l, k === 4 ? 'rosa' : 'lila')).join('') : ''}`;
+    /* ala plegada contra el cuerpo: nace en el hombro (0, 0), cae hacia abajo y atrás, plumas con la punta hacia abajo y atrás */
+    const alaPlegada = () => `${gel(P('M0 -.6C4.2 -.8 7 3.4 6.8 8.6C6.6 12.6 4.6 15.4 2.6 16.4C.8 13.4 -1 7 0 -.6Z'), body, 1.1)}${arc('M1.4 2Q3.6 1.6 5 4', .9, .6)}`
+      + [[3.4, 10.4, -24, 5.4], [5.2, 9.2, -34, 4.6], [2, 12.6, -14, 5]].map(([x, y, r, l]) => pluma(x, y, r, l, k === 4 ? 'rosa' : 'lila', 2.2)).join('');
     /* cuerpo (capa de abajo), quieto: costado, tapa (se ve en las esquinas cuando la cabeza gira) y frente */
+    const BY = -.4; /* base de la panza */
+    const frente = () => { /* contorno del frente de la panza: lados que se abomban y base redonda */
+      const L = [[-W, SPLIT], [-W - .3, -8.4]], R = [[W + .3, -8.4], [W, SPLIT]];
+      const c1 = [...Array(9)].map((_, i) => cub([-W - .3, -8.4], [-W - 1.6, -3.2], [-12.4, BY], [-6, BY], i / 8));
+      const c2 = [...Array(9)].map((_, i) => cub([6, BY], [12.4, BY], [W + 1.6, -3.2], [W + .3, -8.4], i / 8));
+      return [...L, ...c1.slice(1), ...c2, ...R.slice(1)];
+    };
+    const panza = () => {
+      const F = frente(), S = F.map(([x, y]) => [x + PX * D, y + PY * D]), dF = 'M' + F.map(p => p.map(n3).join(' ')).join('L') + 'Z';
+      const esUnion = ([x, y]) => Math.abs(y - SPLIT) < .01 || Math.abs(y - (SPLIT + PY * D)) < .01;
+      const h = casco([...F, ...S]);
+      let o = `<path d="${redondo(h, 1.5)}" fill="${BC[2]}"/>`; /* volumen: el costado en sombra */
+      o += `<path d="${dF}" fill="url(#${id}-g)"/>`;
+      o += `<path d="${abierto(h, esUnion, 2.4)}" fill="none" stroke="${BC[3]}" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>`;
+      o += flat(E(0, -5.2, 9.4, 4.4), BC[0], BC[2], .9) + [[-4.2, -7.4], [0, -8], [4.2, -7.4], [-2.1, -4.6], [2.1, -4.6]].map(([x, y]) => `<path d="M${x - 1.4} ${y - .7}L${x} ${y + .6}L${x + 1.4} ${y - .7}" fill="none" stroke="${BC[2]}" stroke-width=".8" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
+      if (k >= 3) o += [-4.5, 0, 4.5].map(x => gel(C(x, -2.6, 1.3), k === 4 ? 'rosa' : 'amarillo', .5) + dot(x - .5, -3.1, .4)).join('');
+      return o;
+    };
     const cuerpo = () => {
+      if (!cria) return panza();
       const p = (x, y, z) => proj(x, y, z).map(n3).join(' ');
       const pts = []; [-W, W].forEach(x => [0, D].forEach(z => [SPLIT, BOT].forEach(y => pts.push(proj(x, y, z)))));
       const sil = redondo(casco(pts), 3.6);
@@ -283,14 +318,18 @@
         g += arc(`M${cx - hw + 3} -6Q${cx - hw + 5} -1.6 ${cx - hw + 10} -.8`, 1.6, .8) + dot(cx + 3, -3, .8) + '</g>';
         return `<g transform="scale(${SC})">${pre}<g id="${id}-sh">${piso(24, 3)}</g><g id="${id}-all">${g}</g></g>`;
       }
-      g += `<g id="${id}-a0"><g transform="translate(${-W + 2.4} ${SPLIT + .6}) scale(.8)">${ala()}</g></g>`; /* ala lejana: detrás del cuerpo, asoma un pedazo */
+      const [gl, gb, gd] = BC;
+      g += `<defs><radialGradient id="${id}-g" gradientUnits="userSpaceOnUse" cx="-7" cy="-27" r="40"><stop offset="0" stop-color="${gl}"/><stop offset=".5" stop-color="${gb}"/><stop offset="1" stop-color="${gd}"/></radialGradient>`
+        + `<radialGradient id="${id}-gf" gradientUnits="userSpaceOnUse" cx="${-7 + W}" cy="${-27 - TOP}" r="40"><stop offset="0" stop-color="${gl}"/><stop offset=".5" stop-color="${gb}"/><stop offset="1" stop-color="${gd}"/></radialGradient>`
+        + `<clipPath id="${id}-ru"><path d="M-80 -120H90V${n3(SPLIT - 1 - 7.6 - 60 * 7 / 9)}L${n3(W + 9.6)} ${n3(SPLIT - 1 - 7.6)}L${W - .4} ${n3(SPLIT - 1)}H-80Z"/></clipPath></defs>`;
+      g += `<g id="${id}-a0"><g transform="translate(${-W + 3} ${SPLIT + 1}) scale(-1 1)"><g id="${id}-ai0">${alaPlegada()}</g></g></g>`; /* ala lejana: detrás del cuerpo, asoma apenas */
       g += cuerpo();
-      g += `<g id="${id}-a1"><g transform="translate(${n3(W + 7.4)} ${n3(SPLIT - 4.4)}) skewY(-38) scale(.6 .82)">${ala()}</g></g>`; /* ala cercana: sobre el costado, nace bajo la cabeza */
+      g += `<g id="${id}-a1"><g transform="translate(${n3(W + 1.6)} ${n3(SPLIT - .4)})"><g id="${id}-ai1">${alaPlegada()}</g></g></g>`; /* ala cercana: plegada sobre el costado */
       g += patas() + cabeza();
       return `<g transform="scale(${SC})">${pre}<g id="${id}-sh">${piso(26, 2)}</g><g id="${id}-all">${g}</g></g>`;
     };
     const refs = el => { const q = s => el.querySelector('#' + id + '-' + s);
-      return { sh: q('sh'), all: q('all'), cab: q('cab'), hcp: q('hcp'), hs: q('hs'), hs2: q('hs2'), caras: CARAS.map(f => ({ f, g: q('c' + f.n), s: q('s' + f.n) })), o: [q('o0'), q('o1')], e: [q('e0'), q('e1')], ei: [q('ei0'), q('ei1')], ri: q('ri'), co: q('co'),
+      return { sh: q('sh'), all: q('all'), cab: q('cab'), hcp: q('hcp'), hs: q('hs'), hs2: q('hs2'), ai: [q('ai0'), q('ai1')], aristas: [...el.querySelectorAll('#' + id + '-cab .arista')], caras: CARAS.map(f => ({ f, g: q('c' + f.n), s: q('s' + f.n) })), o: [q('o0'), q('o1')], e: [q('e0'), q('e1')], ei: [q('ei0'), q('ei1')], ri: q('ri'), co: q('co'),
         a: [q('a0'), q('a1')], pi: [q('pi0'), q('pi1')], f: [q('f0'), q('f1')], cu: q('cu'), cs: q('cs') }; };
     const update = (r, p) => {
       const th = p.teta * Math.PI / 180, c = Math.cos(th), s = Math.sin(th), clave = n3(p.teta);
@@ -306,7 +345,10 @@
         if (sh) sh.setAttribute('opacity', n3(clamp((.8 - (-.5 * n[0] - .86 * n[2])) * .3, 0, .42))); /* sombra según hacia dónde mira la cara */
       });
       const hp = []; [-W, W].forEach(x => [0, D].forEach(z => { const [rx, rz] = rot(x, z, c, s); [TOP, SPLIT].forEach(y => hp.push(proj(rx, y, rz))); }));
-      const hd = redondo(casco(hp), 3.8); r.hcp.setAttribute('d', hd); r.hs.setAttribute('d', hd); r.hs2.setAttribute('d', hd);
+      const hh = casco(hp), hd = redondo(hh, 3.8); r.hcp.setAttribute('d', hd); r.hs.setAttribute('d', hd);
+      const gira = cria ? 1 : clamp(Math.abs(Math.sin(th / 2)) * 6, 0, 1);
+      if (!cria && gira < .03) { r.hs2.setAttribute('d', hd); r.hs2.setAttribute('clip-path', `url(#${id}-ru)`); } else { r.hs2.setAttribute('d', hd); r.hs2.removeAttribute('clip-path'); }
+      if (!cria) r.aristas.forEach(a => a.setAttribute('opacity', n3(.4 * gira)));
       /* orejas, rizo y corona: puntos sobre la tapa que giran con la cabeza */
       const sobre = (x, z) => { const [rx, rz] = rot(x, z, c, s); return proj(rx, TOP, rz); };
       OREJAS.forEach(([x, z], i) => { if (!r.e[i]) return; const [px, py] = sobre(x, z); r.e[i].setAttribute('transform', `translate(${n3(px)} ${n3(py + .6)})`); });
@@ -319,8 +361,15 @@
       r.o.forEach((o, i) => sa(o, 'transform', `scale(1 ${n3(Math.max(.08, p.ojos * (i === 0 ? p.guino : 1)))})`));
       const fl = p.aleteo * Math.sin((p.t || 0) * 34) * 22, resp = (p.vivo || 0) * Math.sin((p.t || 0) * 2 * Math.PI / 3.6) * 2.5; /* las dos alas juntas */
       const ang = p.alaI + p.alaD + p.esponja * 12 + Math.max(0, fl) + resp;
-      sa(r.a[0], 'transform', `rotate(${n3(ang * .8)} ${-W + 2.4} ${n3(SPLIT - 2.6)})`);
-      sa(r.a[1], 'transform', `rotate(${n3(-ang)} ${n3(W + 7.4)} ${n3(SPLIT - 6)})`);
+      if (r.ai[0]) { /* abre: 0 plegada contra el costado … 1 abierta hacia afuera y arriba */
+        const abre = clamp((p.alaD + p.alaI) / 38 + p.esponja * .25 + p.aleteo, 0, 1), giro = -abre * (70 + (p.aleteo ? Math.sin((p.t || 0) * 30) * 28 : 0)) - resp * .6;
+        const tam = .58 + .42 * abre; /* plegada es corta (termina al borde de la panza); al abrirse se despliega */
+        sa(r.ai[0], 'transform', `rotate(${n3(giro)}) scale(${n3((.55 + .45 * abre) * tam)} ${n3(tam)})`);
+        sa(r.ai[1], 'transform', `skewY(${n3(-38 * (1 - abre))}) rotate(${n3(giro)}) scale(${n3((.62 + .38 * abre) * tam)} ${n3(tam)})`);
+      } else {
+        sa(r.a[0], 'transform', `rotate(${n3(ang * .8)} ${-W + 2.4} ${n3(SPLIT - 2.6)})`);
+        sa(r.a[1], 'transform', `rotate(${n3(-ang)} ${n3(W + 7.4)} ${n3(SPLIT - 6)})`);
+      }
       r.f.forEach((f, i) => f && f.setAttribute('transform', `translate(${i ? 21 : -13} ${i ? -16 : -14}) rotate(${n3((i ? -1 : 1) * (Math.sin((p.t || 0) * 1.6) * 3 * (p.vivo || 0) + fl * .6))})`));
       r.pi.forEach((f, i) => f && f.setAttribute('transform', `translate(0 ${n3(-Math.max(0, Math.sin((p.t || 0) * 9 + i * Math.PI)) * 1.6 * p.pasito)})`));
       sa(r.cu, 'transform', `translate(0 ${n3(p.sube)})`);
