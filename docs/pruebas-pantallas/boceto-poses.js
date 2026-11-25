@@ -31,6 +31,7 @@
       this.cola = []; this.modo = 'vida'; this.ocupado = 0; this.proxima = 0; this.ultima = -1; this.parpadeo = 0; this.turno = 0;
       this.reducido = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
       this.paso = this.paso.bind(this); this.t0 = performance.now(); this.vivo = true;
+      if (el.style) el.style.pointerEvents = 'none';
       this.render(this.t0); if (!this.reducido) requestAnimationFrame(this.paso);
     }
     /* programa una secuencia: [[ms desde ahora, { perilla: valor }, duración, curva]] */
@@ -104,13 +105,13 @@
   };
   const tortugonoPose = k => {
     const cid = 'kt-' + (++clipN), T = TT[k], tile = k === 4 ? 'oro' : 'amarillo', up = k >= 3, hs = [0, 1.22, 1.08, 1, 1][k];
-    const O = up ? [27, -27] : [23, -15], B = [4, -8.6], CTRL = up ? [26, -11] : [21, -10]; /* cabeza: afuera, adentro y curva del cuello */
-    const HOLE = [19.6, -8.6];
+    const HOLE = [15.4, -11.8], O = up ? [27, -27] : [23, -15], B = HOLE, CTRL = up ? [24, -15] : [21, -12.5]; /* cabeza: afuera, en el hoyo y curva del cuello */
+    const SC = M.C.SCALE[k];
     return p => {
       const c = Math.max(0, p.cuello), u = Math.min(1, c);
       /* la cabeza sigue una curva desde la abertura hacia afuera (cuello en S que se estira) */
       const qx = (1 - u) * (1 - u) * B[0] + 2 * u * (1 - u) * CTRL[0] + u * u * O[0], qy = (1 - u) * (1 - u) * B[1] + 2 * u * (1 - u) * CTRL[1] + u * u * O[1];
-      const hx = qx + (c - u) * 4, hy = qy + p.cabY - (c - u) * 3, s = hs * (.78 + .22 * u);
+      const hx = qx + (c - u) * 4, hy = qy + p.cabY - (c - u) * 3, s = hs * (.4 + .6 * u); /* se achica al entrar: se aleja hacia adentro del caparazón */
       let s0 = piso(34, -2);
       let g = '';
       if (k >= 2) g += gel(P(`M-25 -8Q${f1(-35 + p.patas * 6)} -8 ${f1(-33 + p.patas * 6)} -2.6Q-29 -1.2 -24 -4Z`), 'menta', 1); /* colita */
@@ -123,8 +124,8 @@
       }).join('');
       /* cuello y cabeza: van DETRÁS del caparazón (su borde curvo los tapa al entrar) y se repiten dentro de la abertura */
       let cab = '';
-      if (c > .05) cab += tent(`M${HOLE[0] - 2} ${HOLE[1]}Q${f1(lerp(HOLE[0], CTRL[0], u))} ${f1(lerp(HOLE[1], CTRL[1], u))} ${f1(hx - 2 * s)} ${f1(hy + 4 * s)}`, 'menta', f1(7.5 * s));
-      cab += `<g transform="rotate(${f1(p.cabRot)} ${f1(hx)} ${f1(hy + 4)})">${tHead(f1(hx), f1(hy), s)}${caraT(hx + 2.4 * s, hy + .6 * s, .9 * s, p, k >= 3)}${k === 4 ? corona(f1(hx), f1(hy - 8.6 * s), .95 * s, 8) : ''}</g>`;
+      if (c > .14) cab += tent(`M${HOLE[0] - 2} ${HOLE[1]}Q${f1(lerp(HOLE[0], CTRL[0], u))} ${f1(lerp(HOLE[1], CTRL[1], u))} ${f1(hx - 2 * s)} ${f1(hy + 4 * s)}`, 'menta', f1(7.5 * s));
+      if (c > .06) cab += `<g transform="rotate(${f1(p.cabRot)} ${f1(hx)} ${f1(hy + 4)})">${tHead(f1(hx), f1(hy), s)}${caraT(hx + 2.4 * s, hy + .6 * s, .9 * s, p, k >= 3)}${k === 4 ? corona(f1(hx), f1(hy - 8.6 * s), .95 * s, 8) : ''}</g>`;
       g += cab;
       if (up) g += [[-16, -35.4], [-4, -40.6], [8, -35.4]].map(([x, y], i) => `<g transform="rotate(${f1(Math.sin(p.t * 2 + i) * 2 * p.vivo)} ${x} ${y + 5})">${gel(poly(x, y, 5.6, T.n), tile, 1)}</g>`).join('');
       g += gel(P('M-29 -7.5Q-29 -11.5 -25 -11.5L19 -11.5Q23 -11.5 23 -7.5Q23 -3.8 19 -3.8L-25 -3.8Q-29 -3.8 -29 -7.5Z'), k === 4 ? 'oro' : 'vainilla', 1.1);
@@ -132,10 +133,10 @@
       g += T.p.map(([x, y, r]) => gel(poly(x, y, r, T.n), tile, 1)).join('') + (T.c ? gel(poly(T.c[0], T.c[1], T.c[2], T.c[3]), tile, 1.1) : '');
       g += arc('M-21 -17Q-20 -29 -9 -33', 2.2, .75) + dot(-22, -12.5, 1);
       /* la abertura de adelante, oscura por dentro; lo que está dentro de ella se ve por el hoyo */
-      g += `<ellipse cx="${HOLE[0]}" cy="${HOLE[1]}" rx="4.6" ry="5" fill="#1d4a3c" stroke="${PAL.verde[3]}" stroke-width="1.1"/><ellipse cx="${HOLE[0] + .8}" cy="${HOLE[1] + 1}" rx="3" ry="3.4" fill="#0f2c24"/>`;
-      g += `<clipPath id="${cid}"><ellipse cx="${HOLE[0]}" cy="${HOLE[1]}" rx="4.1" ry="4.5"/></clipPath><g clip-path="url(#${cid})">${cab}</g>`;
+      g += `<g transform="rotate(-14 ${HOLE[0]} ${HOLE[1]})"><ellipse cx="${HOLE[0]}" cy="${HOLE[1]}" rx="5.4" ry="6.4" fill="#1d4a3c" stroke="${PAL.verde[3]}" stroke-width="1.2"/><ellipse cx="${HOLE[0] + 1}" cy="${HOLE[1] + 1.2}" rx="3.8" ry="4.7" fill="#0f2c24"/></g>`;
+      g += `<clipPath id="${cid}"><ellipse cx="${HOLE[0]}" cy="${HOLE[1]}" rx="4.9" ry="5.9" transform="rotate(-14 ${HOLE[0]} ${HOLE[1]})"/></clipPath><g clip-path="url(#${cid})">${cab}</g>`;
       const sombra = `<g transform="translate(0 0) scale(${f1(1 - Math.min(.4, -p.y / 40))} 1)">${s0}</g>`;
-      return (k === 4 ? aura(-20, 42) + chispas([[-30, -44, 3], [36, -12, 2.6], [-34, -18, 2.2]]) : '') + sombra + `<g transform="translate(0 ${f1(p.y)}) scale(${f1(p.sx)} ${f1(p.sy)})"><g transform="rotate(${f1(p.capRot)} -3 -4)">${g}</g></g>`;
+      return `<g transform="scale(${SC})">` + (k === 4 ? aura(-20, 42) + chispas([[-30, -44, 3], [36, -12, 2.6], [-34, -18, 2.2]]) : '') + sombra + `<g transform="translate(0 ${f1(p.y)}) scale(${f1(p.sx)} ${f1(p.sy)})"><g transform="rotate(${f1(p.capRot)} -3 -4)">${g}</g></g>` + '</g>';
     };
   };
   const T_SPEC = {
@@ -149,13 +150,13 @@
       m => m.hacer([[0, { cabRot: 10, mira: 1 }, 500], [1100, { cabRot: -9, mira: -1 }, 600], [2100, { cabRot: 0, mira: 0 }, 400]]), /* mira a los lados */
       m => m.hacer([[0, { ojos: 0, boca: 1, cuello: 1.08, cabRot: -6 }, 650], [1250, { ojos: 1, boca: 0, cuello: 1, cabRot: 0 }, 450]]), /* bosteza */
       m => m.hacer([[0, { andar: 1 }, 300], [2300, { andar: 0 }, 300]]), /* camina en su lugar */
-      m => m.hacer([[0, { cuello: .35, patas: .3 }, 280, 'sale'], [1000, { cuello: 1.12, patas: 0 }, 320, 'rebote'], [1320, { cuello: 1 }, 200]]), /* tímida */
+      m => m.hacer([[0, { cuello: .3, patas: .3 }, 280, 'sale'], [1000, { cuello: 1.12, patas: 0 }, 320, 'rebote'], [1320, { cuello: 1 }, 200]]), /* tímida */
     ],
     gesto: (m, d) => m.hacer([
       [d, { sy: .9, sx: 1.06 }, 120], [d + 120, { sy: 1, sx: 1 }, 160],
       [d + 100, { cuello: 0 }, 260, 'entra'], [d + 220, { patas: 1 }, 260, 'entra'], /* primero la cabeza, después las patas */
       [d + 480, { capRot: -7 }, 110], [d + 590, { capRot: 6 }, 120], [d + 710, { capRot: -3 }, 120], [d + 830, { capRot: 0 }, 140],
-      [d + 1250, { cuello: .42 }, 280, 'sale'], [d + 1560, { ojos: 0 }, 70], [d + 1640, { ojos: 1 }, 90], /* asoman los ojitos */
+      [d + 1250, { cuello: .3 }, 280, 'sale'], [d + 1560, { ojos: 0 }, 70], [d + 1640, { ojos: 1 }, 90], /* asoman los ojitos */
       [d + 2000, { cuello: 1.15, patas: 0 }, 260, 'rebote'], [d + 2260, { cuello: 1 }, 220]]),
     salto: (m, d) => m.hacer([
       [d, { sy: .84, sx: 1.1 }, 130], [d + 130, { y: -15, sy: 1.1, sx: .92, patas: .35 }, 230, 'sale'], [d + 360, { y: 0, patas: 0 }, 200, 'entra'],
