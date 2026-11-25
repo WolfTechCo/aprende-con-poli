@@ -262,8 +262,13 @@
       : k === 2 ? `<g id="${id}-e${i}"><g id="${id}-ei${i}">${gel(C(0, -1.6, 3.2), body, 1)}</g></g>` : '';
     const ala = () => `${gel(P('M0 -4Q-9 -2 -8.6 8Q-8 13 -3.6 12Q0 8 0 4Z'), body, 1.1)}${k >= 2 ? [[-7.4, 4.6, 14, 4.6], [-6.2, 7.6, 8, 4.8], [-4.4, 9.8, 0, 4.4]].map(([x, y, r, l]) => pluma(x, y, r, l, k === 4 ? 'rosa' : 'lila')).join('') : ''}`;
     /* ala plegada contra el cuerpo: nace en el hombro (0, 0), cae hacia abajo y atrás, plumas con la punta hacia abajo y atrás */
-    const alaPlegada = () => `${gel(P('M0 -.6C4.2 -.8 7 3.4 6.8 8.6C6.6 12.6 4.6 15.4 2.6 16.4C.8 13.4 -1 7 0 -.6Z'), body, 1.1)}${arc('M1.4 2Q3.6 1.6 5 4', .9, .6)}`
-      + [[3.4, 10.4, -24, 5.4], [5.2, 9.2, -34, 4.6], [2, 12.6, -14, 5]].map(([x, y, r, l]) => pluma(x, y, r, l, k === 4 ? 'rosa' : 'lila', 2.2)).join('');
+    /* ala pegada al costado: dibujada en el plano del costado (u = hacia atrás, v = hacia abajo), nace en el hombro (0, 0) */
+    /* ala vista de tres cuartos: nace en el hombro (0, 0), cubre el costado abultándose hacia afuera y su punta va hacia atrás (abajo a la derecha) */
+    const ALA_D = 'M0 0C5.2 -1.4 9.8 1.8 11.2 6.6C12.2 10.6 11 14 8.4 14.8C5.2 15.6 1.6 13 .2 8.8C-.8 5.8 -.8 2.2 0 0Z';
+    const alaLado = () => `<path d="${ALA_D}" transform="translate(1.2 1.6)" fill="#2a1640" opacity=".22"/>` /* sombra sobre el cuerpo: da volumen */
+      + gel(P(ALA_D), body, 1.2) + `<path d="M2.4 4.4Q7.6 6.4 9.6 11.8" fill="none" stroke="${BC[3]}" stroke-width="1" opacity=".4"/>` + arc('M2 1.6Q6.4 .6 9 4', 1.2, .75)
+      + [[6.4, 10.8, -24, 5.4], [8.4, 9.8, -38, 5.2], [9.8, 8, -52, 4.8], [4.2, 11.4, -10, 5]].map(([x, y, r, l]) => pluma(x, y, r, l, k === 4 ? 'rosa' : 'lila', 2.3)).join('');
+    const alaPlegada = alaLado;
     /* cuerpo (capa de abajo), quieto: costado, tapa (se ve en las esquinas cuando la cabeza gira) y frente */
     const BY = -.4; /* base de la panza */
     const frente = () => { /* contorno del frente de la panza: lados que se abomban y base redonda */
@@ -273,8 +278,11 @@
       return [...L, ...c1.slice(1), ...c2, ...R.slice(1)];
     };
     const panza = () => {
-      const F = frente(), S = F.map(([x, y]) => [x + PX * D, y + PY * D]), dF = 'M' + F.map(p => p.map(n3).join(' ')).join('L') + 'Z';
-      const esUnion = ([x, y]) => Math.abs(y - SPLIT) < .01 || Math.abs(y - (SPLIT + PY * D)) < .01;
+      const F = frente(), dF = 'M' + F.map(p => p.map(n3).join(' ')).join('L') + 'Z';
+      /* anillos hacia atrás: la base sube y se recoge cuanto más atrás (forma de huevo) */
+      const anillo = (fz, sube, recoge) => F.map(([x, y]) => { const t = clamp((y - SPLIT) / (BY - SPLIT), 0, 1); return [x * (1 - recoge * t * t) + PX * D * fz, y + PY * D * fz - sube * t * t]; });
+      const S = [...anillo(.45, 1.6, .05), ...anillo(.8, 4.4, .14), ...anillo(1, 6.4, .22)];
+      const esUnion = ([x, y]) => Math.abs(y - SPLIT - PY * D * .45) < .01 || Math.abs(y - SPLIT - PY * D * .8) < .01 || Math.abs(y - SPLIT) < .01 || Math.abs(y - (SPLIT + PY * D)) < .01;
       const h = casco([...F, ...S]);
       let o = `<path d="${redondo(h, 1.5)}" fill="${BC[2]}"/>`; /* volumen: el costado en sombra */
       o += `<path d="${dF}" fill="url(#${id}-g)"/>`;
@@ -322,9 +330,11 @@
       g += `<defs><radialGradient id="${id}-g" gradientUnits="userSpaceOnUse" cx="-7" cy="-27" r="40"><stop offset="0" stop-color="${gl}"/><stop offset=".5" stop-color="${gb}"/><stop offset="1" stop-color="${gd}"/></radialGradient>`
         + `<radialGradient id="${id}-gf" gradientUnits="userSpaceOnUse" cx="${-7 + W}" cy="${-27 - TOP}" r="40"><stop offset="0" stop-color="${gl}"/><stop offset=".5" stop-color="${gb}"/><stop offset="1" stop-color="${gd}"/></radialGradient>`
         + `<clipPath id="${id}-ru"><path d="M-80 -120H90V${n3(SPLIT - 1 - 7.6 - 60 * 7 / 9)}L${n3(W + 9.6)} ${n3(SPLIT - 1 - 7.6)}L${W - .4} ${n3(SPLIT - 1)}H-80Z"/></clipPath></defs>`;
-      g += `<g id="${id}-a0"><g transform="translate(${-W + 3} ${SPLIT + 1}) scale(-1 1)"><g id="${id}-ai0">${alaPlegada()}</g></g></g>`; /* ala lejana: detrás del cuerpo, asoma apenas */
+      /* ala lejana: en el costado izquierdo (de espaldas a nosotros), detrás del cuerpo; asoma solo la punta de atrás */
+      g += `<g id="${id}-a0"><g transform="translate(${-W + 10.4} ${SPLIT - 4.6}) scale(-.84 .84)"><g id="${id}-ai0">${alaPlegada()}</g></g></g>`;
       g += cuerpo();
-      g += `<g id="${id}-a1"><g transform="translate(${n3(W + 1.6)} ${n3(SPLIT - .4)})"><g id="${id}-ai1">${alaPlegada()}</g></g></g>`; /* ala cercana: plegada sobre el costado */
+      /* ala cercana: en el plano del costado derecho, pegada y hacia atrás */
+      g += `<g id="${id}-a1"><g transform="translate(${W - 1.8} ${SPLIT - 5}) scale(.86)"><g id="${id}-ai1">${alaPlegada()}</g></g></g>`;
       g += patas() + cabeza();
       return `<g transform="scale(${SC})">${pre}<g id="${id}-sh">${piso(26, 2)}</g><g id="${id}-all">${g}</g></g>`;
     };
@@ -363,9 +373,10 @@
       const ang = p.alaI + p.alaD + p.esponja * 12 + Math.max(0, fl) + resp;
       if (r.ai[0]) { /* abre: 0 plegada contra el costado … 1 abierta hacia afuera y arriba */
         const abre = clamp((p.alaD + p.alaI) / 38 + p.esponja * .25 + p.aleteo, 0, 1), giro = -abre * (70 + (p.aleteo ? Math.sin((p.t || 0) * 30) * 28 : 0)) - resp * .6;
-        const tam = .58 + .42 * abre; /* plegada es corta (termina al borde de la panza); al abrirse se despliega */
-        sa(r.ai[0], 'transform', `rotate(${n3(giro)}) scale(${n3((.55 + .45 * abre) * tam)} ${n3(tam)})`);
-        sa(r.ai[1], 'transform', `skewY(${n3(-38 * (1 - abre))}) rotate(${n3(giro)}) scale(${n3((.62 + .38 * abre) * tam)} ${n3(tam)})`);
+        /* se levantan desde el hombro, sin despegarse: hasta unos 75° al aletear, poquito al esponjarse */
+        const sube = clamp(abre, 0, 1) * (p.aleteo ? 45 + Math.sin((p.t || 0) * 30) * 30 : 55) + resp * .8;
+        sa(r.ai[0], 'transform', `rotate(${n3(-sube)})`);
+        sa(r.ai[1], 'transform', `rotate(${n3(-sube)})`);
       } else {
         sa(r.a[0], 'transform', `rotate(${n3(ang * .8)} ${-W + 2.4} ${n3(SPLIT - 2.6)})`);
         sa(r.a[1], 'transform', `rotate(${n3(-ang)} ${n3(W + 7.4)} ${n3(SPLIT - 6)})`);
