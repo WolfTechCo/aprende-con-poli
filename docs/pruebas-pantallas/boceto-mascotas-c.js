@@ -125,5 +125,5 @@
     const art = k === 0 ? `<g class="wob">${M.huevo(id)}</g>` : `<g class="idle">${DRAW_C[id](k)}</g>`;
     return `<g transform="scale(${k === 0 ? 1.1 : SCALE_C[k]})"${sombra ? ' filter="url(#km-sombra)"' : ''}>${art}</g>`;
   };
-  M.C = { DRAW: DRAW_C, SCALE: SCALE_C, masc: mascC };
+  M.C = { DRAW: DRAW_C, SCALE: SCALE_C, masc: mascC, H: { TT, tHead } };
 })(typeof window !== 'undefined' ? window : global);

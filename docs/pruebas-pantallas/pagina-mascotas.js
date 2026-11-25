@@ -1,7 +1,7 @@
 /* Arma la página de revisión de las mascotas (fase 4A-3, parte 1) con boceto-mascotas.js tal cual.
    Uso: node docs/pruebas-pantallas/pagina-mascotas.js SALIDA.html */
 const fs = require('fs'), path = require('path');
-const SRC = fs.readFileSync(path.join(__dirname, 'boceto-mascotas.js'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, 'boceto-mascotas-b.js'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, 'boceto-mascotas-c.js'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, 'boceto-vida.js'), 'utf8');
+const SRC = fs.readFileSync(path.join(__dirname, 'boceto-mascotas.js'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, 'boceto-mascotas-b.js'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, 'boceto-mascotas-c.js'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, 'boceto-vida.js'), 'utf8') + '\n' + fs.readFileSync(path.join(__dirname, 'boceto-poses.js'), 'utf8');
 /* Poli de hoy, tal como está en la app (js/app.js: POLI_SVG) */
 const APP = fs.readFileSync(path.join(__dirname, '../../js/app.js'), 'utf8');
 const POLI = APP.match(/const POLI_SVG = `([\s\S]*?)`;/)[1].trim();
@@ -167,7 +167,10 @@ ${SRC}
     pets.querySelectorAll('.pet').forEach(c => show(c, 3)); drawSmall(); if (typeof drawH === 'function') drawH(); };
   const show = (card, k) => {
     const id = card.dataset.id, svg = card.querySelector('.scene svg');
-    svg.innerHTML = \`<g class="pop">\${k && tanda === 'C' ? M.VIDA.part(id) : ''}<g class="mv">\${T().masc(id, k)}</g></g>\`;
+    if (card.motor) { card.motor.parar(); card.motor = null; }
+    const conPoses = tanda === 'C' && k > 0 && M.POSES.tiene(id);
+    svg.innerHTML = \`<g class="pop">\${k && tanda === 'C' ? M.VIDA.part(id) : ''}<g class="mv">\${conPoses ? '' : T().masc(id, k)}</g></g>\`;
+    if (conPoses) { card.motor = M.POSES.poner(svg.querySelector('.mv'), id, k); card.motor.setModo(modo); }
     svg.classList.toggle('vida', modo === 'vida' && tanda === 'C');
     const h = card.querySelector('.hint'); if (h) h.textContent = '';
     card.dataset.k = k;
@@ -175,6 +178,7 @@ ${SRC}
     card.querySelectorAll('.strip button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.k === k));
   };
   const tocar = card => { const mv = card.querySelector('.scene .mv'), id = card.dataset.id;
+    if (card.motor) { const hecho = card.motor.tocar(); const h = card.querySelector('.hint'); if (h) h.textContent = 'Hizo: ' + hecho.replace('gesto', 'su gesto'); return; }
     if (tanda !== 'C' || +card.dataset.k === 0) { jump(card.querySelector('.scene svg')); return; }
     const hecho = M.VIDA.reaccion(mv, id); const h = card.querySelector('.hint'); if (h) h.textContent = 'Hizo: ' + hecho.replace('gesto', 'su gesto'); };
   const jump = el => { el.classList.remove('jump'); void el.getBoundingClientRect(); requestAnimationFrame(() => el.classList.add('jump')); };
@@ -209,7 +213,7 @@ ${SRC}
   document.getElementById('franja').innerHTML = M.MASC.map((m, i) => \`<span style="display:flex;align-items:flex-end">\${poli}<svg viewBox="-40 -58 80 64">\${T().masc(m.id, [1, 2, 3, 3, 1][i])}</svg></span>\`).join('');
   }
   draw();
-  document.getElementById('modo').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; modo = b.dataset.m; document.querySelectorAll('#modo button').forEach(x => x.setAttribute('aria-pressed', x === b)); pets.querySelectorAll('.scene svg').forEach(v => v.classList.toggle('vida', modo === 'vida' && tanda === 'C')); });
+  document.getElementById('modo').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; modo = b.dataset.m; pets.querySelectorAll('.pet').forEach(c => c.motor && c.motor.setModo(modo)); document.querySelectorAll('#modo button').forEach(x => x.setAttribute('aria-pressed', x === b)); pets.querySelectorAll('.scene svg').forEach(v => v.classList.toggle('vida', modo === 'vida' && tanda === 'C')); });
   document.getElementById('tanda').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; tanda = b.dataset.t; document.querySelectorAll('#tanda button').forEach(x => x.setAttribute('aria-pressed', x === b)); draw(); });
 })();
 </script>`;
