@@ -51,7 +51,6 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
 #tanda .btn[aria-pressed="true"]{background:var(--accent);color:#fff}
 #modo .btn[aria-pressed="false"]{background:var(--accentbg);color:var(--accent)}
 #modo .btn[aria-pressed="true"]{background:var(--accent);color:#fff}
-.var{justify-content:center}.var .btn{font-size:.82rem;padding:6px 12px}.var .btn[aria-pressed="false"]{background:var(--accentbg);color:var(--accent)}.var .btn[aria-pressed="true"]{background:var(--accent);color:#fff}
 .hint{font-size:.85rem;color:var(--muted);text-align:center;min-height:1.3em}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .demo{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
@@ -162,7 +161,7 @@ ${SRC}
   };
   const pets = document.getElementById('pets');
   const draw = () => { pets.innerHTML = M.MASC.map(m => \`<article class="pet" data-id="\${m.id}"><div class="top"><h3>\${m.name}</h3><small>Capítulo \${m.ch} · \${m.cap}</small></div>
-    <div class="scene" role="button" tabindex="0" aria-label="Tocar a \${m.name}"><svg viewBox="\${VB}"></svg></div><p class="cap"></p>\${m.id === 'cubuho' ? '<div class="row var" role="group" aria-label="Estilo de Cubúho"><button class="btn" data-var="3d" aria-pressed="true">3D · cabeza que gira</button><button class="btn ghost" data-var="original" aria-pressed="false">Original · ojos que giran</button></div>' : ''}<p class="hint"></p>
+    <div class="scene" role="button" tabindex="0" aria-label="Tocar a \${m.name}"><svg viewBox="\${VB}"></svg></div><p class="cap"></p><p class="hint"></p>
     <div class="strip">\${M.ETAPAS.map((t, k) => \`<button data-k="\${k}" aria-pressed="false"><svg viewBox="\${VB}">\${T().masc(m.id, k)}</svg>\${t}</button>\`).join('')}</div>
     <p class="how">\${({ A: HOW, B: HOW_B, C: HOW_C })[tanda][m.id]}</p></article>\`).join('');
     pets.querySelectorAll('.pet').forEach(c => show(c, 3)); drawSmall(); if (typeof drawH === 'function') drawH(); };
@@ -171,8 +170,7 @@ ${SRC}
     if (card.motor) { card.motor.parar(); card.motor = null; }
     const conPoses = tanda === 'C' && k > 0 && M.POSES.tiene(id);
     svg.innerHTML = \`<g class="pop">\${k && tanda === 'C' ? M.VIDA.part(id) : ''}<g class="mv">\${conPoses ? '' : T().masc(id, k)}</g></g>\`;
-    if (conPoses) { card.motor = M.POSES.poner(svg.querySelector('.mv'), id, k, card.dataset.var); card.motor.setModo(modo); }
-    const vs = card.querySelector('.var'); if (vs) vs.hidden = tanda !== 'C';
+    if (conPoses) { card.motor = M.POSES.poner(svg.querySelector('.mv'), id, k); card.motor.setModo(modo); }
     svg.classList.toggle('vida', modo === 'vida' && tanda === 'C');
     const h = card.querySelector('.hint'); if (h) h.textContent = '';
     card.dataset.k = k;
@@ -185,7 +183,6 @@ ${SRC}
     const hecho = M.VIDA.reaccion(mv, id); const h = card.querySelector('.hint'); if (h) h.textContent = 'Hizo: ' + hecho.replace('gesto', 'su gesto'); };
   const jump = el => { el.classList.remove('jump'); void el.getBoundingClientRect(); requestAnimationFrame(() => el.classList.add('jump')); };
   pets.addEventListener('click', e => {
-    const vb = e.target.closest('.var button'); if (vb) { const card = vb.closest('.pet'); card.dataset.var = vb.dataset.var; card.querySelectorAll('.var button').forEach(x => x.setAttribute('aria-pressed', x === vb)); show(card, +card.dataset.k || 3); return; }
     const b = e.target.closest('.strip button'), card = e.target.closest('.pet');
     if (b) show(card, +b.dataset.k); else if (e.target.closest('.scene')) tocar(card);
   });
