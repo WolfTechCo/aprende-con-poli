@@ -451,7 +451,155 @@
     salto: (m, d) => m.hacer([[d, { sube: 3 }, 120], [d + 120, { sube: -12 }, 260, 'sale'], [d + 380, { sube: 0 }, 260, 'entra'], [d + 640, { casRot: 3 }, 100], [d + 740, { casRot: 0 }, 200, 'rebote']]),
   };
 
-  const ANIM = { tortugono: k => ({ draw: tortugonoPose(k), base: T_BASE, spec: T_SPEC }), cubuho: k => ({ draw: cubuhoPose(k), base: B_BASE, spec: k === 1 ? B1_SPEC : B_SPEC }) };
+  /* ---------- 3 · Cienpiecito con poses: una sola columna de anillos que se dobla ----------
+     Como un ciempiés o una cuncuna vistos de lado: un par de patas por anillo, pegadas a su anillo y siguiéndolo.
+     El cuerpo es UNA columna: cada anillo gira un poco respecto del anterior, así el mismo cuerpo puede estar estirado,
+     levantado (adulta) o enrollado en espiral como milpiés (patas hacia adentro, cabeza al centro). Al caminar, las
+     patas se levantan en una ola que va de la cola a la cabeza y una jorobita recorre el cuerpo.
+     Idea propia (capítulo 3): los anillos son cifras con los colores U, D y C de las lecciones; una luz los cuenta. */
+  let nN = 0;
+  const N_ST = {
+    1: { r: 8, s: ['pu', 'pu'], hs: 19.4, alza: 0 },
+    2: { r: 7.6, s: ['pd', 'pd', 'pu', 'pu'], hs: 19.4, alza: 0 },
+    3: { r: 7.2, s: ['pc', 'pc', 'pd', 'pd', 'pu', 'pu'], hs: 20, alza: 1 },
+    4: { r: 7, s: ['oro', 'pc', 'pc', 'pd', 'pd', 'pu', 'pu'], hs: 19.4, alza: 1 },
+  };
+  const LETRA = { pu: 'U', pd: 'D', pc: 'C', oro: 'M' };
+  const N_BASE = { alza: 0, curl: 0, rot: 0, ola: 0, andar: 0, estira: 0, cuenta: -9, letras: 0, ant: 0, cabRot: 0, mira: 0, ojos: 1, boca: 0, saluda: 0, cola: 0, sx: 1, sy: 1, y: 0, x: 0 };
+  const cienpiecitoPose = k => {
+    const id = 'kn' + (++nN), Q = N_ST[k], N = Q.s.length, r = Q.r, hs = Q.hs, SC = M.C.SCALE[k], gold = k === 4;
+    const tile = gold ? 'oro' : 'amarillo', fs = hs / 19.5;
+    const ojoS = i => `<g id="${id}-o${i}"><ellipse rx="2.3" ry="2.7" fill="url(#km-ojo)"/><circle cx=".8" cy="-1.1" r="1" fill="#fff"/><circle cx="-.7" cy="1.2" r=".45" fill="#fff"/></g>`;
+    const build = () => {
+      let g = `<g id="${id}-sh">${piso(30)}</g>`;
+      if (gold) g = aura(-22, 46) + chispas([[-30, -30, 3], [30, -42, 2.6], [32, -12, 2.2]]) + g;
+      let c = '';
+      /* patas de atrás (más oscuras, detrás de todo) */
+      c += Q.s.map((col, i) => `<g id="${id}-pf${i}" opacity=".8"><path stroke="${PAL[col][3]}" stroke-width="2.3" fill="none" stroke-linecap="round"/><circle r="1.3" fill="${PAL[col][3]}"/></g>`).join('');
+      /* anillos, cada uno con su pata de adelante */
+      c += Q.s.map((col, i) => `<g id="${id}-a${i}"><circle r="${n3(r * 1.25)}" fill="url(#km-glow)" opacity="0"/>${gel(C(0, 0, r), col, 1.1)}`
+        + arc(`M${n3(-r * .62)} ${n3(-r * .1)}Q${n3(-r * .5)} ${n3(-r * .66)} ${n3(-r * .02)} ${n3(-r * .72)}`, 1.4, .8)
+        + `<text x="${n3(-r * .22)}" y="${n3(r * .34)}" text-anchor="middle" font-family="Arial Rounded MT Bold,Nunito,Arial,sans-serif" font-weight="900" font-size="${n3(r * .95)}" fill="#fff" stroke="${PAL[col][3]}" stroke-width=".9" paint-order="stroke" opacity="0">${LETRA[col]}</text></g>`
+        + `<g id="${id}-pn${i}"><path stroke="${PAL[col][3]}" stroke-width="2.6" fill="none" stroke-linecap="round"/><path stroke="${PAL[col][1]}" stroke-width="1.2" fill="none" stroke-linecap="round"/>${gel(E(0, 0, 1.7, 1.25), col, .6)}</g>`).join('');
+      /* patita que saluda: va encima de los anillos (si no, el anillo de arriba la tapa) */
+      const cz = Q.s[Math.max(0, N - 2)];
+      c += `<g id="${id}-pz" opacity="0"><path stroke="${PAL[cz][3]}" stroke-width="2.6" fill="none" stroke-linecap="round"/><path stroke="${PAL[cz][1]}" stroke-width="1.2" fill="none" stroke-linecap="round"/>${gel(E(0, 0, 1.9, 1.4), cz, .6)}</g>`;
+      /* cabeza de baldosa con antenas que se mueven */
+      let h = [0, 1].map(i => `<g id="${id}-an${i}"><path fill="none" stroke="${PAL.naranja[3]}" stroke-width="1.2" stroke-linecap="round"/>${gel(C(0, 0, 2.1), gold ? 'oro' : 'rosa', .7)}</g>`).join('');
+      h += gel(R(n3(-hs / 2), n3(-hs * .46), hs, n3(hs * .92), n3(hs * .36)), tile, 1.3) + arc(`M${n3(-hs * .36)} ${n3(-hs * .02)}Q${n3(-hs * .34)} ${n3(-hs * .3)} ${n3(-hs * .06)} ${n3(-hs * .34)}`, 1.6, .8);
+      h += `<g transform="translate(.4 ${n3(hs * .06)}) scale(${n3(fs)})">${[-3.4, 3.4].map((e, i) => `<g transform="translate(${e} -.8)">${ojoS(i)}</g>`).join('')}`
+        + `<path id="${id}-bc" d="M-1.2 2.1Q0 3.4 1.2 2.1" fill="none" stroke="#5a2a44" stroke-width=".9" stroke-linecap="round"/>`
+        + `<g id="${id}-bo" opacity="0"><ellipse cy="3.3" rx="1.8" ry="2.3" fill="#7a2a44"/><ellipse cy="4.2" rx="1" ry=".8" fill="#ff8fab"/></g>`
+        + `<ellipse cx="-5.8" cy="2.1" rx="2.2" ry="1.4" fill="url(#km-mej)"/><ellipse cx="5.8" cy="2.1" rx="2.2" ry="1.4" fill="url(#km-mej)"/></g>`;
+      if (gold) h += corona(0, n3(-hs * .6), .9, -6);
+      c += `<g id="${id}-cab">${h}</g>`;
+      return `<g transform="scale(${SC})">${g}<g id="${id}-all">${c}</g></g>`;
+    };
+    const refs = el => { const q = s => el.querySelector('#' + id + '-' + s);
+      const pz = q('pz');
+      return { pz: { g: pz, p1: pz.children[0], p2: pz.children[1], f: pz.children[2] }, sh: q('sh'), all: q('all'), cab: q('cab'), bc: q('bc'), bo: q('bo'), o: [0, 1].map(i => q('o' + i)), an: [0, 1].map(i => q('an' + i)),
+        a: Q.s.map((_, i) => { const g = q('a' + i); return { g, glow: g.firstChild, txt: g.querySelector('text') }; }),
+        pf: Q.s.map((_, i) => { const g = q('pf' + i); return { g, p: g.firstChild, f: g.lastChild }; }),
+        pn: Q.s.map((_, i) => { const g = q('pn' + i); return { g, p1: g.children[0], p2: g.children[1], f: g.children[2] }; }) }; };
+    /* columna: desde la cola hacia la cabeza, cada articulación gira un poco */
+    const columna = p => {
+      const alza = clamp(p.alza, 0, 1.2), curl = 0, d = r * (1.12 + p.estira * .32 * (1 - clamp(alza, 0, 1) * .55));
+      const J = N; /* articulaciones: entre anillos (N-1) y la de la cabeza */
+      const TOT = Math.min(2.15 * Math.PI, .9 + N * .95), wsum = Array.from({ length: J }, (_, i) => .6 + 1.4 * (i + 1) / J).reduce((a, b) => a + b, 0);
+      const UP = [.4, .36, .2, .04]; /* cómo se reparte la subida en las últimas articulaciones */
+      let th = 0, x = 0, y = 0; const pts = [[0, 0, 0]];
+      for (let i = 1; i <= J; i++) {
+        let a = curl * TOT * (.6 + 1.4 * i / J) / wsum;
+        const desdeCab = J - i; if (desdeCab < 4 && N >= 4) a -= alza * 1.5 * UP[3 - desdeCab] * (1 - curl);
+        if (i === J) a += -.32 * (1 - curl) * (N < 4 || alza < .5 ? 1 : 0) + p.cabRot * .004;
+        a += p.ola * .1 * Math.sin((p.fase || 0) - i * 1.1) * (1 - curl);
+        th += a;
+        const dd = i === J ? r * .45 + hs * .42 * (1 - curl * .25) : d;
+        x += Math.cos(th) * dd; y += Math.sin(th) * dd; pts.push([x, y, th]);
+      }
+      return pts;
+    };
+    const update = (R, p) => {
+      const pts = columna(p), cab = pts[N], cu = clamp(p.curl, 0, 1);
+      /* enrollada: los anillos forman una rueda (patas hacia adentro) y la carita queda al centro */
+      if (cu > 0) {
+        const Rb = Math.max(r * 1.05, N * r * 1.1 / (2 * Math.PI)), ccx = pts[0][0] + (cab[0] - pts[0][0]) * .5, ccy = -Rb - r, span = 2 * Math.PI * (N > 2 ? .84 : .6);
+        for (let i = 0; i < N; i++) {
+          const a = Math.PI * (N > 2 ? .62 : .95) + i * span / Math.max(1, N - (N > 2 ? 1 : 0)) + (p.rot || 0) * Math.PI / 180, wx = ccx + Math.cos(a) * Rb, wy = ccy + Math.sin(a) * Rb;
+          let th0 = pts[i][2], th1 = a + Math.PI / 2; while (th1 - th0 > Math.PI) th1 -= 2 * Math.PI; while (th0 - th1 > Math.PI) th1 += 2 * Math.PI;
+          pts[i] = [lerp(pts[i][0], wx, cu), lerp(pts[i][1], wy, cu), lerp(th0, th1, cu)];
+        }
+        cab[0] = lerp(cab[0], ccx + 1, cu); cab[1] = lerp(cab[1], ccy + 1.5, cu);
+      }
+      /* apoyar en el piso: lo más bajo de los anillos toca el suelo; centrar a lo ancho */
+      let lo = -1e9, mnx = 1e9, mxx = -1e9;
+      for (let i = 0; i < N; i++) { lo = Math.max(lo, pts[i][1] + r); mnx = Math.min(mnx, pts[i][0] - r); mxx = Math.max(mxx, pts[i][0] + r); }
+      lo = Math.max(lo, cab[1] + hs * .46); mnx = Math.min(mnx, cab[0] - hs / 2); mxx = Math.max(mxx, cab[0] + hs / 2);
+      const ox = -(mnx + mxx) / 2 + p.x, oy = -lo - .6, ph = p.fase || 0;
+      for (let i = 0; i < N; i++) {
+        const [X, Y, th] = pts[i], T = cu > 0 ? th : i < N - 1 ? (pts[i + 1][2] + th) / 2 : pts[i + 1][2];
+        /* jorobita que recorre el cuerpo de la cola a la cabeza y la cola que llega después al saltar */
+        const hump = p.ola * Math.max(0, Math.sin(ph - i * 1.1)) * 1.8 * (1 - p.curl), lag = p.cola * (1 - i / N);
+        const ax = X + ox, ay = Y + oy - hump + lag;
+        const glow = Math.max(0, 1 - Math.abs(p.cuenta - (N - 1 - i)));
+        const pop = 1 + glow * .14;
+        sa(R.a[i].g, 'transform', `translate(${n3(ax)} ${n3(ay)}) scale(${n3(pop)})`);
+        sa(R.a[i].glow, 'opacity', n3(glow * .9));
+        sa(R.a[i].txt, 'opacity', n3(clamp(Math.max(p.letras, glow * 1.4), 0, 1) * (1 - p.curl)));
+        /* patas: nacen del anillo hacia el lado de la panza; se levantan en ola */
+        const tx = Math.cos(T), ty = Math.sin(T), nx = -ty, ny = tx, L = r * .62 + 1.2;
+        [['pn', .28, 0], ['pf', -.28, Math.PI * .5]].forEach(([w, off, dph]) => {
+          const P2 = R[w][i]; let f = ph - i * .9 + dph; const lift = p.andar * Math.max(0, Math.sin(f)) * 2, sw = p.andar * Math.cos(f) * 1.5;
+          let sal = 0; if (w === 'pn' && p.saluda && i === N - 2 && p.alza > .5) sal = p.saluda;
+          const bx = ax + tx * r * off + nx * r * .5, by = ay + ty * r * off + ny * r * .5;
+          let ex = bx + nx * (L - lift) + tx * (sw + 1.2), ey = by + ny * (L - lift) + ty * (sw + 1.2);
+          let mx = (bx + ex) / 2 + tx * 1.2, my = (by + ey) / 2 + ty * 1.2;
+          if (sal) { /* el bracito sale por el costado y se mueve de lado a lado */
+            const wv = Math.sin((p.t || 0) * 12) * .32 * sal, aa = -.55 + wv, b2x = ax + nx * r * .8, b2y = ay + ny * r * .8 + 1;
+            const sx2 = b2x + Math.cos(aa) * (L + 5), sy2 = b2y + Math.sin(aa) * (L + 5);
+            ex = lerp(ex, sx2, sal); ey = lerp(ey, sy2, sal); mx = lerp(mx, b2x + 5, sal); my = lerp(my, b2y + 1.5, sal);
+            const bxx = lerp(bx, b2x - 1.5, sal), byy = lerp(by, b2y, sal);
+            const d2 = `M${n3(bxx)} ${n3(byy)}Q${n3(mx)} ${n3(my)} ${n3(ex)} ${n3(ey)}`; sa(R.pz.p1, 'd', d2); sa(R.pz.p2, 'd', d2); }
+          const dd = `M${n3(bx)} ${n3(by)}Q${n3(mx)} ${n3(my)} ${n3(ex)} ${n3(ey)}`;
+          if (w === 'pn' && i === N - 2) { sa(P2.g, 'opacity', n3(1 - sal)); sa(R.pz.g, 'opacity', n3(sal ? 1 : 0)); }
+          if (sal) sa(R.pz.f, 'transform', `translate(${n3(ex)} ${n3(ey)}) rotate(-60)`);
+          else if (w === 'pn') { sa(P2.p1, 'd', dd); sa(P2.p2, 'd', dd); sa(P2.f, 'transform', `translate(${n3(ex + tx * .4)} ${n3(ey)}) rotate(${n3(T * 180 / Math.PI)})`); }
+          else { sa(P2.p, 'd', dd); sa(P2.f, 'cx', n3(ex)); sa(P2.f, 'cy', n3(ey)); }
+        });
+      }
+      /* cabeza: casi siempre derecha; enrollada, se ladea y se achica un poco al centro de la rueda */
+      const HX = cab[0] + ox, HY = cab[1] + oy, hr = p.cabRot + Math.sin(cu * Math.PI) * 18, hsc = 1 - cu * .26;
+      sa(R.cab, 'transform', `translate(${n3(HX)} ${n3(HY)}) rotate(${n3(hr)}) scale(${n3(hsc)})`);
+      /* antenas: tantean (cada una a su ritmo) */
+      R.an.forEach((g, i) => { const s = i ? 1 : -1, w = p.ant * Math.sin((p.t || 0) * 9 + i * 2.1) * .5 + Math.sin((p.t || 0) * 2.2 + i) * .12 * (p.vivo || 0);
+        const bx = s * hs * .2, by = -hs * .46, a = -Math.PI / 2 + s * ((gold ? .85 : .55) + w), Lr = hs * (gold ? .46 : .5);
+        const ex = bx + Math.cos(a) * Lr, ey = by + Math.sin(a) * Lr, mx = bx + s * hs * .06, my = by - Lr * .6;
+        sa(g.firstChild, 'd', `M${n3(bx)} ${n3(by)}Q${n3(mx)} ${n3(my)} ${n3(ex)} ${n3(ey)}`); sa(g.lastChild, 'cx', n3(ex)); sa(g.lastChild, 'cy', n3(ey)); });
+      const ojo = Math.max(.08, p.ojos);
+      R.o.forEach((o, i) => sa(o, 'transform', `translate(${n3(p.mira * 1.1)} 0) scale(1 ${n3(ojo)})`));
+      sa(R.bo, 'opacity', n3(clamp((p.boca - .1) * 1.6, 0, 1))); sa(R.bo, 'transform', `scale(1 ${n3(.4 + .6 * clamp(p.boca, 0, 1))})`);
+      sa(R.bc, 'opacity', n3(1 - clamp(p.boca * 2, 0, 1)));
+      sa(R.all, 'transform', `translate(0 ${n3(p.y)}) scale(${n3(p.sx)} ${n3(p.sy)})`);
+      sa(R.sh, 'transform', `scale(${n3((mxx - mnx) / 60 * (1 - Math.min(.4, -p.y / 40)))} 1)`);
+    };
+    return { build, refs, update };
+  };
+  const N_SPEC = {
+    fondo: (t, modo, p) => {
+      const vivo = modo === 'vida' ? 1 : 0, r = Math.sin(t * 2 * Math.PI / 3.2);
+      p.t = t; p.vivo = vivo; p.fase = (p.fase0 || 0) + t * 7;
+      return { sy: r * .016, sx: -r * .008, cabRot: vivo * Math.sin(t * 2 * Math.PI / 4.1 + .4) * 3 };
+    },
+    acciones: [
+      m => m.hacer([[0, { andar: 1, ola: 1 }, 350], [2600, { andar: 0, ola: 0 }, 350]]), /* camina en su lugar */
+      m => m.hacer([[0, { ant: 1 }, 250], [1600, { ant: 0 }, 300]]), /* tantea con las antenas */
+    ],
+    gesto: (m, d) => m.hacer([[d, { curl: 1, alza: 0 }, 500, 'suave'], [d + 900, { curl: 0, alza: m.base.alza }, 500, 'rebote']]),
+    salto: (m, d) => m.hacer([[d, { sy: .86, sx: 1.08 }, 140], [d + 140, { y: -14, sy: 1.08, sx: .94 }, 240, 'sale'], [d + 380, { y: 0, sy: 1, sx: 1 }, 210, 'entra']]),
+  };
+
+  const ANIM = { tortugono: k => ({ draw: tortugonoPose(k), base: T_BASE, spec: T_SPEC }), cubuho: k => ({ draw: cubuhoPose(k), base: B_BASE, spec: k === 1 ? B1_SPEC : B_SPEC }),
+    cienpiecito: k => ({ draw: cienpiecitoPose(k), base: { ...N_BASE, alza: N_ST[k].alza }, spec: N_SPEC }) };
   /* poner(el, id, k): arranca el motor de esa mascota dentro de el (un <g>); devuelve el motor o null si no tiene poses */
   const poner = (el, id, k, variante) => { if (!ANIM[id] || !k) return null; const a = ANIM[id](k, variante); return new Motor(el, a.draw, a.base, a.spec); };
   M.POSES = { Motor, poner, tiene: id => !!ANIM[id], EASE };
