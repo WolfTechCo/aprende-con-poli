@@ -155,7 +155,7 @@ ${SRC}
   const HOW = {
     tortugono: 'Su caparazón <b>suma lados</b>: triángulos, cuadrados, pentágonos con un hexágono y, de brillante, octágonos dorados.',
     cubuho: 'Su cuerpo es un <b>cubo</b>. Al crecer le salen plumas de <b>prisma</b>, orejitas de <b>cono</b> y botones de <b>esfera</b>.',
-    cienpiecito: 'Un anillo por cifra con los colores de las lecciones: <b>unidades</b> verdes, <b>decenas</b> naranjas, <b>centenas</b> azules. De brillante se llama <b>Milpiés</b> y suma los miles.',
+    cienpiecito: 'Un anillo por cifra con los colores de las lecciones: <b>unidades</b> verdes, <b>decenas</b> naranjas, <b>centenas</b> azules. De brillante se llama <b>Milpiés</b> y suma los miles. A ratos <b>cuenta</b>: separa sus cifras, muestra M C D U y después su número. Tócalo: la cría se da vuelta patas arriba, la joven hace puente y la grande se hace bolita.',
     pulpatron: 'Sus tentáculos llevan un <b>patrón</b>: AB, luego ABC, luego uno que crece (1, 2, 3 pintas) y, de brillante, un arcoíris.',
     chinitabla: 'Sus pintas van en <b>grupos iguales</b> en cada ala: de 2, de 5 y de 10.',
   };
