@@ -18,6 +18,7 @@
     suave: t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2,
     sale: t => 1 - Math.pow(1 - t, 3),
     entra: t => t * t * t,
+    lineal: t => t,
     rebote: t => { const c1 = 1.9, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); }, /* se pasa y vuelve */
   };
   const lerp = (a, b, t) => a + (b - a) * t;
@@ -644,16 +645,18 @@
     /* cuenta y suma: los anillos toman el color de sus cifras (a + b), muestran sus letras y su número, y se reacomodan en el resultado.
        La cría (2 anillos) cuenta de uno en uno hasta su número. */
     cuenta: m => { const R = m.refs; R.nueva(); const N = R.a.length, cria = N < 3, n = +R.lay[1][N - 1].d;
-      const seq = [[0, { gap: 1 }, 420, 'sale'], [200, { paso: 1 }, 1], [260, { cuenta: 0 }, 1]];
-      for (let i = 1; i < N; i++) seq.push([260 + i * 240, { cuenta: i }, 200]);
-      let f = 260 + N * 240; seq.push([f, { cuenta: -9, letras: 1 }, 200]);
-      if (cria) { seq.push([f + 400, { num: 1, cnt: 1 }, 200], [f + 600, { cnt: n }, Math.max(1, n - 1) * 260, 'suave']); f += 600 + n * 260; seq.push([f, { boca: .8 }, 200]); }
-      else { seq.push([f + 600, { num: 1 }, 300]); f += 1700; /* ahora suma */
+      /* tiempos acordados con la dueña (26-11): leer crece con las cifras; el movimiento va al mismo paso por anillo en todas las etapas */
+      const cifrasSuma = R.lay[1].filter(x => /\d/.test(x.d)).length, cifrasRes = cria ? 1 : R.lay[R.lay.length - 1].filter(x => /\d/.test(x.d)).length;
+      const seq = [[0, { gap: 1 }, 400, 'sale'], [200, { paso: 1 }, 1], [400, { cuenta: 0 }, 1]];
+      for (let i = 1; i < N; i++) seq.push([400 + i * 350, { cuenta: i }, 250]); /* lucecita: 0,35 s por anillo */
+      let f = 400 + N * 350; seq.push([f, { cuenta: -9, letras: 1 }, 200]); f += 600 + 200 * N; /* letras: 0,6 s + 0,2 s por anillo */
+      if (cria) { seq.push([f, { num: 1, cnt: 1 }, 200], [f + 500, { cnt: n }, Math.max(1, n - 1) * 500, 'lineal']); f += 500 + Math.max(0, n - 1) * 500 + 300; } /* cuenta: 0,5 s por número */
+      else { seq.push([f, { num: 1 }, 300]); f += 1000 + 350 * cifrasSuma; /* números de la suma: 1 s + 0,35 s por cifra */
         const ult = R.lay.length - 1, pasos = ult - 2;
-        seq.push([f, { gap: .3, sy: .9, sx: 1.05 }, 260], [f + 260, { paso: 2 }, 1], [f + 270, { gap: 1, sy: 1, sx: 1 }, 380, 'rebote']);
-        if (pasos > 0) seq.push([f + 600, { paso: ult }, pasos * 260]); /* el resultado recorre el cuerpo hasta la cola */
-        f += 600 + pasos * 260; seq.push([f + 100, { boca: .8 }, 300]); f += 400; }
-      seq.push([f + 1200, { letras: 0, num: 0, boca: 0 }, 300], [f + 1550, { paso: 0, cnt: 0 }, 1], [f + 1560, { gap: 0 }, 420, 'rebote']);
+        seq.push([f, { gap: .3, sy: .9, sx: 1.05 }, 300], [f + 300, { paso: 2 }, 1], [f + 310, { gap: 1, sy: 1, sx: 1 }, 300, 'rebote']); f += 600; /* se juntan */
+        if (pasos > 0) seq.push([f, { paso: ult }, pasos * 450, 'lineal']); f += pasos * 450; } /* el resultado avanza: 0,45 s por anillo */
+      seq.push([f, { boca: .8 }, 300]); f += 1200 + 300 * cifrasRes; /* resultado quieto: 1,2 s + 0,3 s por cifra */
+      seq.push([f, { letras: 0, num: 0, boca: 0 }, 300], [f + 350, { paso: 0, cnt: 0 }, 1], [f + 360, { gap: 0 }, 420, 'rebote']);
       return m.hacer(seq); },
     acordeon: m => m.hacer([[0, { estira: 1 }, 380, 'sale'], [450, { estira: -.45, sy: 1.04 }, 260], [720, { estira: .6, sy: 1 }, 240], [980, { estira: 0 }, 380, 'rebote']]),
     bosteza: m => m.hacer([[0, { ojos: 0, boca: 1, cabRot: -7, estira: .3 }, 700], [1300, { ojos: 1, boca: 0, cabRot: 0, estira: 0 }, 500]]),
@@ -661,8 +664,8 @@
     saluda: m => { const q = azar(3), o = q === 0 ? { saluda: 1 } : q === 1 ? { saludaI: 1 } : { saluda: 1, saludaI: 1 };
       return m.hacer([[0, { ...o, boca: .6 }, 300, 'sale'], [1500, { saluda: 0, saludaI: 0, boca: 0 }, 300]]); },
   };
-  /* la cuenta se intercala con las demás acciones (una sí, una no), así se ve seguido */
-  const intercala = lista => lista.map(fn => m => { m.nCuenta = (m.nCuenta || 0) + 1; return m.nCuenta % 2 ? nAcc.cuenta(m) : fn(m); });
+  /* la cuenta se intercala con las demás acciones: una de cada tres (la primera es la cuenta) */
+  const intercala = lista => lista.map(fn => m => { m.nCuenta = (m.nCuenta || 0) + 1; return m.nCuenta % 3 === 1 ? nAcc.cuenta(m) : fn(m); });
   const nSalto = (m, d) => m.hacer([
     [d, { sy: .86, sx: 1.08 }, 140], [d + 140, { y: -14, sy: 1.08, sx: .94, cola: 5 }, 240, 'sale'], [d + 380, { y: 0, sy: 1, sx: 1 }, 210, 'entra'],
     [d + 470, { cola: -2 }, 160], [d + 590, { sy: .9, sx: 1.06 }, 100], [d + 630, { cola: 0 }, 260, 'rebote'], [d + 690, { sy: 1, sx: 1 }, 260, 'rebote']]);
