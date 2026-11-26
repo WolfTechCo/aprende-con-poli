@@ -461,7 +461,7 @@
      y muestra UNA letra (M C D U, que se lee de la cola a la cabeza) y después su número (por ejemplo 1 2 5 0). */
   let nN = 0;
   const N_ST = {
-    1: { r: 8, s: ['plomo', 'pu'], hs: 19.4, alza: 0, max: 9, ej: [5] },
+    1: { r: 8, s: ['pu', 'pu'], hs: 19.4, alza: 0, max: 9, ej: [5] },
     2: { r: 7.6, s: ['pd', 'pu', 'pd', 'pu'], hs: 19.4, alza: 0, max: 99, ej: [7, 25] },
     3: { r: 7.2, s: ['pc', 'pd', 'pu', 'pc', 'pd', 'pu'], hs: 20, alza: 1, max: 999, ej: [48, 125] },
     4: { r: 7, s: ['oro', 'pc', 'pd', 'pu', 'pc', 'pd', 'pu'], hs: 19.4, alza: 1, max: 1000, ej: [250, 750] },
@@ -471,10 +471,14 @@
   /* un número en anillos: cada cifra con el color de su posición (U, D, C, M) */
   const cifras = n => [...String(n)].map((d, i, a) => { const c = PUESTO[a.length - 1 - i]; return { c, l: LETRA[c], d }; });
   const relleno = (fila, N) => Array(Math.max(0, N - fila.length)).fill({ c: 'plomo', l: '', d: '' }).concat(fila);
-  /* disposición de los anillos: 0 reposo, 1 la suma a + b (el plomo lleva el «+»), 2 el resultado */
+  /* disposición de los anillos: 0 reposo, 1 la suma a + b (el plomo lleva el «+»), 2… el resultado «= c», que parte junto a la
+     cabeza y se desliza anillo por anillo hasta quedar centrado; los anillos que no son del resultado quedan grises */
+  const GRIS = { c: 'plomo', l: '', d: '' };
   const disposicion = (Q, a, b) => { const N = Q.s.length, rest = Q.s.map(c => ({ c, l: LETRA[c], d: '' }));
-    if (b == null) { const f = relleno(cifras(a), N); return [rest, f, f]; }
-    return [rest, relleno([...cifras(a), { c: 'plomo', l: '+', d: '+' }, ...cifras(b)], N), relleno(cifras(a + b), N)]; };
+    if (b == null) { const f = relleno(cifras(a), N); return [rest, f]; }
+    const bloque = [{ c: 'plomo', l: '=', d: '=' }, ...cifras(a + b)], m = bloque.length, centro = Math.floor((N - m) / 2), out = [rest, relleno([...cifras(a), { c: 'plomo', l: '+', d: '+' }, ...cifras(b)], N)];
+    for (let s0 = N - m; s0 >= centro; s0--) out.push(Array(s0).fill(GRIS).concat(bloque, Array(N - m - s0).fill(GRIS)));
+    return out; };
   /* una suma al azar que quepa en los anillos y no pase el máximo de la etapa */
   const sumaAzar = Q => { const N = Q.s.length, len = n => String(n).length, rnd = n => 1 + Math.floor(Math.random() * n);
     if (N < 3) return [rnd(9)];
@@ -573,7 +577,7 @@
         /* jorobita que recorre el cuerpo de la cola a la cabeza; la cola llega después al saltar */
         const hump = p.ola * Math.max(0, Math.sin(ph - i * 1.1)) * 1.8 * (1 - cu), lag = p.cola * (1 - i / N);
         const ax = X + ox, ay = Y + oy - hump + lag, gg = grupo[i];
-        const glow = Math.max(0, 1 - Math.abs(p.cuenta - i)), L = R.lay[clamp(Math.round(p.paso), 0, 2)][i];
+        const glow = Math.max(0, 1 - Math.abs(p.cuenta - i)), L = R.lay[clamp(Math.round(p.paso), 0, R.lay.length - 1)][i];
         if (R.a[i].c !== L.c) pinta(R, i, L.c);
         sa(R.a[i].g, 'transform', `translate(${n3(ax)} ${n3(ay)}) scale(${n3(1 + glow * .16)})`);
         sa(R.a[i].glow, 'opacity', n3(glow * .9));
@@ -644,7 +648,10 @@
       let f = 260 + N * 240; seq.push([f, { cuenta: -9, letras: 1 }, 200]);
       if (cria) { seq.push([f + 400, { num: 1, cnt: 1 }, 200], [f + 600, { cnt: n }, Math.max(1, n - 1) * 260, 'suave']); f += 600 + n * 260; seq.push([f, { boca: .8 }, 200]); }
       else { seq.push([f + 600, { num: 1 }, 300]); f += 1700; /* ahora suma */
-        seq.push([f, { gap: .3, sy: .9, sx: 1.05 }, 260], [f + 260, { paso: 2, num: 0 }, 1], [f + 270, { gap: 1, sy: 1, sx: 1 }, 380, 'rebote'], [f + 800, { num: 1, boca: .8 }, 300]); f += 900; }
+        const ult = R.lay.length - 1, pasos = ult - 2;
+        seq.push([f, { gap: .3, sy: .9, sx: 1.05 }, 260], [f + 260, { paso: 2 }, 1], [f + 270, { gap: 1, sy: 1, sx: 1 }, 380, 'rebote']);
+        if (pasos > 0) seq.push([f + 700, { paso: ult }, pasos * 300, 'suave']); /* el resultado se desliza al centro */
+        f += 700 + pasos * 300; seq.push([f + 100, { boca: .8 }, 300]); f += 400; }
       seq.push([f + 1200, { letras: 0, num: 0, boca: 0 }, 300], [f + 1550, { paso: 0, cnt: 0 }, 1], [f + 1560, { gap: 0 }, 420, 'rebote']);
       return m.hacer(seq); },
     acordeon: m => m.hacer([[0, { estira: 1 }, 380, 'sale'], [450, { estira: -.45, sy: 1.04 }, 260], [720, { estira: .6, sy: 1 }, 240], [980, { estira: 0 }, 380, 'rebote']]),
