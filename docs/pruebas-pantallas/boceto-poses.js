@@ -9,7 +9,7 @@
    En modo «tranquila» (durante una pregunta) solo respira y parpadea. Parte 1: Tortugono. */
 (function (root) {
   const M = root.BOCETO_MASC, { PAL } = M;
-  const { P, C, R, E, gel, flat, arc, dot, piso, poly, corona, aura, chispas, f1 } = M.H;
+  const { P, C, R, E, gel, flat, arc, dot, piso, poly, corona, aura, chispas, f1, starD } = M.H;
   const { tent } = M.B.H;
   const { TT, tHead } = M.C.H;
 
@@ -835,16 +835,47 @@
     };
     return { build, refs, update };
   };
-  const P_SPEC = {
-    fondo: (t, modo, p) => { const vivo = modo === 'vida' ? 1 : 0; p.t = t; p.vivo = vivo; return {}; },
-    acciones: [m => m.hacer([[0, { olaColor: 10 }, 1600, 'lineal'], [1700, { olaColor: -9 }, 1]])],
-    gesto: (m, d) => m.hacer([[d, { aprieta: 1 }, 200], [d + 200, { tinta: 1, aprieta: 0, junta: 1, y: -11 }, 450, 'sale'], [d + 700, { tinta: 0 }, 1], [d + 700, { junta: 0, abre: 1 }, 350], [d + 900, { y: 0 }, 900, 'suave'], [d + 1700, { abre: 0 }, 400]]),
-    salto: (m, d) => m.hacer([[d, { sy: .86, sx: 1.08 }, 140], [d + 140, { y: -12, sy: 1.08, sx: .94 }, 240, 'sale'], [d + 380, { y: 0, sy: 1, sx: 1 }, 260, 'suave']]),
+  const P_SPEC_BASE = (k) => {
+    const N = P_ST[k].n;
+    const acc = {
+      ola: m => m.hacer([[0, { olaColor: -1 }, 1], [20, { olaColor: N + 1 }, 1600, 'lineal'], [1650, { olaColor: -9 }, 1]]), /* ola de color de brazo en brazo */
+      saluda: m => { const d = Math.random() < .5; return m.hacer([[0, d ? { manoD: 1, poseD: 0, boca: .5 } : { manoI: 1, poseI: 0, boca: .5 }, 350, 'sale'], [1700, { manoD: 0, manoI: 0, boca: 0 }, 400]]); },
+      rasca: m => m.hacer([[0, { manoI: 1, poseI: 1, mira: -1 }, 400, 'sale'], [1600, { manoI: 0, mira: 0 }, 400]]),
+      timido: m => m.hacer([[0, { manoD: 1, manoI: 1, poseD: 4, poseI: 4 }, 380, 'sale'], [900, { manoD: .55 }, 250], [1300, { manoD: 1 }, 220], [1900, { manoD: 0, manoI: 0 }, 400]]), /* se tapa y espía */
+      camina: m => m.hacer([[0, { posa: 1 }, 650, 'suave'], [650, { paso: 1 }, 200], [2400, { paso: 0 }, 200], [2500, { posa: 0 }, 700, 'suave']]), /* baja, camina y vuelve a flotar */
+      bosteza: m => m.hacer([[0, { ojos: 0, boca: 1, aprieta: -.3 }, 600], [1200, { ojos: 1, boca: 0, aprieta: 0 }, 450]]),
+      aplaude: m => m.hacer([[0, { manoD: 1, manoI: 1, poseD: 3, poseI: 3, boca: .8 }, 350], [1500, { manoD: 0, manoI: 0, boca: 0 }, 400]]),
+      gira: m => m.hacer([[0, { helice: .7 }, 350], [0, { rot: 360 }, 1300, 'suave'], [1300, { helice: 0 }, 350], [1700, { rot: 0 }, 1]]),
+    };
+    /* «¿Qué sigue?»: las luces se encienden de brazo en brazo, la mano sostiene el «?» mientras piensa, y al final se enciende y aplaude */
+    const quiz = m => { const R = m.refs; R.quiz = patronPulpo(k, true); const ult = R.quiz.ult, enMano = ult === N - 1;
+      const seq = [[0, { quiz: 1, enciende: -1, revela: 0 }, 1], [50, { enciende: ult - .5 }, ult * 330, 'lineal']];
+      let f = 50 + ult * 330;
+      seq.push([f, { pregunta: 1 }, 250], [f, enMano ? { manoD: 1, poseD: 5 } : {}, 400, 'sale'], [f + 200, { manoI: 1, poseI: 1, mira: -1 }, 400, 'sale']);
+      f += 2000; /* piensa */
+      seq.push([f, { revela: 1, enciende: 99, manoI: 0, mira: 0 }, 300], [f + 200, enMano ? { manoD: 0 } : {}, 300], [f + 450, { manoD: 1, manoI: 1, poseD: 3, poseI: 3, boca: 1 }, 300]);
+      f += 1900;
+      seq.push([f, { manoD: 0, manoI: 0, boca: 0, pregunta: 0 }, 400], [f + 450, { quiz: 0, revela: 0 }, 1]);
+      return m.hacer(seq); };
+    const lista = k === 1 ? [acc.ola, acc.saluda, acc.rasca, acc.timido, acc.camina, acc.bosteza, acc.aplaude] : [acc.ola, acc.saluda, acc.rasca, acc.timido, acc.camina, acc.bosteza, acc.aplaude, acc.gira];
+    const acciones = lista.map(fn => m => { m.nQuiz = (m.nQuiz || 0) + 1; return m.nQuiz % 3 === 1 ? quiz(m) : fn(m); });
+    const chorro = (m, d) => m.hacer([[d, { aprieta: 1 }, 220], [d + 220, { tinta: 1, aprieta: -.25, junta: 1, y: k >= 3 ? -6 : -10 }, 450, 'sale'], [d + 680, { tinta: 0 }, 1],
+      [d + 700, { junta: 0, abre: 1, aprieta: 0 }, 380], [d + 900, { y: 0 }, 1000, 'suave'], [d + 1700, { abre: 0 }, 450]]);
+    const helice = (m, d) => m.hacer([[d, { helice: 1 }, 300], [d, { rot: 720 }, 1600, 'suave'], [d + 200, { y: -7 }, 500, 'sale'], [d + 1100, { y: 0 }, 600, 'suave'], [d + 1500, { helice: 0 }, 400], [d + 1950, { rot: 0 }, 1]]);
+    const nubeTinta = (m, d) => m.hacer([[d, { aprieta: .6 }, 150], [d + 150, { tinta: 1 }, 650, 'sale'], [d + 150, { nube: 1, aprieta: 0 }, 260], [d + 250, { esconde: 1 }, 320], [d + 800, { tinta: 0 }, 1],
+      [d + 900, { mira: -1 }, 250], [d + 1300, { mira: 1 }, 300], [d + 1700, { mira: 0 }, 200], [d + 1900, { nube: 0 }, 450], [d + 1950, { esconde: 0 }, 420, 'rebote']]);
+    return {
+      fondo: (t, modo, p) => { p.t = t; p.vivo = modo === 'vida' ? 1 : 0; return {}; },
+      acciones,
+      gesto: k === 1 ? nubeTinta : (m, d) => { m.nGesto = (m.nGesto || 0) + 1; return m.nGesto % 2 ? chorro(m, d) : helice(m, d); },
+      salto: (m, d) => m.hacer([[d, { sy: .86, sx: 1.08 }, 140], [d + 140, { y: -12, sy: 1.08, sx: .94, junta: .4 }, 240, 'sale'], [d + 380, { y: 0, sy: 1, sx: 1, junta: 0 }, 420, 'suave']]),
+    };
   };
+  const P_SPEC = { 1: P_SPEC_BASE(1), 2: P_SPEC_BASE(2), 3: P_SPEC_BASE(3), 4: P_SPEC_BASE(4) };
 
   const ANIM = { tortugono: k => ({ draw: tortugonoPose(k), base: T_BASE, spec: T_SPEC }), cubuho: k => ({ draw: cubuhoPose(k), base: B_BASE, spec: k === 1 ? B1_SPEC : B_SPEC }),
     cienpiecito: k => ({ draw: cienpiecitoPose(k), base: { ...N_BASE, alza: N_ST[k].alza }, spec: N_SPEC[k] }),
-    pulpatron: k => ({ draw: pulpatronPose(k), base: P_BASE, spec: P_SPEC }) };
+    pulpatron: k => ({ draw: pulpatronPose(k), base: P_BASE, spec: P_SPEC[k] }) };
   /* poner(el, id, k): arranca el motor de esa mascota dentro de el (un <g>); devuelve el motor o null si no tiene poses */
   const poner = (el, id, k, variante) => { if (!ANIM[id] || !k) return null; const a = ANIM[id](k, variante); return new Motor(el, a.draw, a.base, a.spec); };
   M.POSES = { Motor, poner, tiene: id => !!ANIM[id], EASE };
