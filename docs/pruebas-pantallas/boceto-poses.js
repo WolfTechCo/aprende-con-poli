@@ -471,13 +471,14 @@
   /* un número en anillos: cada cifra con el color de su posición (U, D, C, M) */
   const cifras = n => [...String(n)].map((d, i, a) => { const c = PUESTO[a.length - 1 - i]; return { c, l: LETRA[c], d }; });
   const relleno = (fila, N) => Array(Math.max(0, N - fila.length)).fill({ c: 'plomo', l: '', d: '' }).concat(fila);
-  /* disposición de los anillos: 0 reposo, 1 la suma a + b (el plomo lleva el «+»), 2… el resultado «= c», que parte junto a la
-     cabeza y se desliza anillo por anillo hasta quedar centrado; los anillos que no son del resultado quedan grises */
+  /* disposición de los anillos: 0 reposo, 1 la suma a + b (el plomo lleva el «+»), 2… el resultado «= c», que sale de la
+     cabeza y recorre el cuerpo anillo por anillo hasta que el «=» llega a la cola; los anillos que no son del resultado quedan grises */
   const GRIS = { c: 'plomo', l: '', d: '' };
   const disposicion = (Q, a, b) => { const N = Q.s.length, rest = Q.s.map(c => ({ c, l: LETRA[c], d: '' }));
     if (b == null) { const f = relleno(cifras(a), N); return [rest, f]; }
-    const bloque = [{ c: 'plomo', l: '=', d: '=' }, ...cifras(a + b)], m = bloque.length, centro = Math.floor((N - m) / 2), out = [rest, relleno([...cifras(a), { c: 'plomo', l: '+', d: '+' }, ...cifras(b)], N)];
-    for (let s0 = N - m; s0 >= centro; s0--) out.push(Array(s0).fill(GRIS).concat(bloque, Array(N - m - s0).fill(GRIS)));
+    const bloque = [{ c: 'plomo', l: '=', d: '=' }, ...cifras(a + b)], out = [rest, relleno([...cifras(a), { c: 'plomo', l: '+', d: '+' }, ...cifras(b)], N)];
+    /* el «=» sale de la cabeza y avanza con las cifras detrás hasta llegar a la cola */
+    for (let s0 = N - 1; s0 >= 0; s0--) out.push(Array(s0).fill(GRIS).concat(bloque).concat(Array(N).fill(GRIS)).slice(0, N));
     return out; };
   /* una suma al azar que quepa en los anillos y no pase el máximo de la etapa */
   const sumaAzar = Q => { const N = Q.s.length, len = n => String(n).length, rnd = n => 1 + Math.floor(Math.random() * n);
@@ -650,8 +651,8 @@
       else { seq.push([f + 600, { num: 1 }, 300]); f += 1700; /* ahora suma */
         const ult = R.lay.length - 1, pasos = ult - 2;
         seq.push([f, { gap: .3, sy: .9, sx: 1.05 }, 260], [f + 260, { paso: 2 }, 1], [f + 270, { gap: 1, sy: 1, sx: 1 }, 380, 'rebote']);
-        if (pasos > 0) seq.push([f + 700, { paso: ult }, pasos * 300, 'suave']); /* el resultado se desliza al centro */
-        f += 700 + pasos * 300; seq.push([f + 100, { boca: .8 }, 300]); f += 400; }
+        if (pasos > 0) seq.push([f + 600, { paso: ult }, pasos * 260]); /* el resultado recorre el cuerpo hasta la cola */
+        f += 600 + pasos * 260; seq.push([f + 100, { boca: .8 }, 300]); f += 400; }
       seq.push([f + 1200, { letras: 0, num: 0, boca: 0 }, 300], [f + 1550, { paso: 0, cnt: 0 }, 1], [f + 1560, { gap: 0 }, 420, 'rebote']);
       return m.hacer(seq); },
     acordeon: m => m.hacer([[0, { estira: 1 }, 380, 'sale'], [450, { estira: -.45, sy: 1.04 }, 260], [720, { estira: .6, sy: 1 }, 240], [980, { estira: 0 }, 380, 'rebote']]),
@@ -660,6 +661,8 @@
     saluda: m => { const q = azar(3), o = q === 0 ? { saluda: 1 } : q === 1 ? { saludaI: 1 } : { saluda: 1, saludaI: 1 };
       return m.hacer([[0, { ...o, boca: .6 }, 300, 'sale'], [1500, { saluda: 0, saludaI: 0, boca: 0 }, 300]]); },
   };
+  /* la cuenta se intercala con las demás acciones (una sí, una no), así se ve seguido */
+  const intercala = lista => lista.map(fn => m => { m.nCuenta = (m.nCuenta || 0) + 1; return m.nCuenta % 2 ? nAcc.cuenta(m) : fn(m); });
   const nSalto = (m, d) => m.hacer([
     [d, { sy: .86, sx: 1.08 }, 140], [d + 140, { y: -14, sy: 1.08, sx: .94, cola: 5 }, 240, 'sale'], [d + 380, { y: 0, sy: 1, sx: 1 }, 210, 'entra'],
     [d + 470, { cola: -2 }, 160], [d + 590, { sy: .9, sx: 1.06 }, 100], [d + 630, { cola: 0 }, 260, 'rebote'], [d + 690, { sy: 1, sx: 1 }, 260, 'rebote']]);
@@ -670,16 +673,16 @@
   };
   const N_SPEC = {
     /* cría: no le alcanza el cuerpo para hacerse bolita, así que se da vuelta patas arriba, patalea y se ríe */
-    1: { fondo: nFondo, salto: nSalto, acciones: [nAcc.camina, nAcc.tantea, nAcc.mira, nAcc.cuenta, nAcc.acordeon, nAcc.bosteza, nAcc.baila],
+    1: { fondo: nFondo, salto: nSalto, acciones: intercala([nAcc.camina, nAcc.tantea, nAcc.mira, nAcc.acordeon, nAcc.bosteza, nAcc.baila]),
       gesto: (m, d) => m.hacer([[d, { sy: .85, sx: 1.08 }, 140], [d + 140, { y: -12, vuelta: 1, sy: 1, sx: 1 }, 380, 'sale'], [d + 520, { y: 0 }, 160, 'entra'],
         [d + 560, { patalea: 1, boca: 1 }, 200], [d + 1700, { patalea: 0, boca: 0 }, 200], [d + 1800, { y: -10 }, 200, 'sale'], [d + 1850, { vuelta: 0 }, 380, 'suave'],
         [d + 2000, { y: 0 }, 230, 'entra'], [d + 2230, { sy: .9, sx: 1.06 }, 100], [d + 2330, { sy: 1, sx: 1 }, 260, 'rebote']]) },
     /* joven: hace puente como cuncuna medidora y avanza un pasito */
-    2: { fondo: nFondo, salto: nSalto, acciones: [nAcc.camina, nAcc.tantea, nAcc.mira, nAcc.cuenta, nAcc.acordeon, nAcc.bosteza, nAcc.baila],
+    2: { fondo: nFondo, salto: nSalto, acciones: intercala([nAcc.camina, nAcc.tantea, nAcc.mira, nAcc.acordeon, nAcc.bosteza, nAcc.baila]),
       gesto: (m, d) => m.hacer([[d, { puente: 1, x: -2 }, 450, 'sale'], [d + 650, { puente: 0, x: 3 }, 380, 'rebote'], [d + 1100, { puente: 1, x: 1 }, 400, 'sale'],
         [d + 1700, { puente: 0, x: 0 }, 420, 'rebote'], [d + 2000, { ant: 1, boca: .6 }, 200], [d + 2600, { ant: 0, boca: 0 }, 250]]) },
     /* adulta y brillante: se hace bolita (la cabeza primero), rueda de ida y vuelta y se desenrolla (la cola primero) */
-    3: { fondo: nFondo, salto: nSalto, acciones: [nAcc.camina, nAcc.tantea, nAcc.mira, nAcc.cuenta, nAcc.acordeon, nAcc.bosteza, nAcc.baila, nAcc.saluda],
+    3: { fondo: nFondo, salto: nSalto, acciones: intercala([nAcc.camina, nAcc.tantea, nAcc.mira, nAcc.acordeon, nAcc.bosteza, nAcc.baila, nAcc.saluda]),
       gesto: (m, d) => m.hacer([[d, { sy: .92, sx: 1.04, cabRot: 12 }, 180], [d + 160, { curl: 1, alza: 0, sy: 1, sx: 1, cabRot: 0 }, 750, 'suave'],
         [d + 950, { rot: 200, x: 7 }, 650, 'suave'], [d + 1650, { rot: 0, x: 0 }, 650, 'suave'],
         [d + 2350, { curl: 0, alza: m.base.alza }, 650, 'rebote'], [d + 2900, { ant: 1 }, 150], [d + 3400, { ant: 0 }, 250]]) },
