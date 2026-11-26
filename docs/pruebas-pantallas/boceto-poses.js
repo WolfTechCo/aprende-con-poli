@@ -461,21 +461,36 @@
      y muestra UNA letra (M C D U, que se lee de la cola a la cabeza) y después su número (por ejemplo 1 2 5 0). */
   let nN = 0;
   const N_ST = {
-    1: { r: 8, s: ['pu', 'pu'], hs: 19.4, alza: 0 },
-    2: { r: 7.6, s: ['pd', 'pd', 'pu', 'pu'], hs: 19.4, alza: 0 },
-    3: { r: 7.2, s: ['pc', 'pc', 'pd', 'pd', 'pu', 'pu'], hs: 20, alza: 1 },
-    4: { r: 7, s: ['oro', 'pc', 'pc', 'pd', 'pd', 'pu', 'pu'], hs: 19.4, alza: 1 },
+    1: { r: 8, s: ['plomo', 'pu'], hs: 19.4, alza: 0, max: 9, ej: [5] },
+    2: { r: 7.6, s: ['pd', 'pu', 'pd', 'pu'], hs: 19.4, alza: 0, max: 99, ej: [7, 25] },
+    3: { r: 7.2, s: ['pc', 'pd', 'pu', 'pc', 'pd', 'pu'], hs: 20, alza: 1, max: 999, ej: [48, 125] },
+    4: { r: 7, s: ['oro', 'pc', 'pd', 'pu', 'pc', 'pd', 'pu'], hs: 19.4, alza: 1, max: 1000, ej: [250, 750] },
   };
-  const LETRA = { pu: 'U', pd: 'D', pc: 'C', oro: 'M' };
+  const LETRA = { pu: 'U', pd: 'D', pc: 'C', oro: 'M', plomo: '' };
+  const PUESTO = ['pu', 'pd', 'pc', 'oro'];
+  /* un número en anillos: cada cifra con el color de su posición (U, D, C, M) */
+  const cifras = n => [...String(n)].map((d, i, a) => { const c = PUESTO[a.length - 1 - i]; return { c, l: LETRA[c], d }; });
+  const relleno = (fila, N) => Array(Math.max(0, N - fila.length)).fill({ c: 'plomo', l: '', d: '' }).concat(fila);
+  /* disposición de los anillos: 0 reposo, 1 la suma a + b (el plomo lleva el «+»), 2 el resultado */
+  const disposicion = (Q, a, b) => { const N = Q.s.length, rest = Q.s.map(c => ({ c, l: LETRA[c], d: '' }));
+    if (b == null) { const f = relleno(cifras(a), N); return [rest, f, f]; }
+    return [rest, relleno([...cifras(a), { c: 'plomo', l: '+', d: '+' }, ...cifras(b)], N), relleno(cifras(a + b), N)]; };
+  /* una suma al azar que quepa en los anillos y no pase el máximo de la etapa */
+  const sumaAzar = Q => { const N = Q.s.length, len = n => String(n).length, rnd = n => 1 + Math.floor(Math.random() * n);
+    if (N < 3) return [rnd(9)];
+    for (let t = 0; t < 200; t++) {
+      let a, b; if (Q.max === 1000 && Math.random() < .2) { a = rnd(999); b = 1000 - a; } else { const tope = Math.min(Q.max - 1, Math.pow(10, Math.ceil(Math.random() * 3)) - 1); a = rnd(tope); b = rnd(Q.max - a); }
+      if (len(a) + 1 + len(b) <= N && a + b <= Q.max && len(a) + len(b) >= N - 2) return [a, b];
+    }
+    return Q.ej; };
   const N_BASE = { alza: 0, curl: 0, rot: 0, ola: 0, andar: 0, patalea: 0, estira: 0, gap: 0, cuenta: -9, letras: 0, num: 0, ant: 0, cabRot: 0, mira: 0, ojos: 1, boca: 0,
-    saluda: 0, saludaI: 0, cola: 0, vuelta: 0, puente: 0, sx: 1, sy: 1, y: 0, x: 0 };
+    saluda: 0, saludaI: 0, cola: 0, vuelta: 0, puente: 0, paso: 0, cnt: 0, sx: 1, sy: 1, y: 0, x: 0 };
   const suaveS = u => u * u * (3 - 2 * u);
   const cienpiecitoPose = k => {
     const id = 'kn' + (++nN), Q = N_ST[k], N = Q.s.length, r = Q.r, hs = Q.hs, SC = M.C.SCALE[k], gold = k === 4;
     const tile = gold ? 'oro' : 'amarillo', fs = hs / 19.5;
     /* grupos de cifras: cada color es una cifra; la letra va en el primer anillo del grupo, en su parte que no tapa el siguiente */
-    const grupo = []; let gi = -1; Q.s.forEach((c, i) => { if (!i || c !== Q.s[i - 1]) gi++; grupo.push(gi); });
-    const G = gi + 1, rep = Q.s.map((c, i) => i === 0 || Q.s[i - 1] !== c);
+    const grupo = Q.s.map((_, i) => i); /* cada anillo es su propia cifra */
     const ojoS = i => `<g id="${id}-o${i}"><ellipse rx="2.3" ry="2.7" fill="url(#km-ojo)"/><circle cx=".8" cy="-1.1" r="1" fill="#fff"/><circle cx="-.7" cy="1.2" r=".45" fill="#fff"/></g>`;
     const txt = (col, t) => `<text y="${n3(r * .34)}" text-anchor="middle" font-family="Arial Rounded MT Bold,Nunito,Arial,sans-serif" font-weight="900" font-size="${n3(r * 1.0)}" fill="#fff" stroke="${PAL[col][3]}" stroke-width=".9" paint-order="stroke" opacity="0">${t}</text>`;
     const brazo = (nm, col) => `<g id="${id}-${nm}" opacity="0"><path stroke="${PAL[col][3]}" stroke-width="2.6" fill="none" stroke-linecap="round"/><path stroke="${PAL[col][1]}" stroke-width="1.2" fill="none" stroke-linecap="round"/>${gel(E(0, 0, 1.9, 1.4), col, .6)}</g>`;
@@ -488,7 +503,7 @@
       /* anillos, cada uno con su pata de adelante */
       c += Q.s.map((col, i) => `<g id="${id}-a${i}"><circle r="${n3(r * 1.25)}" fill="url(#km-glow)" opacity="0"/>${gel(C(0, 0, r), col, 1.1)}`
         + arc(`M${n3(-r * .62)} ${n3(-r * .1)}Q${n3(-r * .5)} ${n3(-r * .66)} ${n3(-r * .02)} ${n3(-r * .72)}`, 1.4, .8)
-        + (rep[i] ? txt(col, LETRA[col]) + txt(col, '0') : '') + '</g>'
+        + txt(col, '') + txt(col, '') + '</g>'
         + `<g id="${id}-pn${i}"><path stroke="${PAL[col][3]}" stroke-width="2.6" fill="none" stroke-linecap="round"/><path stroke="${PAL[col][1]}" stroke-width="1.2" fill="none" stroke-linecap="round"/>${gel(E(0, 0, 1.7, 1.25), col, .6)}</g>`).join('');
       /* bracitos que saludan: van encima de los anillos (si no, el anillo de arriba los tapa) */
       const cz = Q.s[Math.max(0, N - 2)];
@@ -505,9 +520,14 @@
       c += `<g id="${id}-cab">${h}</g>`;
       return `<g transform="scale(${SC})">${g}<g id="${id}-all">${c}</g></g>`;
     };
+    /* cambia el color de un anillo y de sus patas (al contar, los anillos toman el color de su cifra) */
+    const pinta = (R, i, col) => { const A = R.a[i], K = PAL[col]; A.c = col;
+      A.bola.setAttribute('fill', `url(#km-${col})`); A.bola.setAttribute('stroke', K[3]); A.le.setAttribute('stroke', K[3]); A.dg.setAttribute('stroke', K[3]);
+      const n = R.pn[i]; n.p1.setAttribute('stroke', K[3]); n.p2.setAttribute('stroke', K[1]); n.f.setAttribute('fill', `url(#km-${col})`); n.f.setAttribute('stroke', K[3]);
+      const f = R.pf[i]; f.p.setAttribute('stroke', K[3]); f.f.setAttribute('fill', K[3]); };
     const refs = el => { const q = s => el.querySelector('#' + id + '-' + s), br = nm => { const b = q(nm); return { g: b, p1: b.children[0], p2: b.children[1], f: b.children[2] }; };
-      return { dig: Array(G).fill('0'), pz: br('pz'), pzi: br('pzi'), sh: q('sh'), all: q('all'), bd: q('bd'), cab: q('cab'), bc: q('bc'), bo: q('bo'), o: [0, 1].map(i => q('o' + i)), an: [0, 1].map(i => q('an' + i)),
-        a: Q.s.map((_, i) => { const g = q('a' + i), t = g.querySelectorAll('text'); return { g, glow: g.firstChild, le: t[0], dg: t[1] }; }),
+      return { lay: disposicion(Q, ...Q.ej), nueva() { this.lay = disposicion(Q, ...sumaAzar(Q)); }, pinta, pz: br('pz'), pzi: br('pzi'), sh: q('sh'), all: q('all'), bd: q('bd'), cab: q('cab'), bc: q('bc'), bo: q('bo'), o: [0, 1].map(i => q('o' + i)), an: [0, 1].map(i => q('an' + i)),
+        a: Q.s.map((_, i) => { const g = q('a' + i), t = g.querySelectorAll('text'); return { g, glow: g.firstChild, bola: g.children[1], le: t[0], dg: t[1], c: Q.s[i] }; }),
         pf: Q.s.map((_, i) => { const g = q('pf' + i); return { g, p: g.firstChild, f: g.lastChild }; }),
         pn: Q.s.map((_, i) => { const g = q('pn' + i); return { g, p1: g.children[0], p2: g.children[1], f: g.children[2] }; }) }; };
     /* columna: desde la cola hacia la cabeza, cada articulación gira un poco (como vagones) */
@@ -523,7 +543,7 @@
         if (N === 4) a += pu * [0, -1.05, 1.05, 1.05, -1.05][i];
         a += p.ola * .1 * Math.sin((p.fase || 0) - i * 1.1);
         th += a;
-        const dd = i === N ? r * .45 + hs * .42 : d * (1 - pu * .08) + (grupo[i] !== grupo[i - 1] ? p.gap * r * .62 * Math.pow(Math.abs(Math.cos(th)), 2) : 0) + pu * r * .45;
+        const dd = i === N ? r * .45 + hs * .42 + p.gap * r * .75 * Math.pow(Math.cos(th), 2) : d * (1 - pu * .08) + (grupo[i] !== grupo[i - 1] ? p.gap * r * .62 * Math.pow(Math.abs(Math.cos(th)), 2) : 0) + pu * r * .45;
         x += Math.cos(th) * dd; y += Math.sin(th) * dd; pts.push([x, y, th]);
       }
       return pts;
@@ -553,13 +573,16 @@
         /* jorobita que recorre el cuerpo de la cola a la cabeza; la cola llega después al saltar */
         const hump = p.ola * Math.max(0, Math.sin(ph - i * 1.1)) * 1.8 * (1 - cu), lag = p.cola * (1 - i / N);
         const ax = X + ox, ay = Y + oy - hump + lag, gg = grupo[i];
-        const glow = rep[i] ? Math.max(0, 1 - Math.abs(p.cuenta - gg)) : 0;
+        const glow = Math.max(0, 1 - Math.abs(p.cuenta - i)), L = R.lay[clamp(Math.round(p.paso), 0, 2)][i];
+        if (R.a[i].c !== L.c) pinta(R, i, L.c);
         sa(R.a[i].g, 'transform', `translate(${n3(ax)} ${n3(ay)}) scale(${n3(1 + glow * .16)})`);
         sa(R.a[i].glow, 'opacity', n3(glow * .9));
-        if (R.a[i].le) { const vis = clamp(Math.max(p.letras, glow * 1.4), 0, 1) * (1 - cu);
+        { const vis = clamp(Math.max(p.letras, glow * 1.4), 0, 1) * (1 - cu);
+          const dv = k === 1 && p.cnt > .5 && L.d ? String(Math.round(p.cnt)) : L.d;
+          if (R.a[i].le._t !== L.l) { R.a[i].le._t = L.l; R.a[i].le.textContent = L.l; }
+          if (R.a[i].dg._t !== dv) { R.a[i].dg._t = dv; R.a[i].dg.textContent = dv; }
           sa(R.a[i].le, 'opacity', n3(vis * (1 - p.num))); sa(R.a[i].dg, 'opacity', n3(vis * p.num));
-          const lt = i < N - 1 && grupo[i + 1] === gg ? r * .24 : 0, ltr = `translate(${n3(-Math.cos(T) * lt)} ${n3(-Math.sin(T) * lt)})`; sa(R.a[i].le, 'transform', ltr); sa(R.a[i].dg, 'transform', ltr);
-          if (R.a[i].dg._t !== R.dig[gg]) { R.a[i].dg._t = R.dig[gg]; R.a[i].dg.textContent = R.dig[gg]; } }
+        }
         /* patas: nacen del anillo hacia el lado de la panza; se levantan en ola (o patalean) */
         const tx = Math.cos(T), ty = Math.sin(T), nx = -ty, ny = tx, Lb = r * .62 + 1.2;
         [['pn', .28, 0], ['pf', -.28, Math.PI * .5]].forEach(([w, off, dph]) => {
@@ -588,11 +611,11 @@
       /* cabeza: casi siempre derecha; en la bolita se ladea y se achica un poco al centro */
       /* patas arriba (cría): el cuerpo se da vuelta como tortilla sobre su línea de anillos y la cabeza se apoya en el suelo */
       const vu = clamp(p.vuelta, 0, 1), hsc = 1 - cuH * .26, HX = cab[0] + ox + vu * 2, HY0 = cab[1] + oy, HY = lerp(HY0, -hs * .44 - .6, vu);
-      const hr = p.cabRot + Math.sin(cuH * Math.PI) * 18 - vu * 28;
+      const hr = p.cabRot + Math.sin(cuH * Math.PI) * 18 - vu * 168; /* la cabeza se da vuelta con el cuerpo: queda boca arriba */
       sa(R.cab, 'transform', `translate(${n3(HX)} ${n3(HY)}) rotate(${n3(hr)}) scale(${n3(hsc)})`);
       /* antenas: tantean (cada una a su ritmo) */
       R.an.forEach((g, i) => { const s = i ? 1 : -1, w = p.ant * Math.sin(t * 9 + i * 2.1) * .5 + Math.sin(t * 2.2 + i) * .12 * (p.vivo || 0) + p.patalea * Math.sin(t * 13 + i) * .3;
-        const bx = s * hs * .2, by = -hs * .46, a = -Math.PI / 2 + s * ((gold ? .85 : .55) + w), Lr = hs * (gold ? .46 : .5);
+        const bx = s * hs * .2, by = -hs * .46, a = -Math.PI / 2 + s * ((gold ? .85 : .55) + w + vu * .75), Lr = hs * (gold ? .46 : .5);
         const ex = bx + Math.cos(a) * Lr, ey = by + Math.sin(a) * Lr;
         sa(g.firstChild, 'd', `M${n3(bx)} ${n3(by)}Q${n3(bx + s * hs * .06)} ${n3(by - Lr * .6)} ${n3(ex)} ${n3(ey)}`); sa(g.lastChild, 'cx', n3(ex)); sa(g.lastChild, 'cy', n3(ey)); });
       const ojo = Math.max(.08, p.ojos);
@@ -613,12 +636,16 @@
     tantea: m => m.hacer([[0, { ant: 1, cabRot: 6 }, 250], [700, { cabRot: -4 }, 300], [1600, { ant: 0, cabRot: 0 }, 300]]),
     mira: m => { const g = lado(); return m.hacer([[0, { cabRot: 9 * g, mira: g }, 450], [1100, { cabRot: -8 * g, mira: -g }, 550], [2000, { cabRot: 0, mira: 0 }, 400]]); },
     /* cuenta: se separan los grupos, una luz los recorre de la cola a la cabeza (M C D U) y aparece su número */
-    cuenta: m => { const G = m.refs.dig.length; m.refs.dig = m.refs.dig.map((_, i) => String(i === 0 && G > 1 ? 1 + azar(9) : azar(10)));
-      const seq = [[0, { gap: 1 }, 420, 'sale'], [300, { cuenta: 0 }, 1]];
-      for (let g = 1; g < G; g++) seq.push([300 + g * 420, { cuenta: g }, 300]);
-      const f = 300 + G * 420;
-      seq.push([f, { cuenta: -9, letras: 1 }, 200], [f + 500, { num: 1 }, 300], [f + 600, { boca: .7 }, 200], [f + 1000, { boca: 0 }, 200],
-        [f + 2200, { letras: 0, num: 0 }, 300], [f + 2300, { gap: 0 }, 420, 'rebote']);
+    /* cuenta y suma: los anillos toman el color de sus cifras (a + b), muestran sus letras y su número, y se reacomodan en el resultado.
+       La cría (2 anillos) cuenta de uno en uno hasta su número. */
+    cuenta: m => { const R = m.refs; R.nueva(); const N = R.a.length, cria = N < 3, n = +R.lay[1][N - 1].d;
+      const seq = [[0, { gap: 1 }, 420, 'sale'], [200, { paso: 1 }, 1], [260, { cuenta: 0 }, 1]];
+      for (let i = 1; i < N; i++) seq.push([260 + i * 240, { cuenta: i }, 200]);
+      let f = 260 + N * 240; seq.push([f, { cuenta: -9, letras: 1 }, 200]);
+      if (cria) { seq.push([f + 400, { num: 1, cnt: 1 }, 200], [f + 600, { cnt: n }, Math.max(1, n - 1) * 260, 'suave']); f += 600 + n * 260; seq.push([f, { boca: .8 }, 200]); }
+      else { seq.push([f + 600, { num: 1 }, 300]); f += 1700; /* ahora suma */
+        seq.push([f, { gap: .3, sy: .9, sx: 1.05 }, 260], [f + 260, { paso: 2, num: 0 }, 1], [f + 270, { gap: 1, sy: 1, sx: 1 }, 380, 'rebote'], [f + 800, { num: 1, boca: .8 }, 300]); f += 900; }
+      seq.push([f + 1200, { letras: 0, num: 0, boca: 0 }, 300], [f + 1550, { paso: 0, cnt: 0 }, 1], [f + 1560, { gap: 0 }, 420, 'rebote']);
       return m.hacer(seq); },
     acordeon: m => m.hacer([[0, { estira: 1 }, 380, 'sale'], [450, { estira: -.45, sy: 1.04 }, 260], [720, { estira: .6, sy: 1 }, 240], [980, { estira: 0 }, 380, 'rebote']]),
     bosteza: m => m.hacer([[0, { ojos: 0, boca: 1, cabRot: -7, estira: .3 }, 700], [1300, { ojos: 1, boca: 0, cabRot: 0, estira: 0 }, 500]]),

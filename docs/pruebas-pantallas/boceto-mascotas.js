@@ -19,6 +19,8 @@
     /* colores de posición del capítulo 3 (js/numeros.js: PV) para que Cienpiecito «hable» igual que las lecciones */
     pu: ['#d2f7e8', '#22c58b', '#169a6a', '#0d6e4a'], pd: ['#ffe3d0', '#ff8a3d', '#e0651a', '#a8460a'],
     pc: ['#dcecff', '#4ea8ff', '#2a7fd6', '#1d5aa0'],
+    /* plomo: anillo separador de Cienpiecito (sin cifra, o con el «+» de la suma) */
+    plomo: ['#f3f3f7', '#c8c8d6', '#a0a0b4', '#6c6c82'],
   };
   const DEFS = '<defs>' + Object.entries(PAL).map(([k, [l, b, d]]) => `<radialGradient id="km-${k}" cx=".35" cy=".28" r=".92"><stop offset="0" stop-color="${l}"/><stop offset=".5" stop-color="${b}"/><stop offset="1" stop-color="${d}"/></radialGradient>`).join('')
     + '<radialGradient id="km-ojo" cx=".5" cy=".8" r=".75"><stop offset="0" stop-color="#7a4a6e"/><stop offset=".55" stop-color="#3a1f3a"/><stop offset="1" stop-color="#22121f"/></radialGradient>'
