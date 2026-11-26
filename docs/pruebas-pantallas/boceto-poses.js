@@ -645,17 +645,17 @@
     /* cuenta y suma: los anillos toman el color de sus cifras (a + b), muestran sus letras y su número, y se reacomodan en el resultado.
        La cría (2 anillos) cuenta de uno en uno hasta su número. */
     cuenta: m => { const R = m.refs; R.nueva(); const N = R.a.length, cria = N < 3, n = +R.lay[1][N - 1].d;
-      /* tiempos acordados con la dueña (26-11): leer crece con las cifras; el movimiento va al mismo paso por anillo en todas las etapas */
+      /* tiempos acordados con la dueña (26-11, término medio): leer crece con las cifras; el movimiento va al mismo paso por anillo en todas las etapas */
       const cifrasSuma = R.lay[1].filter(x => /\d/.test(x.d)).length, cifrasRes = cria ? 1 : R.lay[R.lay.length - 1].filter(x => /\d/.test(x.d)).length;
       const seq = [[0, { gap: 1 }, 400, 'sale'], [200, { paso: 1 }, 1], [400, { cuenta: 0 }, 1]];
-      for (let i = 1; i < N; i++) seq.push([400 + i * 350, { cuenta: i }, 250]); /* lucecita: 0,35 s por anillo */
-      let f = 400 + N * 350; seq.push([f, { cuenta: -9, letras: 1 }, 200]); f += 600 + 200 * N; /* letras: 0,6 s + 0,2 s por anillo */
-      if (cria) { seq.push([f, { num: 1, cnt: 1 }, 200], [f + 500, { cnt: n }, Math.max(1, n - 1) * 500, 'lineal']); f += 500 + Math.max(0, n - 1) * 500 + 300; } /* cuenta: 0,5 s por número */
-      else { seq.push([f, { num: 1 }, 300]); f += 1000 + 350 * cifrasSuma; /* números de la suma: 1 s + 0,35 s por cifra */
+      for (let i = 1; i < N; i++) seq.push([400 + i * 300, { cuenta: i }, 220]); /* lucecita: 0,3 s por anillo */
+      let f = 400 + N * 300; seq.push([f, { cuenta: -9, letras: 1 }, 200]); f += 600 + 100 * N; /* letras: 0,6 s + 0,1 s por anillo */
+      if (cria) { seq.push([f, { num: 1, cnt: 1 }, 200], [f + 380, { cnt: n }, Math.max(1, n - 1) * 380, 'lineal']); f += 380 + Math.max(0, n - 1) * 380 + 250; } /* cuenta: 0,38 s por número */
+      else { seq.push([f, { num: 1 }, 300]); f += 1000 + 200 * cifrasSuma; /* números de la suma: 1 s + 0,2 s por cifra */
         const ult = R.lay.length - 1, pasos = ult - 2;
         seq.push([f, { gap: .3, sy: .9, sx: 1.05 }, 300], [f + 300, { paso: 2 }, 1], [f + 310, { gap: 1, sy: 1, sx: 1 }, 300, 'rebote']); f += 600; /* se juntan */
-        if (pasos > 0) seq.push([f, { paso: ult }, pasos * 450, 'lineal']); f += pasos * 450; } /* el resultado avanza: 0,45 s por anillo */
-      seq.push([f, { boca: .8 }, 300]); f += 1200 + 300 * cifrasRes; /* resultado quieto: 1,2 s + 0,3 s por cifra */
+        if (pasos > 0) seq.push([f, { paso: ult }, pasos * 350, 'lineal']); f += pasos * 350; } /* el resultado avanza: 0,35 s por anillo */
+      seq.push([f, { boca: .8 }, 300]); f += 1200 + 150 * cifrasRes; /* resultado quieto: 1,2 s + 0,15 s por cifra */
       seq.push([f, { letras: 0, num: 0, boca: 0 }, 300], [f + 350, { paso: 0, cnt: 0 }, 1], [f + 360, { gap: 0 }, 420, 'rebote']);
       return m.hacer(seq); },
     acordeon: m => m.hacer([[0, { estira: 1 }, 380, 'sale'], [450, { estira: -.45, sy: 1.04 }, 260], [720, { estira: .6, sy: 1 }, 240], [980, { estira: 0 }, 380, 'rebote']]),
