@@ -153,7 +153,7 @@
       c += `<path id="${id}-ab" d="M20.8 -9.6Q24 -18.4 19.6 -27.4Q8.4 -18.6 20.8 -9.6Z" fill="#123a2e" stroke="${PAL.verde[3]}" stroke-width=".8" opacity="0"/>`;
       c += `<g id="${id}-as" opacity="0">${`<g transform="translate(17.2 -18.6) scale(${n3(fs)})"><g id="${id}-ao"><ellipse rx="2.3" ry="2.7" fill="url(#km-ojo)"/><circle cx=".8" cy="-1.1" r="1" fill="#fff"/><circle cx="-.7" cy="1.2" r=".45" fill="#fff"/></g></g>`}</g>`;
       /* «Toma sol»: un solcito que aparece arriba */
-      const sol = `<g id="${id}-sol" opacity="0" transform="translate(41 -53) scale(.82)"><g id="${id}-solr">${[...Array(8)].map((_, i) => `<path d="M0 -7.4L0 -10" stroke="#ffb020" stroke-width="1.6" stroke-linecap="round" transform="rotate(${i * 45})"/>`).join('')}</g>${gel(C(0, 0, 5.4), 'amarillo', 1)}${arc('M-3 -1.4Q-2.6 -3.4 -.6 -3.8', 1, .8)}</g>`;
+      const sol = `<g id="${id}-sol" opacity="0" transform="translate(-34 -47) scale(.72)"><g id="${id}-solr">${[...Array(8)].map((_, i) => `<path d="M0 -7.4L0 -10" stroke="#ffb020" stroke-width="1.6" stroke-linecap="round" transform="rotate(${i * 45})"/>`).join('')}</g>${gel(C(0, 0, 5.4), 'amarillo', 1)}${arc('M-3 -1.4Q-2.6 -3.4 -.6 -3.8', 1, .8)}</g>`;
       return `<g transform="scale(${SC})">${g}${sol}<g id="${id}-all"><g id="${id}-cap">${c}</g></g></g>`;
     };
     /* las piezas que puede contar: la de su etapa (cría triángulo, joven cuadrado, grande pentágono o hexágono, brillante octágono) */
@@ -482,7 +482,19 @@
     return { build, refs, update };
   };
   const lado = () => (Math.random() < .5 ? -1 : 1);
-  T_SPEC.prueba = { olfatea: T_SPEC.acciones[0], mira: T_SPEC.acciones[1], bosteza: T_SPEC.acciones[2], camina: T_SPEC.acciones[3], timida: T_SPEC.acciones[4] };
+  /* nuevas (27-11, formato común): su idea del contenido, una acción y un gesto */
+  const tCuenta = m => { const R = m.refs, i = Math.floor(Math.random() * R.piezas().length); R.elige(i); const n = R.pz[3];
+    const seq = [[0, { cuenta: 1, mira: -.6, cabRot: -5 }, 320, 'sale'], [0, { lado: 0 }, 1]];
+    for (let j = 0; j < n; j++) seq.push([380 + j * 420, { lado: j + 1 }, 260]); /* un lado cada 0,42 s */
+    let f = 380 + n * 420 + 150; seq.push([f, { cartel: 1, boca: .6, mira: 0, cabRot: 0 }, 260]);
+    f += 1300; seq.push([f, { cartel: 0, cuenta: 0, boca: 0 }, 320], [f + 340, { lado: 0 }, 1]);
+    return m.hacer(seq); };
+  const tSol = m => m.hacer([[0, { sol: 1 }, 450], [0, { cuello: 1.2, cabRot: -10 }, 550, 'sale'], [450, { ojos: .1, boca: .3 }, 350], [2700, { ojos: 1 }, 220], [2800, { sol: 0, cuello: 1, cabRot: 0, boca: 0 }, 450]]);
+  const tRema = (m, d = 0) => m.hacer([[d, { cuello: 1.12 }, 200], [d, { rema: 1 }, 260, 'sale'], [d + 1700, { rema: 0 }, 380, 'rebote'], [d + 1700, { cuello: 1 }, 300]]);
+  T_SPEC.prueba = { olfatea: T_SPEC.acciones[0], mira: T_SPEC.acciones[1], bosteza: T_SPEC.acciones[2], camina: T_SPEC.acciones[3], timida: T_SPEC.acciones[4], cuenta: tCuenta, sol: tSol, rema: tRema };
+  T_SPEC.reposo = m => { m.v.lado = 0; };
+  /* grande y brillante: al tocarla alterna esconderse y remar */
+  const T_SPEC_K = k => k >= 3 ? { ...T_SPEC, gesto: (m, d) => { m.nGesto = (m.nGesto || 0) + 1; return m.nGesto % 2 ? T_SPEC.gesto(m, d) : tRema(m, d); } } : T_SPEC;
 
   const B_SPEC = {
     fondo: (t, modo, p) => {
@@ -524,6 +536,17 @@
 
   B_SPEC.prueba = Object.fromEntries(['miraLado', 'miraAtras', 'cabecea', 'ladea', 'guina', 'esponja', 'alas', 'pasitos'].map((n, i) => [n, B_SPEC.acciones[i]]));
   B1_SPEC.prueba = Object.fromEntries(['miraLado', 'miraAtras', 'cabecea', 'guina', 'asoma', 'esconde'].map((n, i) => [n, B1_SPEC.acciones[i]]));
+  /* nuevas (27-11, formato común): «¿Qué figura soy?», vértices (brillante) y «se infla» */
+  const bFigura = m => { const R = m.refs, cuenta = R.partes.length >= 5 && m.base.k4 && Math.random() < .34;
+    if (cuenta) { const seq = [[0, { vert: 0 }, 1]]; for (let i = 0; i < 8; i++) seq.push([150 + i * 380, { vert: i + 1 }, 240]); /* un vértice cada 0,38 s */
+      const f = 150 + 8 * 380 + 150; seq.push([f, { cartel: 1, guino: 1 }, 260], [f + 1500, { cartel: 0 }, 300], [f + 1820, { vert: -1 }, 1]); return m.hacer(seq); }
+    const ix = Math.floor(Math.random() * R.partes.length);
+    return m.hacer([[0, { parte: ix }, 1], [20, { figura: 1 }, 300, 'sale'], [220, { cartel: 1, ladeo: 5 }, 260], [2100, { cartel: 0, figura: 0, ladeo: 0 }, 320]]); };
+  const bInfla = (m, d = 0) => m.hacer([[d, { esponja: 1, alaD: 38, sx: 1.1, sy: 1.08, orejas: .6 }, 280, 'sale'], [d + 700, { ojos: 0 }, 80], [d + 800, { ojos: 1 }, 110],
+    [d + 1300, { esponja: 0, alaD: 0, sx: 1, sy: 1, orejas: 0 }, 420, 'rebote']]);
+  [B_SPEC, B1_SPEC].forEach(S => { Object.assign(S.prueba, { figura: bFigura }); S.selector = ['parte']; S.reposo = m => { m.v.vert = -1; }; });
+  B_SPEC.prueba.infla = bInfla;
+  const B_SPEC_K = k => k === 1 ? B1_SPEC : k >= 3 ? { ...B_SPEC, gesto: (m, d) => { m.nGesto = (m.nGesto || 0) + 1; return m.nGesto % 2 ? B_SPEC.gesto(m, d) : bInfla(m, d); } } : B_SPEC;
 
   /* ---------- 3 · Cienpiecito con poses: una sola columna de anillos que se dobla ----------
      Como un ciempiés o una cuncuna vistos de lado: un par de patas por anillo, pegadas a su anillo y siguiéndolo.
@@ -1208,11 +1231,11 @@
      (premios) se agregan después, con la parte 3. «acc»: acciones por etapa (nombres de spec.prueba); «idea»: su acción del
      contenido, intercalada una de cada tres; «nom» y «gestos»: cómo se dice en la página. */
   const REPARTO = {
-    tortugono: { idea: null, acc: { 1: ['olfatea', 'mira', 'camina'], 2: ['olfatea', 'mira', 'camina', 'bosteza'], 3: ['olfatea', 'mira', 'camina', 'bosteza', 'timida'] },
-      nom: { olfatea: 'olfatea', mira: 'mira a los lados', camina: 'camina', bosteza: 'bosteza', timida: 'se esconde a medias' }, gestos: { 1: ['se esconde en el caparazón'] } },
-    cubuho: { idea: null, acc: { 1: ['miraLado', 'cabecea', 'guina', 'asoma', 'esconde'], 2: ['miraLado', 'miraAtras', 'cabecea', 'guina', 'esponja', 'pasitos'], 3: ['miraLado', 'miraAtras', 'cabecea', 'ladea', 'guina', 'esponja', 'alas', 'pasitos'] },
+    tortugono: { idea: 'cuenta', ideaNom: 'cuenta los lados de su caparazón', acc: { 1: ['olfatea', 'mira', 'camina'], 2: ['olfatea', 'mira', 'camina', 'bosteza'], 3: ['olfatea', 'mira', 'camina', 'bosteza', 'timida', 'sol'] },
+      nom: { olfatea: 'olfatea', mira: 'mira a los lados', camina: 'camina', bosteza: 'bosteza', timida: 'se esconde a medias', sol: 'toma sol' }, gestos: { 1: ['se esconde en el caparazón'], 3: ['se esconde en el caparazón', 'rema'] } },
+    cubuho: { idea: 'figura', ideaNom: '¿qué figura soy? (la brillante también cuenta los vértices)', acc: { 1: ['miraLado', 'cabecea', 'guina', 'asoma', 'esconde'], 2: ['miraLado', 'miraAtras', 'cabecea', 'guina', 'esponja', 'pasitos'], 3: ['miraLado', 'miraAtras', 'cabecea', 'ladea', 'guina', 'esponja', 'alas', 'pasitos'] },
       nom: { miraLado: 'mira a un lado', miraAtras: 'mira hacia atrás', cabecea: 'cabecea', guina: 'guiña un ojo', asoma: 'se asoma', esconde: 'se esconde en el cascarón', ladea: 'ladea la cabeza', esponja: 'esponja las plumas', alas: 'estira las alas', pasitos: 'da pasitos' },
-      gestos: { 1: ['se mete al cascarón y se asoma'], 2: ['gira la cabeza completa'] } },
+      gestos: { 1: ['se mete al cascarón y se asoma'], 2: ['gira la cabeza completa'], 3: ['gira la cabeza completa', 'se infla'] } },
     cienpiecito: { idea: 'cuenta', ideaNom: 'suma con sus anillos', acc: { 1: ['camina', 'tantea', 'mira'], 2: ['camina', 'tantea', 'mira', 'acordeon', 'bosteza'], 3: ['camina', 'tantea', 'mira', 'acordeon', 'bosteza', 'baila', 'saluda'] },
       nom: { camina: 'camina', tantea: 'tantea con las antenas', mira: 'mira', acordeon: 'acordeón', bosteza: 'bosteza', baila: 'baila', saluda: 'saluda' }, gestos: { 1: ['se da vuelta y patalea'], 2: ['hace puente'], 3: ['se hace bolita y rueda'] } },
     pulpatron: { idea: 'quiz', ideaNom: '«¿Qué sigue?»', acc: { 1: ['ola', 'saluda', 'camina'], 2: ['ola', 'saluda', 'camina', 'rasca', 'timido'], 3: ['ola', 'saluda', 'camina', 'rasca', 'timido', 'bosteza', 'aplaude'] },
@@ -1227,7 +1250,7 @@
   const sabe = (id, k) => { const R = REPARTO[id]; if (!R || !k) return null;
     return { acciones: deEtapa(R.acc, k).map(n => R.nom[n]), idea: R.ideaNom || null, gestos: deEtapa(R.gestos, k) }; };
 
-  const ANIM = { tortugono: k => ({ draw: tortugonoPose(k), base: T_BASE, spec: conReparto('tortugono', T_SPEC, k) }), cubuho: k => ({ draw: cubuhoPose(k), base: B_BASE, spec: conReparto('cubuho', k === 1 ? B1_SPEC : B_SPEC, k) }),
+  const ANIM = { tortugono: k => ({ draw: tortugonoPose(k), base: T_BASE, spec: conReparto('tortugono', T_SPEC_K(k), k) }), cubuho: k => ({ draw: cubuhoPose(k), base: { ...B_BASE, k4: k === 4 ? 1 : 0 }, spec: conReparto('cubuho', B_SPEC_K(k), k) }),
     cienpiecito: k => ({ draw: cienpiecitoPose(k), base: { ...N_BASE, alza: N_ST[k].alza }, spec: conReparto('cienpiecito', N_SPEC[k], k) }),
     pulpatron: k => ({ draw: pulpatronPose(k), base: P_BASE, spec: conReparto('pulpatron', P_SPEC[k], k) }),
     chinitabla: k => ({ draw: chinitablaPose(k), base: C_BASE, spec: conReparto('chinitabla', C_SPEC[k], k) }) };
