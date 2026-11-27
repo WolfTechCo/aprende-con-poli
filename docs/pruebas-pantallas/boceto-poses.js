@@ -945,17 +945,17 @@
      (2 × 5 = 10). Opción B: las pintas se ordenan en filas y columnas sobre todo el caparazón (2 × 5, 4 × 5…). */
   let nC = 0;
   const C_ST = {
-    1: { W: 14, H: 24, hr: 7.4, n: 2, r: 2.6, dip: 0, ala: .95 }, /* cría: bolita, tabla del 2, alitas chicas */
-    2: { W: 18.5, H: 30, hr: 7.8, n: 5, r: 2, dip: 5.5, ala: 1.35 }, /* joven: caparazón de corazón, tabla del 5 */
-    3: { W: 22, H: 38, hr: 8.2, n: 10, r: 1.55, dip: 0, ala: 1.55 }, /* grande: cúpula alta, tabla del 10 */
-    4: { W: 22, H: 38, hr: 8.2, n: 10, r: 1.85, dip: 0, ala: 1.65 }, /* brillante: dorada, pintas de colores */
+    1: { W: 14, H: 24, hr: 7.4, n: 2, r: 2.6, dip: 0, ala: 1 }, /* cría: bolita, tabla del 2, alitas chicas */
+    2: { W: 18.5, H: 30, hr: 7.8, n: 5, r: 2, dip: 5.5, ala: 1.25 }, /* joven: caparazón de corazón, tabla del 5 */
+    3: { W: 22, H: 38, hr: 8.2, n: 10, r: 1.55, dip: 0, ala: 1.38 }, /* grande: cúpula alta, tabla del 10 */
+    4: { W: 22, H: 38, hr: 8.2, n: 10, r: 1.85, dip: 0, ala: 1.42 }, /* brillante: dorada, pintas de colores */
   };
   /* pintas de colores, una por fila de la multiplicación (sobre rojo, colores que no se pierden; sobre oro, otros) */
   const C_PINTA = ['amarillo', 'azul', 'verde', 'lila'], C_PINTA_ORO = ['azul', 'verde', 'lila', 'rosa'];
   /* cabeza: 0 durazno, 1 lila (para comparar con la dueña); [claro, base, sombra, contorno] */
   const CAB = [['#7a6c92', '#463a5e', '#2a2238', '#160f20'], ['#ffeedd', '#ffc999', '#e8935a', '#a3562a'], ['#efe6ff', '#b59cff', '#7f62e0', '#4f36a8']]; /* 0 oscura (elegida: como la chinita real), 1 durazno, 2 lila */
   const C_BASE = { ojos: 1, mira: 0, boca: 0, y: 0, sx: 1, sy: 1, abre: 0, alas: 0, aleteo: 0, paso: 0, muerta: 0, limpia: 0, saluda: 0,
-    grupos: 0, arreglo: 0, luz: -9, cartel: 0, guino: 1, tono: 0, agacha: 0 };
+    grupos: 0, arreglo: 0, luz: -9, cartel: 0, igual: 1, guino: 1, tono: 0, agacha: 0, espia: 0 };
   /* las pintas: en reposo, juntas por tapa (opción A) y en filas × columnas (opción B); coordenadas del caparazón */
   const pintasC = (k, Q, top, H, borde) => { /* H: alto del caparazón que se ve sobre la cabeza; borde(y): medio ancho de la tapa a esa altura */
     const { W, n } = Q, Y = f => top + H * f, R = [], G = [], A = [], m = Q.r + 1.3, aden = (x, y) => Math.sign(x) * Math.min(Math.abs(x), Math.max(0, borde(y) - m)); /* que ninguna pinta se salga */
@@ -1025,11 +1025,23 @@
       /* pintas: las primeras N/2 van en la tapa izquierda */
       [0, 1].forEach(i => { q('pi' + i).innerHTML = [...Array(N / 2)].map((_, j) => { const K = PAL[(gold ? C_PINTA_ORO : C_PINTA)[L.A[i * N / 2 + j][2]]];
         return `<g><circle r="${Q.r}" fill="${K[1]}" stroke="${K[3]}" stroke-width=".55"/><circle cx="${n3(-Q.r * .32)}" cy="${n3(-Q.r * .34)}" r="${n3(Q.r * .32)}" fill="#fff" opacity=".9"/></g>`; }).join(''); });
-      return { cb: q('cb'), sh: q('sh'), all: q('all'), w: [0, 1].map(i => q('w' + i)), e: [0, 1].map(i => q('e' + i)), cab: q('cab'), ct: q('ct'), ctt: q('ctt'),
+      return R0 = { cb: q('cb'), sh: q('sh'), all: q('all'), w: [0, 1].map(i => q('w' + i)), e: [0, 1].map(i => q('e' + i)), cab: q('cab'), ct: q('ct'), ctt: q('ctt'),
         an: [0, 1].map(i => ({ p: q('an' + i).children[0], c: q('an' + i).children[1] })), o: [0, 1].map(i => q('o' + i)), pu: [0, 1].map(i => q('pu' + i)), bc: q('bc'), bo: q('bo'),
         pa: [...Array(6)].map((_, i) => ({ g: q('p' + i), p: q('p' + i).children[0], f: q('p' + i).children[1], casa: q('p' + i).parentNode, adelante: false })), pf: q('pf'), pi: [0, 1].flatMap(i => [...q('pi' + i).children]),
-        la: [0, 1].map(i => q('la' + i)), lb: [0, 1, 2, 3].map(i => q('lb' + i)) }; };
+        la: [0, 1].map(i => q('la' + i)), lb: [0, 1, 2, 3].map(i => q('lb' + i)), nuevaMult: (fi, co) => malla(R0, fi, co) }; };
+    /* filas × columnas: centradas en el caparazón (la cabeza agachada deja más espacio); las pintas que sobran se apagan.
+       Cada pinta usada toma el color de su fila. */
+    let R0 = null;
+    const malla = (R, fi, co) => {
+      const z0 = top + 3, z1 = hy - hr * .6, Yc = (z0 + z1) / 2, m = Q.r + 1.3, sp = Math.min(Q.r * 3.4, (W * 1.6) / co, (z1 - z0) * .9 / fi);
+      const celdas = []; for (let r = 0; r < fi; r++) for (let c = 0; c < co; c++) { const y = Yc + (r - (fi - 1) / 2) * sp; celdas.push([(c - (co - 1) / 2) * sp * Math.min(1, (borde(y) - m) / ((co - 1) / 2 * sp || 1)), y, r]); }
+      const izq = celdas.filter((c, i) => c[0] < -.01 || (Math.abs(c[0]) <= .01 && c[2] % 2 === 0)), der = celdas.filter(c => !izq.includes(c));
+      const B = Array(N).fill(null); izq.forEach((c, i) => { B[i] = c; }); der.forEach((c, i) => { B[N / 2 + i] = c; });
+      R.B = B; R.malla = { fi, co, sp, Yc };
+      B.forEach((c, j) => { if (!c) return; const K = PAL[(gold ? C_PINTA_ORO : C_PINTA)[c[2]]], g = R.pi[j]; g.children[0].setAttribute('fill', K[1]); g.children[0].setAttribute('stroke', K[3]); });
+    };
     const update = (R, p) => {
+      if (!R.B) { const [fi, co] = { 2: [2, 2], 5: [2, 5], 10: [4, 5] }[Q.n]; malla(R, fi, co); }
       const t = p.t || 0, vivo = p.vivo || 0, ab = clamp(p.abre, 0, 1), al = clamp(p.alas, 0, 1), mu = clamp(p.muerta, 0, 1);
       const resp = Math.sin(t * 2 * Math.PI / 3.2), baja = mu * 3.2;
       sa(R.all, 'transform', `translate(0 ${n3(p.y + baja)}) scale(${n3(p.sx * (1 + resp * .012 * vivo))} ${n3(p.sy * (1 - resp * .01 * vivo))})`);
@@ -1038,15 +1050,15 @@
       R.e.forEach((e, i) => { const s = i ? 1 : -1; sa(e, 'transform', `translate(${n3(s * ab * 2)} ${n3(-ab * 3)}) rotate(${n3(s * ab * 30)} ${n3(s * W * .3)} ${n3(yb)})`); }); /* se abren en «V» */
       /* alas: salen de debajo de las tapas y se despliegan hacia los lados; al volar baten rápido */
       R.w.forEach((w, i) => { const s = i ? -1 : 1, bat = Math.sin(t * 42) * p.aleteo; sa(w, 'opacity', n3(Math.min(1, al * 3)));
-        if (al > 0) sa(w, 'transform', `translate(${n3(-s * W * .1)} ${n3(top + H * .22)}) scale(${n3(s)} 1) rotate(${n3(24 - (1 - al) * 85 + bat * 26)}) scale(${n3(Q.ala * W / 26 * (.15 + .85 * al))} ${n3(Q.ala * W / 26 * (.5 + .5 * al) * (1 - Math.abs(bat) * .25))})`); });
+        if (al > 0) sa(w, 'transform', `translate(${n3(-s * W * .1)} ${n3(top + H * .22)}) scale(${n3(s)} 1) rotate(${n3(9 - (1 - al) * 75 + bat * 20)}) scale(${n3(Q.ala * W * 1.25 / 44 * (.15 + .85 * al))} ${n3(Q.ala * W * 1.25 / 44 * (.6 + .4 * al) * (1 - Math.abs(bat) * .25))})`); });
       /* patas: trípode (L1, R2, L3 contra R1, L2, R3); al hacerse la muerta se recogen bajo el cuerpo */
       const fase = t * 9;
       R.pa.forEach((pa, i) => { const lado = i < 3 ? -1 : 1, P0 = PATAS[i % 3], grupo = ((i < 3 ? 0 : 1) + P0.j) % 2;
         const alza = Math.max(0, Math.sin(fase + grupo * Math.PI)) * p.paso, av = Math.cos(fase + grupo * Math.PI) * p.paso;
         let hx = lado * P0.hip[0], hyy = P0.hip[1], fx = lado * (P0.foot[0] + av * 1.4), fy = -alza * 3.2 - baja;
         /* limpia: la delantera izquierda sube a la antena; saluda: la delantera derecha se agita en alto */
-        if (i === 0 && p.limpia) { fx = lerp(fx, -hr * .75, p.limpia); fy = lerp(fy, hy - hr * 1.25 - baja + Math.sin(t * 14) * .8 * p.limpia, p.limpia); }
-        if (i === 3 && p.saluda) { fx = lerp(fx, W * 1.08 + Math.sin(t * 11) * 2, p.saluda); fy = lerp(fy, yb - 15 - baja, p.saluda); }
+        if (i === 0 && p.limpia) { fx = lerp(fx, -hr * 1.1, p.limpia); fy = lerp(fy, hy - hr * .8 - baja + Math.sin(t * 14) * .7 * p.limpia, p.limpia); } /* la antena baja hasta la pata (la pata no se alarga) */
+        if (i === 3 && p.saluda) { fx = lerp(fx, W * .5 + 5 + Math.sin(t * 11) * 1.6, p.saluda); fy = lerp(fy, yb - 7.6 - baja, p.saluda); } /* se levanta sin alargarse (≤ 1,3 veces) */
         if (mu) { fx = lerp(fx, lado * (W * .45 + P0.j * 2), mu); fy = lerp(fy, yb - 1 - baja, mu); }
         const kx = (hx + fx) / 2 + lado * (1.6 + (1 - mu) * .6), ky = Math.min(hyy, fy) - 1.6 - alza * 1.2;
         const sube = (i === 0 && p.limpia > .05) || (i === 3 && p.saluda > .05);
@@ -1055,19 +1067,21 @@
       /* antenas: se mueven solas; al limpiarse, la izquierda se dobla hacia la pata */
       const ph = hy - hr * .78;
       R.an.forEach((a, i) => { const s = i ? 1 : -1, osc = Math.sin(t * 2.6 + i * 1.7) * vivo, dob = i === 0 ? p.limpia : 0;
-        const x0 = s * hr * .38, y0 = ph - hr * .3, x1 = s * (hr * 1.15 + osc * .7 + p.agacha * 2.5) - dob * s * 1.5, y1 = y0 - hr * .55 + dob * 3.5 + mu * 2.5 + p.agacha * hr * .5;
+        const x0 = s * hr * .38, y0 = ph - hr * .3, x1 = s * (hr * 1.15 + osc * .7 + p.agacha * 2.5) + dob * s * .6, y1 = y0 - hr * .55 + dob * hr * .95 + mu * 2.5 + p.agacha * hr * .5;
         sa(a.p, 'd', `M${n3(x0)} ${n3(y0)}Q${n3(s * hr * .5)} ${n3(y0 - hr * .6)} ${n3(x1)} ${n3(y1)}`); sa(a.c, 'cx', n3(x1)); sa(a.c, 'cy', n3(y1)); });
       /* pintas: reposo → grupos (A) o filas × columnas (B); se encienden por grupo o por fila */
       const gA = clamp(p.grupos, 0, 1), gB = clamp(p.arreglo, 0, 1);
-      R.pi.forEach((el, j) => { const r0 = L.R[j], a = L.G[j], b = L.A[j], x = r0[0] + (a[0] - r0[0]) * gA + (b[0] - r0[0]) * gB, y = r0[1] + (a[1] - r0[1]) * gA + (b[1] - r0[1]) * gB;
-        const grupo = gB > .5 ? b[2] : (j < N / 2 ? 0 : 1), on = Math.max(0, 1 - Math.abs(p.luz - grupo) * 1.4);
-        sa(el, 'transform', `translate(${n3(x)} ${n3(y)}) scale(${n3(1 + on * .35)})`); });
+      R.pi.forEach((el, j) => { const r0 = L.R[j], a = L.G[j], b = R.B[j] || r0, x = r0[0] + (a[0] - r0[0]) * gA + (b[0] - r0[0]) * gB, y = r0[1] + (a[1] - r0[1]) * gA + (b[1] - r0[1]) * gB;
+        const grupo = gB > .5 ? (R.B[j] ? R.B[j][2] : -9) : (j < N / 2 ? 0 : 1), on = Math.max(0, 1 - Math.abs(p.luz - grupo) * 1.4);
+        sa(el, 'transform', `translate(${n3(x)} ${n3(y)}) scale(${n3(1 + on * .35)})`); sa(el, 'opacity', n3(R.B[j] ? 1 : 1 - gB * .9)); });
       R.la.forEach((r, i) => { const s = i ? 1 : -1, w = (L.cols - 1) * L.s2 + Q.r * 3.4, h = (L.rows - 1) * L.s2 + Q.r * 3.4;
         sa(r, 'x', n3(s * L.cx - w / 2)); sa(r, 'y', n3(L.cy - h / 2)); sa(r, 'width', n3(w)); sa(r, 'height', n3(h)); sa(r, 'opacity', n3(gA * (p.luz >= i - .3 ? 1 : .35))); });
-      R.lb.forEach((r, i) => { const w = (L.co - 1) * L.sp + Q.r * 3.2, h = Q.r * 3.2, y = top + Hv * .52 + (i - (L.fi - 1) / 2) * L.sp;
-        sa(r, 'x', n3(-w / 2)); sa(r, 'y', n3(y - h / 2)); sa(r, 'width', n3(w)); sa(r, 'height', n3(h)); sa(r, 'opacity', n3(i < L.fi ? gB * (p.luz >= i - .3 ? 1 : .35) : 0)); });
-      /* cartel con la multiplicación */
-      const txt = gB > .5 ? `${L.fi} × ${L.co} = ${N}` : `2 × ${N / 2} = ${N}`;
+      const MB = R.malla;
+      R.lb.forEach((r, i) => { const fila = R.B.filter(c => c && c[2] === i), w = fila.length ? Math.max(...fila.map(c => c[0])) - Math.min(...fila.map(c => c[0])) + Q.r * 3.2 : 0, h = Q.r * 3.2, y = MB.Yc + (i - (MB.fi - 1) / 2) * MB.sp;
+        sa(r, 'x', n3(-w / 2)); sa(r, 'y', n3(y - h / 2)); sa(r, 'width', n3(w)); sa(r, 'height', n3(h)); sa(r, 'opacity', n3(i < MB.fi ? gB * (p.luz >= i - .3 ? 1 : .3) : 0)); });
+      /* cartel: mientras cuenta, el número que va (de a saltos: 5, 10, 15…); al final, la multiplicación */
+      const filas = Math.min(MB.fi, Math.max(1, Math.round(p.luz) + 1));
+      const txt = p.igual > .5 ? `${MB.fi} × ${MB.co} = ${MB.fi * MB.co}` : `${filas * MB.co}`;
       if (R.ctt.textContent !== txt) R.ctt.textContent = txt;
       sa(R.ct, 'opacity', n3(p.cartel)); sa(R.ct, 'transform', `translate(0 ${n3(top - 9)}) scale(${n3((.7 + .3 * p.cartel) * (k === 1 ? .8 : 1))})`);
       /* agacha la cabecita (como esconde la cabeza la chinita real) para que se vean todas las pintas */
@@ -1077,21 +1091,55 @@
         R.an.forEach(a => { a.p.setAttribute('stroke', K[3]); a.c.setAttribute('stroke', K[3]); }); R.pa.forEach(pa => { pa.p.setAttribute('stroke', K[3]); pa.f.setAttribute('fill', K[2]); }); }
       /* cara */
       const ojo = Math.max(.08, p.ojos * (1 - mu * .9));
-      R.o.forEach((o, i) => sa(o, 'transform', `scale(1 ${n3(i === 1 ? Math.max(.08, ojo * p.guino) : ojo)})`));
+      R.o.forEach((o, i) => sa(o, 'transform', `scale(1 ${n3(i === 1 ? Math.max(.08, ojo * p.guino) : Math.max(ojo, p.espia))})`)); /* espia: abre un ojo mientras se hace la muerta */
       R.pu.forEach(u => sa(u, 'transform', `translate(${n3(p.mira * .9)} 0)`));
       sa(R.bo, 'opacity', n3(clamp(p.boca * 1.5, 0, 1))); sa(R.bc, 'opacity', n3(1 - clamp(p.boca * 2, 0, 1)));
     };
     return { build, refs, update };
   };
-  /* vida provisoria para la lámina (la animación se arma después de la parada 1) */
-  const C_SPEC = { fondo: (t, modo, p) => { p.t = t; p.vivo = modo === 'vida' ? 1 : 0; return {}; },
-    acciones: [m => m.hacer([[0, { paso: 1 }, 300], [2000, { paso: 0 }, 300]])], gesto: (m, d) => m.hacer([[d, { abre: 1 }, 200], [d + 150, { alas: 1, aleteo: 1 }, 120], [d + 1400, { alas: 0, aleteo: 0 }, 200], [d + 1600, { abre: 0 }, 220]]),
-    salto: (m, d) => m.hacer([[d, { sy: .86, sx: 1.08 }, 140], [d + 140, { y: -10, sy: 1.06, sx: .95 }, 240, 'sale'], [d + 380, { y: 0, sy: 1, sx: 1 }, 420, 'suave']]) };
+  /* vida de Chinitabla: acciones del rato, «multiplica» intercalada (una de cada tres) y, al tocar, se hace la muerta o vuela */
+  const C_MULT = { 1: [[1, 2], [2, 2]], 2: [[1, 5], [2, 5], [2, 3], [2, 4]], 3: null, 4: null }; /* cría tabla del 2, joven del 5; grande y brillante, la que salga */
+  const C_SPEC_BASE = k => {
+    const acc = {
+      camina: m => m.hacer([[0, { paso: 1 }, 300], [2400, { paso: 0 }, 300]]), /* trípode: 3 patas a la vez */
+      limpia: m => m.hacer([[0, { limpia: 1, mira: -.6 }, 350, 'sale'], [1400, { limpia: 0, mira: 0 }, 350]]),
+      mira: m => { const g = Math.random() < .5 ? -1 : 1; return m.hacer([[0, { mira: g }, 300], [900, { mira: -g }, 400], [1700, { mira: 0 }, 300]]); },
+      saluda: m => m.hacer([[0, { saluda: 1, boca: .6 }, 350, 'sale'], [1500, { saluda: 0, boca: 0 }, 350]]),
+      estira: m => m.hacer([[0, { abre: .35, sy: 1.03 }, 400, 'sale'], [700, { abre: 0, sy: 1 }, 350, 'rebote']]), /* abre un poquito las tapas */
+      bosteza: m => m.hacer([[0, { ojos: 0, boca: 1, agacha: .25 }, 600], [1200, { ojos: 1, boca: 0, agacha: 0 }, 450]]),
+    };
+    /* multiplica: agacha la cabeza, las pintas forman filas × columnas, cuenta fila por fila de a saltos y muestra a × b = c */
+    const quiz = m => { const op = C_MULT[k], [fi, co] = op ? op[Math.floor(Math.random() * op.length)] : [2 + Math.floor(Math.random() * 3), 2 + Math.floor(Math.random() * 4)];
+      m.refs.nuevaMult(fi, co);
+      const seq = [[0, { agacha: 1 }, 350, 'sale'], [150, { arreglo: 1 }, 650, 'suave'], [820, { luz: -1, igual: 0 }, 1], [820, { cartel: 1 }, 250]];
+      let f = 900; for (let r = 0; r < fi; r++) seq.push([f + r * 650, { luz: r }, 200]); /* una fila cada 0,65 s */
+      f += fi * 650 + 250; seq.push([f, { igual: 1, boca: .8 }, 1]);
+      f += 1200 + 150 * String(fi * co).length; /* el resultado se queda: 1,2 s + 0,15 s por cifra */
+      seq.push([f, { cartel: 0, boca: 0 }, 300], [f + 300, { luz: -9 }, 1], [f + 300, { arreglo: 0 }, 650, 'suave'], [f + 650, { agacha: 0 }, 420, 'rebote']);
+      return m.hacer(seq); };
+    const lista = [acc.camina, acc.limpia, acc.mira, acc.saluda, acc.estira, acc.bosteza];
+    const acciones = lista.map(fn => m => { m.nQuiz = (m.nQuiz || 0) + 1; return m.nQuiz % 3 === 1 ? quiz(m) : fn(m); });
+    /* se hace la muerta: recoge las patas, cierra los ojos, espía con uno y se levanta */
+    const muerta = (m, d) => m.hacer([[d, { muerta: 1 }, 280, 'sale'], [d + 1150, { espia: 1 }, 150], [d + 1650, { espia: 0 }, 150], [d + 1950, { muerta: 0 }, 380, 'rebote']]);
+    /* vuela: primero abre las tapas, después despliega las alas (rápido), despega, revolotea y aterriza: cierra alas y luego tapas */
+    const vuela = (m, d) => { const alto = k >= 3 ? -6 : -9;
+      return m.hacer([[d, { abre: 1 }, 200, 'sale'], [d + 170, { alas: 1 }, 110, 'sale'], [d + 170, { aleteo: 1 }, 1], [d + 260, { y: alto, paso: .4 }, 420, 'sale'],
+        [d + 700, { y: alto + 3 }, 300], [d + 1000, { y: alto }, 300], [d + 1300, { y: 0, paso: 0 }, 420, 'suave'], [d + 1720, { aleteo: 0 }, 1], [d + 1720, { alas: 0 }, 200], [d + 1900, { abre: 0 }, 240, 'rebote']]); };
+    return {
+      fondo: (t, modo, p) => { p.t = t; p.vivo = modo === 'vida' ? 1 : 0; return {}; },
+      acciones, prueba: { ...acc, multiplica: quiz },
+      gesto: k === 1 ? muerta : (m, d) => { m.nGesto = (m.nGesto || 0) + 1; return m.nGesto % 2 ? vuela(m, d) : muerta(m, d); },
+      salto: (m, d) => m.hacer([[d, { sy: .86, sx: 1.08 }, 140], [d + 140, { y: k >= 3 ? -6 : -10, sy: k >= 3 ? 1.04 : 1.08, sx: k >= 3 ? .97 : .94 }, 240, 'sale'], [d + 380, { y: 0, sy: 1, sx: 1 }, 420, 'suave']]),
+      /* al tocar: lo que no se devuelve suave (qué fila brilla, el texto del cartel) se acomoda al instante */
+      reposo: m => { m.v.luz = -9; m.v.igual = 1; },
+    };
+  };
+  const C_SPEC = { 1: C_SPEC_BASE(1), 2: C_SPEC_BASE(2), 3: C_SPEC_BASE(3), 4: C_SPEC_BASE(4) };
 
   const ANIM = { tortugono: k => ({ draw: tortugonoPose(k), base: T_BASE, spec: T_SPEC }), cubuho: k => ({ draw: cubuhoPose(k), base: B_BASE, spec: k === 1 ? B1_SPEC : B_SPEC }),
     cienpiecito: k => ({ draw: cienpiecitoPose(k), base: { ...N_BASE, alza: N_ST[k].alza }, spec: N_SPEC[k] }),
     pulpatron: k => ({ draw: pulpatronPose(k), base: P_BASE, spec: P_SPEC[k] }),
-    chinitabla: k => ({ draw: chinitablaPose(k), base: C_BASE, spec: C_SPEC }) };
+    chinitabla: k => ({ draw: chinitablaPose(k), base: C_BASE, spec: C_SPEC[k] }) };
   /* poner(el, id, k): arranca el motor de esa mascota dentro de el (un <g>); devuelve el motor o null si no tiene poses */
   const poner = (el, id, k, variante) => { if (!ANIM[id] || !k) return null; const a = ANIM[id](k, variante); return new Motor(el, a.draw, a.base, a.spec); };
   M.POSES = { Motor, poner, tiene: id => !!ANIM[id], EASE };
