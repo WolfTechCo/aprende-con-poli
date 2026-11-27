@@ -180,7 +180,9 @@
       const nro = Math.min(pn, Math.floor(p.lado + .001)); if (r.lznt.textContent !== String(nro)) r.lznt.textContent = nro ? String(nro) : '';
       sa(r.lzn, 'transform', `translate(${n3(pcx)} ${n3(pcy - r.pz[2] * 1.35 - 4.5)})`); sa(r.lzn, 'opacity', nro ? '1' : '0');
       globoTexto(r.ct, r.ctt, `¡${T_FIG[pn]}: ${pn} lados!`);
-      sa(r.ct, 'opacity', n3(p.cartel)); sa(r.ct, 'transform', `translate(-3 ${up ? -51 : -46}) scale(${n3(.8 + .2 * p.cartel)})`);
+      sa(r.ct, 'opacity', n3(p.cartel)); /* el globito queda sobre la etiqueta del número, sin taparla con su colita (aviso TAPA, 27-11) */
+      const tope = pcy - r.pz[2] * 1.35 - 4.5 - 3.6, gy = Math.min(up ? -51 : -46, tope - 10);
+      sa(r.ct, 'transform', `translate(-3 ${n3(gy)}) scale(${n3(.8 + .2 * p.cartel)})`);
       /* toma sol: el solcito aparece y gira despacio */
       sa(r.sol, 'opacity', n3(p.sol)); sa(r.solr, 'transform', `rotate(${n3((p.t || 0) * 20)})`);
       const u = clamp(p.cuello, 0, 1.25);
@@ -691,6 +693,9 @@
           if (R.a[i].le._t !== L.l) { R.a[i].le._t = L.l; R.a[i].le.textContent = L.l; }
           if (R.a[i].dg._t !== dv) { R.a[i].dg._t = dv; R.a[i].dg.textContent = dv; }
           sa(R.a[i].le, 'opacity', n3(vis * (1 - p.num))); sa(R.a[i].dg, 'opacity', n3(vis * p.num));
+          /* la letra se corre hacia el lado contrario del anillo (o la cabeza) que va encima, para que no la corte (aviso TAPA, 27-11) */
+          if (vis > 0) { const nx2 = i < N - 1 ? pts[i + 1] : cab, dx = nx2[0] - X, dy = nx2[1] - Y, dl = Math.hypot(dx, dy) || 1, off = r * .24, tr = `translate(${n3(-dx / dl * off)} ${n3(-dy / dl * off)})`;
+            sa(R.a[i].le, 'transform', tr); sa(R.a[i].dg, 'transform', tr); }
         }
         /* patas: nacen del anillo hacia el lado de la panza; se levantan en ola (o patalean) */
         const tx = Math.cos(T), ty = Math.sin(T), nx = -ty, ny = tx, Lb = r * .62 + 1.2;
@@ -1087,6 +1092,8 @@
       c += [-1, 1].map((s, i) => `<g id="${id}-e${i}">${gel(P(tapa(s)), S, 1.4)}<g id="${id}-pi${i}" data-imp="contenido"></g>`
         + (s < 0 ? arc(`M${n3(-W * .78)} ${n3(top + H * .62)}Q${n3(-W * .86)} ${n3(top + H * .2)} ${n3(-W * .36)} ${n3(top + H * .06)}`, 2, .75) : arc(`M${n3(W * .3)} ${n3(top + H * .07)}Q${n3(W * .45)} ${n3(top + H * .05)} ${n3(W * .55)} ${n3(top + H * .1)}`, 1.3, .6))
         + `</g>`).join('');
+      /* al multiplicar (tapas cerradas) las pintas suben a esta capa, sobre las dos tapas: las del centro no quedan bajo la otra tapa (aviso TAPA, 27-11) */
+      c += `<g id="${id}-pis"></g>`;
       /* lazos de la multiplicación (A: uno por tapa; B: uno por fila) y el cartel */
       c += `<g id="${id}-lz" fill="none" stroke="#fff" stroke-width="1.1" stroke-dasharray="2 1.4" stroke-linecap="round">${[0, 1].map(i => `<rect id="${id}-la${i}" rx="3"/>`).join('')}${[0, 1, 2, 3].map(i => `<rect id="${id}-lb${i}" rx="2.4"/>`).join('')}</g>`;
       /* pronoto y cabeza */
@@ -1111,7 +1118,7 @@
       return R0 = { cb: q('cb'), sh: q('sh'), all: q('all'), w: [0, 1].map(i => q('w' + i)), e: [0, 1].map(i => q('e' + i)), cab: q('cab'), ct: q('ct'), ctt: q('ctt'),
         an: [0, 1].map(i => ({ p: q('an' + i).children[0], c: q('an' + i).children[1] })), o: [0, 1].map(i => q('o' + i)), pu: [0, 1].map(i => q('pu' + i)), bc: q('bc'), bo: q('bo'),
         pa: [...Array(6)].map((_, i) => ({ g: q('p' + i), p: q('p' + i).children[0], f: q('p' + i).children[1], casa: q('p' + i).parentNode, adelante: false })), pf: q('pf'), pi: [0, 1].flatMap(i => [...q('pi' + i).children]),
-        la: [0, 1].map(i => q('la' + i)), lb: [0, 1, 2, 3].map(i => q('lb' + i)), nuevaMult: (fi, co) => malla(R0, fi, co) }; };
+        la: [0, 1].map(i => q('la' + i)), lb: [0, 1, 2, 3].map(i => q('lb' + i)), pis: q('pis'), pic: [0, 1].map(i => q('pi' + i)), nuevaMult: (fi, co) => malla(R0, fi, co) }; };
     /* filas × columnas: centradas en el caparazón (la cabeza agachada deja más espacio); las pintas que sobran se apagan.
        Cada pinta usada toma el color de su fila. */
     let R0 = null;
@@ -1132,6 +1139,7 @@
       sa(R.sh, 'transform', `scale(${n3(1 - Math.min(.4, -p.y / 40))} 1)`);
       /* tapas: giran desde arriba hacia afuera (forma de «A») */
       R.e.forEach((e, i) => { const s = i ? 1 : -1; sa(e, 'transform', `translate(${n3(s * ab * 2)} ${n3(-ab * 3)}) rotate(${n3(s * ab * 30)} ${n3(s * W * .3)} ${n3(yb)})`); }); /* se abren en «V» */
+      { const arriba = p.arreglo > .001 && ab < .01; if (R.pisOn !== arriba) { R.pisOn = arriba; R.pic.forEach((g, i) => arriba ? R.pis.appendChild(g) : R.e[i].insertBefore(g, R.e[i].children[1])); } }
       /* alas: salen de debajo de las tapas y se despliegan hacia los lados; al volar baten rápido */
       R.w.forEach((w, i) => { const s = i ? -1 : 1, bat = Math.sin(t * 42) * p.aleteo; sa(w, 'opacity', n3(Math.min(1, al * 3)));
         if (al > 0) sa(w, 'transform', `translate(${n3(-s * W * .1)} ${n3(top + H * .22)}) scale(${n3(s)} 1) rotate(${n3(9 - (1 - al) * 75 + bat * 20)}) scale(${n3(Q.ala * W * 1.25 / 44 * (.15 + .85 * al))} ${n3(Q.ala * W * 1.25 / 44 * (.6 + .4 * al) * (1 - Math.abs(bat) * .25))})`); });
