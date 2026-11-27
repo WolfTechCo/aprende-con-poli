@@ -17,6 +17,8 @@ const fs = require('fs'), path = require('path'), os = require('os'), { execFile
 
 const [id = 'cubuho', etapasTxt = '1,2,3,4', posesTxt = '[{}]', salida = `lamina-${id}.png`] = process.argv.slice(2);
 const etapas = etapasTxt.split(',').map(Number), poses = JSON.parse(posesTxt);
+/* TITULOS (opcional): nombres de las columnas separados por «|», para mostrar la lámina a la dueña */
+const TIT = process.env.TITULOS ? process.env.TITULOS.split('|') : null, ETQ = ['huevo', 'cría', 'joven', 'grande', 'brillante'];
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'lamina-'));
 execFileSync('node', [path.join(__dirname, 'pagina-mascotas.js'), path.join(tmp, 'p.html')]);
 fs.writeFileSync(path.join(tmp, 'full.html'), '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"></head><body>'
@@ -49,7 +51,7 @@ fs.writeFileSync(path.join(tmp, 'full.html'), '<!doctype html><html><head><meta 
   const cols = poses.length, img = fotos.map(x => 'data:image/png;base64,' + fs.readFileSync(x.f).toString('base64'));
   const q = await b.newPage({ viewport: { width: 300 * cols, height: 240 * etapas.length } });
   await q.setContent(`<body style="margin:0;display:grid;grid-template-columns:repeat(${cols},300px);background:#fff">${img.map((s, i) =>
-    `<div style="position:relative"><img src="${s}" style="width:300px;height:240px;object-fit:contain"><b style="position:absolute;left:6px;top:4px;font:700 12px sans-serif;color:#456">e${fotos[i].k} ${JSON.stringify(poses[i % cols]).replace(/"/g, '')}</b></div>`).join('')}</body>`);
+    `<div style="position:relative"><img src="${s}" style="width:300px;height:240px;object-fit:contain"><b style="position:absolute;left:6px;top:4px;font:700 ${TIT ? 15 : 12}px sans-serif;color:#456">${TIT ? (i < cols ? TIT[i] : '') + (i % cols === 0 ? ' · ' + ETQ[fotos[i].k] : '') : 'e' + fotos[i].k + ' ' + JSON.stringify(poses[i % cols]).replace(/"/g, '')}</b></div>`).join('')}</body>`);
   await q.waitForTimeout(200); await q.screenshot({ path: salida, fullPage: true });
   console.log(JSON.stringify({ salida, motor: fotos.every(x => x.hay) ? 'con poses' : 'SIN motor de poses (solo dibujo)', fps, toque: antes !== despues ? 'responde' : 'NO responde', errores: errs }));
   await b.close(); fs.rmSync(tmp, { recursive: true, force: true });
