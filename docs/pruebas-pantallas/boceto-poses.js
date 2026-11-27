@@ -752,11 +752,11 @@
     { t: [6.5, 5], c1: [24, 3], c2: [16, 10], w: 2 }, /* 3 aplaude adelante, bajo la boca */
     { t: [6, -10], c1: [24, -1], c2: [16, -4] }, /* 4 se tapa los ojos */
     { t: [26, -26], c1: [25, -1], c2: [32, -16] }, /* 5 sostiene el «?» en alto */
-    { t: [21, -39], c1: [25, -4], c2: [31, -26] }, /* 6 ¡yupi! (las dos arriba, en el salto) */
+    { t: [22, -35], c1: [25, -4], c2: [31, -24] }, /* 6 ¡yupi! (las dos arriba, en el salto) */
   ];
   const ANCHO = 3.4; /* medio ancho de un brazo en su raíz */
   const pulpatronPose = k => {
-    const id = 'kp' + (++nP), Q = P_ST[k], N = Q.n, SC = M.C.SCALE[k] * (k >= 3 ? .88 : 1), gold = k === 4, B = PAL.rosa;
+    const id = 'kp' + (++nP), Q = P_ST[k], N = Q.n, SC = [1, .66, .76, .82, .84][k] /* crece en cada etapa y deja aire arriba para el salto y la corona */, gold = k === 4, B = PAL.rosa;
     const nb = N - 2, hsp = Math.min(13, 4 + nb * 1.6); /* brazos de abajo y su abertura */
     const xb = j => nb === 1 ? 0 : -hsp + j * (2 * hsp / (nb - 1));
     const RX = 15;
@@ -829,8 +829,8 @@
         if (mano) { A0 = [s * 15.2, -6]; B1 = [s * 23, -2 + wv(0) * .3]; C1 = [s * 30 + wv(.6), -6]; D = [s * 26.5 + wv(1.2) * 1.2, -13 + wv(1.2) * .6]; }
         else { A0 = [xr * .96, -1]; B1 = [xr - dir * .5 + wv(0) * .4, Lb * .9]; C1 = [xr + dir * 7 + wv(.6) * 1.1, Lb * 1.15]; D = [xr + dir * 6.5 + wv(1.2) * 1.5, Lb * .78]; }
         if (p.junta) { /* se juntan hacia abajo en curva de S, con la ola todavía viva (rectos parecían medusa) */
-          B1 = [lerp(B1[0], x0 * .7, p.junta), lerp(B1[1], Lb * .7, p.junta)]; C1 = [lerp(C1[0], x0 * .42 + wv(.6), p.junta), lerp(C1[1], Lb * 1.28, p.junta)];
-          D = [lerp(D[0], x0 * .5 + dir * 5.5 + wv(1.2) * 1.2, p.junta), lerp(D[1], Lb * 1.18, p.junta)]; /* la punta se enrolla hacia afuera */ if (mano) A0 = [lerp(A0[0], s * 13, p.junta), lerp(A0[1], -1, p.junta)]; }
+          B1 = [lerp(B1[0], x0 * .72, p.junta), lerp(B1[1], Lb * .8, p.junta)]; C1 = [lerp(C1[0], x0 * .3 - dir * 1.5 + wv(.6), p.junta), lerp(C1[1], Lb * 1.5, p.junta)];
+          D = [lerp(D[0], x0 * .55 + dir * 7.5 + wv(1.2) * 1.2, p.junta), lerp(D[1], Lb * 1.08, p.junta)]; /* la punta se enrolla hacia afuera */ if (mano) A0 = [lerp(A0[0], s * 13, p.junta), lerp(A0[1], -1, p.junta)]; }
         if (p.abre) { B1 = [lerp(B1[0], x0 * 1.3 + dir * 4, p.abre), lerp(B1[1], Lb * .5, p.abre)]; C1 = [lerp(C1[0], x0 * 1.4 + dir * 10, p.abre), lerp(C1[1], Lb * .7, p.abre)]; D = [lerp(D[0], x0 * 1.45 + dir * 12, p.abre), lerp(D[1], Lb * 1.05, p.abre)]; }
         if (hel) { A0 = [lerp(A0[0], xr * .9, hel), lerp(A0[1], -1, hel)]; B1 = [lerp(B1[0], xr + sal * 5, hel), lerp(B1[1], Lb * .55, hel)]; C1 = [lerp(C1[0], xr + sal * 11, hel), lerp(C1[1], Lb * .65, hel)]; D = [lerp(D[0], xr + sal * 15, hel), lerp(D[1], Lb * .45, hel)]; }
         if (p.posa && !mano) { /* camina con los brazos de a uno: pares e impares se alternan, el que da el paso se levanta */
@@ -895,7 +895,7 @@
     const lista = [acc.ola, acc.saluda, acc.rasca, acc.timido, acc.camina, acc.bosteza, acc.aplaude];
     const acciones = lista.map(fn => m => { m.nQuiz = (m.nQuiz || 0) + 1; return m.nQuiz % 3 === 1 ? quiz(m) : fn(m); });
     /* chorro: se aprieta, suelta la tinta (queda abajo y cae), sube disparado con los brazos juntos y baja planeando con todos abiertos y quietos */
-    const chorro = (m, d) => m.hacer([[d, { aprieta: 1 }, 220], [d + 220, { tinta: 1 }, 1200, 'lineal'], [d + 220, { aprieta: -.12, junta: 1, y: k >= 3 ? -8 : -11 }, 450, 'sale'],
+    const chorro = (m, d) => m.hacer([[d, { aprieta: 1 }, 220], [d + 220, { tinta: 1 }, 1200, 'lineal'], [d + 220, { aprieta: -.12, junta: 1, y: k >= 3 ? -5 : -10 }, 450, 'sale'],
       [d + 700, { junta: 0, abre: 1, aprieta: 0, onda: .15 }, 380], [d + 900, { y: 0 }, 1000, 'suave'], [d + 1430, { tinta: 0 }, 1], [d + 1700, { abre: 0, onda: 1 }, 450]]);
     const helice = (m, d) => m.hacer([[d, { helice: 1 }, 300], [d, { rot: 720 }, 1600, 'suave'], [d + 200, { y: -7 }, 500, 'sale'], [d + 1100, { y: 0 }, 600, 'suave'], [d + 1500, { helice: 0 }, 400], [d + 1950, { rot: 0 }, 1]]);
     /* nube (cría): suelta la tinta, que se queda manchando la pantalla; SOLO el pulpo retrocede (se achica y sube), espía y vuelve */
@@ -908,7 +908,7 @@
       /* salto: con las dos manos arriba (¡yupi!), sin juntar los brazos, para no parecerse al chorro (regla 11);
          si las manos venían arriba, primero bajan (220 ms) y después cambian de pose */
       salto: (m, d) => { const dm = m.v.manoD > .05 || m.v.manoI > .05 ? 240 : 0;
-        return m.hacer([[d, { sy: .86, sx: 1.08 }, 140], [d + dm, { poseD: 6, poseI: 6 }, 1], [d + 140, { y: -12, sy: 1.08, sx: .94 }, 240, 'sale'], [d + Math.max(140, dm + 10), { manoD: 1, manoI: 1, boca: .7 }, 240, 'sale'],
+        return m.hacer([[d, { sy: .86, sx: 1.08 }, 140], [d + dm, { poseD: 6, poseI: 6 }, 1], [d + 140, { y: k >= 3 ? -6 : -10, sy: 1.08, sx: .94 }, 240, 'sale'], [d + Math.max(140, dm + 10), { manoD: 1, manoI: 1, boca: .7 }, 240, 'sale'],
           [d + 380, { y: 0, sy: 1, sx: 1 }, 420, 'suave'], [d + 560, { manoD: 0, manoI: 0, boca: 0 }, 300]]); },
       selector: ['poseD', 'poseI'],
       /* al tocar: lo que no se puede «devolver» suave (patrón del juego, ola de color, vueltas) se acomoda al instante */

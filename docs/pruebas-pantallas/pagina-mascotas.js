@@ -85,6 +85,7 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
   <div class="row" id="tanda" role="group" aria-label="Tanda"><button class="btn" data-t="C" aria-pressed="true">Tanda C · elegida ✓</button><button class="btn ghost" data-t="A" aria-pressed="false">Tanda A · la primera</button><button class="btn ghost" data-t="B" aria-pressed="false">Tanda B · cambian de forma</button></div>
   <div class="row" id="modo" role="group" aria-label="Momento"><button class="btn" data-m="vida" aria-pressed="true">Con vida · mapa y premios</button><button class="btn ghost" data-m="quieta" aria-pressed="false">Tranquila · durante una pregunta</button></div>
   <p class="note"><b>Nuevo: vida propia.</b> Con vida, cada mascota se mueve como su animal y suelta partículas de su tema. Al tocarla, mezcla el <b>salto</b> (igual en todas) con su <b>gesto propio</b>: la tortuga se esconde, el búho gira la cabeza, el ciempiés hace la ola, el pulpo suelta tinta de confeti y la chinita vuela. Durante una pregunta solo respira y parpadea.</p>
+  <p class="note"><b>27-11 · Pulpatrón ajustado:</b> tócalo a mitad de cualquier cosa o muchas veces seguidas: ya nada queda pegado ni se corta de golpe. La tinta y el confeti se quedan en la pantalla, el salto lleva las manos arriba y cada movimiento se distingue del otro.</p>
 </header>
 
 <section>
@@ -156,7 +157,7 @@ ${SRC}
     tortugono: 'Su caparazón <b>suma lados</b>: triángulos, cuadrados, pentágonos con un hexágono y, de brillante, octágonos dorados.',
     cubuho: 'Su cuerpo es un <b>cubo</b>. Al crecer le salen plumas de <b>prisma</b>, orejitas de <b>cono</b> y botones de <b>esfera</b>.',
     cienpiecito: 'Un anillo por cifra con los colores de las lecciones: <b>unidades</b> verdes, <b>decenas</b> naranjas, <b>centenas</b> azules. De brillante se llama <b>Milpiés</b> y suma los miles. A ratos <b>cuenta y suma</b>: sus anillos toman el color de cada cifra, muestran a + b con sus letras y su número, y el resultado «= c» sale de la cabeza y recorre el cuerpo hasta la cola (los anillos que sobran quedan grises). La suma se intercala con sus otros movimientos (cría del 1 al 9, joven hasta 99, grande hasta 999 y brillante hasta 1000). Tócalo: la cría se da vuelta patas arriba, la joven hace puente y la grande se hace bolita.',
-    pulpatron: 'Flota como el pulpo dumbo y sus brazos son manos. A ratos juega a <b>«¿Qué sigue?»</b>: las luces de sus ventosas forman un patrón (cría colores AB, joven ABC, grande figuras, brillante uno que crece), sostiene el «?» pensando y lo enciende. Tócalo: la cría suelta tinta de confeti y se esconde; las demás se impulsan a chorro o giran como hélice.',
+    pulpatron: 'Flota como el pulpo dumbo y sus brazos son manos. A ratos juega a <b>«¿Qué sigue?»</b>: las luces de sus ventosas forman un patrón (cría colores AB, joven ABC, grande figuras, brillante uno que crece), sostiene el «?» pensando y lo enciende. Tócalo: la cría suelta una nube de tinta con confeti que se queda en la pantalla mientras ella retrocede y espía; las demás se impulsan a chorro y bajan planeando, o giran como hélice. Si lo tocas a mitad de algo, lo termina suave; si lo tocas muchas veces seguidas, hace un gesto a la vez.',
     chinitabla: 'Sus pintas van en <b>grupos iguales</b> en cada ala: de 2, de 5 y de 10.',
   };
   const pets = document.getElementById('pets');
