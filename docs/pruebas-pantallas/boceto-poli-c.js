@@ -24,7 +24,9 @@
   const gel = (shape, id, K, w = 1.2) => shape(`fill="url(#${id})" stroke="${K[3]}" stroke-width="${w}" stroke-linejoin="round"`);
   const LOOK = { piel: 2, pelo: 'cafe', peinado: 'remolino', ojos: 'noche', polera: 'menta', pest: false, cabeza: '' };
   const R2 = (x, y, w, h, r) => a => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" ${a}/>`;
-  const POSE = { ai: 10, ad: 10, y: 0, rot: 0, cab: 0, boca: 'sonrisa', ojos: 'abiertos', mira: 0 };
+  const POSE = { ai: 8, ad: 8, ci: 6, cd: 6, y: 0, rot: 0, cab: 0, boca: 'sonrisa', ojos: 'abiertos', mira: 0 };
+  /* ronda 2 (referencias de la dueña): la cabeza se dibuja igual y se achica como grupo sobre el cuello; cuerpo más alto */
+  const ESC = .86, CUELLO = -30;
   /* cabeza: centro (0, -45), radio ≈ 19 */
   const HX = 0, HY = -46, HR = 20;
 
@@ -69,24 +71,34 @@
     d += L.peinado === 'remolino' ? `Q${HR - 2} ${HY - 5} ${HR - 6} ${HY - 6}Q${HR - 7} ${HY - 1.6} ${HR - 10.4} ${HY - 7.6}Q${3} ${HY - 3} ${-1} ${HY - 9}Q${-4} ${HY - 3.6} ${-8.6} ${HY - 8}Q${-11} ${HY - 3} ${-14.6} ${HY - 6.6}Q${-HR + 1} ${HY - 4} ${-HR - 1} ${HY + 3}Z`
       : `Q${HR - 2.4} ${HY - 6} ${HR - 7} ${HY - 6.4}Q${HR - 9} ${HY - 3} ${8} ${HY - 7.6}Q${4} ${HY - 3.2} 0 ${HY - 7.8}Q${-4} ${HY - 3.2} ${-8} ${HY - 7.6}Q${-HR + 9} ${HY - 3} ${-HR + 7} ${HY - 6.4}Q${-HR + 2.4} ${HY - 6} ${-HR - 1} ${HY + 3}Z`;
     let h = gel(P(d), id, K, 1.2) + `<path d="M-13 ${HY - 15}Q-2 ${HY - 21.6} 8 ${HY - 18.4}" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".5"/><circle cx="11.6" cy="${HY - 16.4}" r="1" fill="#fff" opacity=".5"/>`;
+    h += `<path d="M-5 ${HY - 21}Q-8.6 ${HY - 15} -9.6 ${HY - 9.4}M6 ${HY - 21.4}Q8.4 ${HY - 15.4} 7.6 ${HY - 9.6}M-14 ${HY - 14}Q-16.4 ${HY - 8} -16.6 ${HY - 3}" fill="none" stroke="${K[2]}" stroke-width=".9" stroke-linecap="round" opacity=".75"/>`;
     if (L.peinado === 'remolino') h += gel(P(`M1 ${HY - HR - 3}Q3 ${HY - HR - 11} 9 ${HY - HR - 10}Q5 ${HY - HR - 7} 5 ${HY - HR - 2.8}Z`), id, K, 1);
-    if (L.peinado === 'colitas') [-1, 1].forEach(s => { h += gel(C(s * 16.4, HY - 9, 2.6), 'pc-ropa-amarillo', ROPA.amarillo, .7); });
+    if (L.peinado === 'colitas') [-1, 1].forEach(s => { h += `<g transform="translate(${s * 17} ${HY - 9}) rotate(${s * 20})">${gel(P('M0 0L-5.4 -3.6Q-6.6 0 -5.4 3.6Z'), 'pc-ropa-coral', ROPA.coral, .7)}${gel(P('M0 0L5.4 -3.6Q6.6 0 5.4 3.6Z'), 'pc-ropa-coral', ROPA.coral, .7)}${gel(C(0, 0, 1.8), 'pc-ropa-coral', ROPA.coral, .7)}</g>`; });
     if (L.peinado === 'tomate') h += gel(E(0, HY - 16.6, 4, 1.8), 'pc-ropa-coral', ROPA.coral, .7);
     if (L.peinado === 'trenzas') [-1, 1].forEach(s => { h += gel(C(s * 19.2, HY + 26, 1.9), 'pc-ropa-menta', ROPA.menta, .6); });
     return h; };
-  /* brazo cortito: manga del color de la polera y manito redonda */
-  const brazo = (s, ang, L) => { const pid = 'pc-ropa-' + L.polera, PK = ROPA[L.polera], sid = 'pc-piel' + L.piel, SK = PIEL[L.piel];
-    return `<g transform="translate(${s * 10.6} -25) rotate(${n(-s * ang)})">${gel(E(0, 3.2, 3.6, 4.6), pid, PK, 1)}${gel(C(0, 9, 3.4), sid, SK, 1)}<circle cx="-1" cy="7.8" r=".9" fill="#fff" opacity=".6"/></g>`; };
-  const cuerpo = (L, q) => { const pid = 'pc-ropa-' + L.polera, PK = ROPA[L.polera], sid = 'pc-piel' + L.piel, SK = PIEL[L.piel];
+  /* brazo de dos tramos (ronda 2): manga, codo, antebrazo y manita con pulgar; llega a la cadera.
+     ang: giro del hombro (0 abajo, + afuera); codo: giro del antebrazo respecto del brazo (+ afuera) */
+  const brazo = (s, ang, codo, L) => { const pid = 'pc-ropa-' + L.polera, PK = ROPA[L.polera], sid = 'pc-piel' + L.piel, SK = PIEL[L.piel];
+    return `<g transform="translate(${n(s * 10.2)} -29) rotate(${n(-s * ang)})">${gel(E(0, 3.4, 3.3, 4.5), pid, PK, 1)}`
+      + `<g transform="translate(0 6.4) rotate(${n(-s * codo)})">${gel(E(0, 3.2, 2.2, 3.9), sid, SK, .9)}${gel(C(0, 7.6, 3), sid, SK, .9)}`
+      + `${gel(E(n(-s * 2.5), 6.6, 1.3, 1.7), sid, SK, .7)}<circle cx="${n(s * .9)}" cy="6.6" r=".8" fill="#fff" opacity=".6"/></g></g>`; };
+  const cuerpo = (L, q) => { const pid = 'pc-ropa-' + L.polera, PK = ROPA[L.polera];
     let h = '';
-    /* piernitas y zapatillas */
-    h += [-1, 1].map(s => gel(P(`M${s * 2} -11H${s * 8.4}V-4.4Q${s * 5.2} -3.6 ${s * 2} -4.4Z`), 'pc-ropa-jean', ROPA.jean, 1)).join('');
-    h += [-1, 1].map(s => gel(E(s * 5.6, -2.8, 5.2, 3.1), 'pc-ropa-coral', ROPA.coral, 1) + `<path d="M${n(s * 3)} -4.6H${n(s * 8)}" stroke="#fff" stroke-width=".9" stroke-linecap="round" opacity=".8"/>`).join('');
-    /* polera de una pieza, redondita */
-    h += gel(P('M-9 -28Q-13.4 -26 -13 -18Q-12.8 -10 -10 -9.6H10Q12.8 -10 13 -18Q13.4 -26 9 -28Q0 -25.4 -9 -28Z'), pid, PK, 1.2);
-    h += `<path d="M-5 -27.6Q0 -24 5 -27.6" fill="none" stroke="${PK[3]}" stroke-width="1" stroke-linecap="round"/>` + arc('M-10 -22Q-9.6 -16 -8 -13', 1.3, .6);
+    /* piernas más largas y zapatillas con suela */
+    h += [-1, 1].map(s => gel(P(`M${s * 1.8} -14.6H${s * 8.4}V-4.6Q${s * 5.2} -3.8 ${s * 1.8} -4.6Z`), 'pc-ropa-jean', ROPA.jean, 1)).join('');
+    h += [-1, 1].map(s => gel(E(s * 5.8, -1.7, 5.8, 1.9), 'pc-ropa-ceniza', ROPA.ceniza, .8) + gel(E(s * 5.6, -3.4, 5.3, 3.3), 'pc-ropa-coral', ROPA.coral, 1)
+      + `<path d="M${n(s * 3)} -5.2H${n(s * 7.6)}" stroke="#fff" stroke-width=".9" stroke-linecap="round" opacity=".8"/>`).join('');
+    /* polera redondita */
+    h += gel(P('M-9 -31Q-12.8 -29.4 -12.8 -22Q-12.8 -14 -10.4 -13.4H10.4Q12.8 -14 12.8 -22Q12.8 -29.4 9 -31Q0 -28.4 -9 -31Z'), pid, PK, 1.2);
+    h += arc('M-10 -25Q-9.8 -19 -8.4 -16', 1.3, .6);
+    /* un detalle por variante: cuello, rayas o bolsillo */
+    if (L.detalle === 'cuello') h += [-1, 1].map(s => `<path d="M0 -29.2Q${s * 2.6} -27 ${s * 6} -27.6Q${s * 7.6} -29.4 ${s * 7} -30.8Q${s * 3.6} -29.6 0 -29.2Z" fill="#fff" stroke="${PK[3]}" stroke-width=".7" stroke-linejoin="round"/>`).join('');
+    else h += `<path d="M-5 -30.6Q0 -27.4 5 -30.6" fill="none" stroke="${PK[3]}" stroke-width="1" stroke-linecap="round"/>`;
+    if (L.detalle === 'rayas') h += [-24.6, -19.6].map(y => `<path d="M-12.4 ${y}Q0 ${y + 1.6} 12.4 ${y}" fill="none" stroke="#fff" stroke-width="1.8" opacity=".75"/>`).join('');
+    if (L.detalle === 'bolsillo') h += `<path d="M-4.4 -20H4.4V-16.4Q0 -14.6 -4.4 -16.4Z" fill="${PK[0]}" stroke="${PK[3]}" stroke-width=".7" stroke-linejoin="round"/>`;
     /* estrellita del pecho (el Poli de siempre) */
-    h += `<path d="${starD(2.6, 0, -17.6)}" fill="url(#km-oro)" stroke="${PAL.oro[3]}" stroke-width=".5" stroke-linejoin="round"/>`;
+    h += `<path d="${starD(2.5, L.detalle === 'bolsillo' ? 0 : 0, L.detalle === 'bolsillo' ? -23.6 : -22)}" fill="url(#km-oro)" stroke="${PAL.oro[3]}" stroke-width=".5" stroke-linejoin="round"/>`;
     return h; };
   /* ropa de cabeza de muestra: animal (dino), espacio (astro), planta (flor) y oficio (chef) */
   const G = (c, w) => [`pc-ropa-${c}`, ROPA[c], w];
@@ -114,19 +126,19 @@
     /* cara: un poco más ancha abajo (mejillas), como bollito */
     h += gel(P(`M0 ${HY - HR}C${HR * .62} ${HY - HR} ${HR + .6} ${HY - HR * .56} ${HR + .6} ${HY + 1}C${HR + .6} ${HY + HR * .62} ${HR * .55} ${HY + HR - .6} 0 ${HY + HR - .6}C${-HR * .55} ${HY + HR - .6} ${-HR - .6} ${HY + HR * .62} ${-HR - .6} ${HY + 1}C${-HR - .6} ${HY - HR * .56} ${-HR * .62} ${HY - HR} 0 ${HY - HR}Z`), sid, SK, 1.3);
     h += `<path d="M${-HR + 4} ${HY - 2}Q${-HR + 4.6} ${HY - 9} ${-HR + 9} ${HY - 12}" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" opacity=".55"/>`;
-    h += mejillas() + ojos(L, q) + boca(q);
+    h += mejillas() + ojos(L, q) + boca(q) + `<ellipse cx="0" cy="${HY + 8.2}" rx="1.1" ry=".75" fill="${SK[2]}" opacity=".55"/>`;
     h += L.cabeza === 'dino' ? '' : peloAdelante(L);
     h += gorroAdelante(L);
-    return `<g transform="rotate(${n(q.cab)} 0 ${HY + HR})">${h}</g>`; };
+    return `<g transform="translate(0 ${CUELLO}) scale(${ESC}) rotate(${n(q.cab)} 0 0) translate(0 ${-(HY + HR)})">${h}</g>`; };
   /* Poli entero */
   const poli = (look = {}, pose = {}) => { const L = { ...LOOK, ...look }, q = { ...POSE, ...pose };
-    const delante = q.ai < 0 || q.ad < 0; /* un brazo que cruza al frente (señalar, pensar) va sobre el cuerpo */
-    const b = brazo(-1, q.ai, L) + brazo(1, q.ad, L);
+    const delante = q.ai < 0 || q.ad < 0 || q.ci < -60 || q.cd < -60; /* un brazo que cruza al frente (pensar) va sobre el cuerpo */
+    const b = brazo(-1, q.ai, q.ci, L) + brazo(1, q.ad, q.cd, L);
     return piso(15) + `<g transform="translate(0 ${-q.y}) rotate(${q.rot} 0 -2)">${cuerpo(L, q)}${delante ? '' : b}${cabeza(L, q)}${delante ? b : ''}</g>`; };
   const VARIANTES = {
-    a: { peinado: 'colitas', pelo: 'cafe', polera: 'coral', pest: true, piel: 2, ojos: 'noche' },
-    o: { peinado: 'remolino', pelo: 'negro', polera: 'cielo', piel: 3, ojos: 'cafe' },
-    '': { peinado: 'gorro', pelo: 'castano', polera: 'menta', piel: 2, ojos: 'noche' },
+    a: { peinado: 'colitas', pelo: 'cafe', polera: 'amarillo', pest: true, piel: 2, ojos: 'noche', detalle: 'cuello' },
+    o: { peinado: 'remolino', pelo: 'negro', polera: 'cielo', piel: 3, ojos: 'cafe', detalle: 'rayas' },
+    '': { peinado: 'gorro', pelo: 'castano', polera: 'menta', piel: 2, ojos: 'noche', detalle: 'bolsillo' },
   };
   const svg = (look, pose, vb = '-40 -80 80 84', extra = '') => `<svg viewBox="${vb}" aria-hidden="true">${M.DEFS}${DEFS}${poli(look, pose)}${extra}</svg>`;
   root.BOCETO_POLI_C = { poli, svg, VARIANTES, PIEL, PELO, OJOS, ROPA, DEFS, LOOK, POSE };
