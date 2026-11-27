@@ -34,3 +34,17 @@ node revisar.js tabV,celH 3,4       # solo esos tamaños y capítulos
 - `proponer.js` + `boceto-3-1.css`: capturas de la app contra un boceto de estilos (así se compararon las opciones A, B, B2 y B3 de la
   entrega 3.1). Sirve de molde para proponer cambios con capturas antes de construir. Guarda en `./propuesta`.
 - Las carpetas `capturas` y `propuesta` no se suben (están en `.gitignore`).
+
+## Mascotas con poses (entrega 4A, bocetos; no se cargan en la app todavía)
+`boceto-poses.js` tiene el motor de poses y las cinco mascotas; `pagina-mascotas.js` arma la página de revisión («Mascotas de Poli»).
+El método completo (pasos, paradas y reglas) está en el repositorio privado `poli-referencias`, `planes/entrega-4/metodo-mascotas.md`.
+Antes de mostrar una mascota, siempre estas tres:
+```
+node lamina-poses.js MASCOTA [ETAPAS] [POSES_JSON] [SALIDA.png]   # poses fijas en una imagen (TITULOS="a|b|c" pone nombres a las columnas)
+node analizar-gestos.js MASCOTA [ETAPAS]                          # toques y tiempos: debe dar 0 problemas
+node analizar-gestos.js MASCOTA tira ETAPA ACCION [MS] [CUADROS] [TOQUE_MS]   # tira de cuadros de una acción
+node revisar-forma.js MASCOTA [ETAPAS]                            # forma en movimiento: nada fuera del cuadro ni estirado de más
+```
+- `analizar-gestos.js`: con reloj falso prueba cada acción sola, tocada al 25, 50 y 75 % y con 5 toques seguidos; avisa lo **pegado**, las poses de mano que **parpadean** y los **saltos** bruscos. ≈ 45 s por etapa (correr las etapas en paralelo).
+- `revisar-forma.js`: mide cada pieza cuadro a cuadro; avisa **LARGO** (se estira o encoge), **TAMAÑO**, **FUERA** (se sale del escenario) y **SUELTA**; arma una lámina con cada aviso marcado en rojo y da el punto más alto por etapa (debe quedar en −64 o más abajo). Muchos avisos son propios del movimiento: mirar la lámina.
+- Cada mascota declara en su `spec`: `prueba` (acciones por nombre), `selector` (perillas que eligen pose) y `reposo` (lo que se acomoda al instante al tocar); en `REPARTO`, qué sabe hacer en cada etapa.
