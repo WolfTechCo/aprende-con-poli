@@ -950,23 +950,27 @@
     3: { W: 20.5, H: 33, hr: 9.2, n: 10, r: 1.55, dip: 0, ala: 1.55 }, /* grande: cúpula alta, tabla del 10 */
     4: { W: 20.5, H: 33, hr: 9.2, n: 10, r: 1.85, dip: 0, ala: 1.65 }, /* brillante: dorada, pintas de estrella */
   };
+  /* pintas de colores, una por fila de la multiplicación (sobre rojo, colores que no se pierden; sobre oro, otros) */
+  const C_PINTA = ['amarillo', 'azul', 'verde', 'lila'], C_PINTA_ORO = ['azul', 'verde', 'lila', 'rosa'];
+  /* cabeza: 0 durazno, 1 lila (para comparar con la dueña); [claro, base, sombra, contorno] */
+  const CAB = [['#ffeedd', '#ffc999', '#e8935a', '#a3562a'], ['#efe6ff', '#b59cff', '#7f62e0', '#4f36a8']];
   const C_BASE = { ojos: 1, mira: 0, boca: 0, y: 0, sx: 1, sy: 1, abre: 0, alas: 0, aleteo: 0, paso: 0, muerta: 0, limpia: 0, saluda: 0,
-    grupos: 0, arreglo: 0, luz: -9, cartel: 0, guino: 1 };
+    grupos: 0, arreglo: 0, luz: -9, cartel: 0, guino: 1, tono: 0 };
   /* las pintas: en reposo, juntas por tapa (opción A) y en filas × columnas (opción B); coordenadas del caparazón */
-  const pintasC = (k, Q, top, H) => { /* H: alto del caparazón que se ve sobre la cabeza */
-    const { W, n } = Q, Y = f => top + H * f, R = [], G = [], A = [];
+  const pintasC = (k, Q, top, H, borde) => { /* H: alto del caparazón que se ve sobre la cabeza; borde(y): medio ancho de la tapa a esa altura */
+    const { W, n } = Q, Y = f => top + H * f, R = [], G = [], A = [], m = Q.r + 1.3, aden = (x, y) => Math.sign(x) * Math.min(Math.abs(x), Math.max(0, borde(y) - m)); /* que ninguna pinta se salga */
     const lado = (s, pts) => pts.map(([x, y]) => [s * x, y]);
-    const base = n === 2 ? [[W * .42, Y(.34)], [W * .66, Y(.72)]]
-      : n === 5 ? [[W * .3, Y(.3)], [W * .72, Y(.36)], [W * .5, Y(.53)], [W * .3, Y(.76)], [W * .7, Y(.76)]]
-      : [...Array(10)].map((_, i) => [W * (i % 2 ? .74 : .4), Y(.16 + Math.floor(i / 2) * .17)]);
-    [-1, 1].forEach(s => R.push(...lado(s, base)));
+    /* en reposo: repartidas por la tapa, como fracción del ancho que tiene a esa altura (fila: [alto, x, x…]) */
+    const FILAS = n === 2 ? [[.34, .45], [.72, .62]] : n === 5 ? [[.3, .3, .78], [.55, .52], [.8, .3, .8]] : [[.18, .3, .78], [.4, .15, .52, .9], [.62, .15, .52, .9], [.84, .3, .78]];
+    const base = FILAS.flatMap(([fy, ...xs]) => xs.map(fx => { const y = Y(fy); return [1.4 + fx * Math.max(0, borde(y) - m - 1.4), y]; }));
+    [-1, 1].forEach(s => R.push(...lado(s, base).map(([x, y]) => [aden(x, y), y])));
     /* A: cada tapa junta sus pintas en un grupo apretado (un lazo alrededor) */
     const s2 = Q.r * 2.5, cx = W * .55, cy = Y(.55), cols = n === 2 ? 1 : 2, rows = Math.ceil(n / cols);
     [-1, 1].forEach(s => { for (let i = 0; i < n; i++) { const c = i % cols, r = Math.floor(i / cols), enFila = Math.min(cols, n - r * cols);
-      G.push([s * (cx + (c - (enFila - 1) / 2) * s2), cy + (r - (rows - 1) / 2) * s2]); } });
+      const y = cy + (r - (rows - 1) / 2) * s2; G.push([aden(s * (cx + (c - (enFila - 1) / 2) * s2), y), y]); } });
     /* B: filas × columnas sobre todo el caparazón */
-    const [fi, co] = { 2: [2, 2], 5: [2, 5], 10: [4, 5] }[n], sp = Math.min(W * 1.5 / co, H * .78 / fi);
-    const celdas = []; for (let r = 0; r < fi; r++) for (let c = 0; c < co; c++) celdas.push([(c - (co - 1) / 2) * sp, Y(.52) + (r - (fi - 1) / 2) * sp, r]);
+    const [fi, co] = { 2: [2, 2], 5: [2, 5], 10: [4, 5] }[n], sp = Math.min(W * 1.5 / co, H * .74 / fi);
+    const celdas = []; for (let r = 0; r < fi; r++) for (let c = 0; c < co; c++) { const y = Y(.54) + (r - (fi - 1) / 2) * sp, x = (c - (co - 1) / 2) * sp * Math.min(1, (borde(y) - m) / ((co - 1) / 2 * sp || 1)); celdas.push([x, y, r]); }
     const orden = celdas.map((c, i) => i).sort((a, b) => celdas[a][0] - celdas[b][0] || celdas[a][1] - celdas[b][1]); /* las de la izquierda, para la tapa izquierda */
     const izq = orden.slice(0, n), der = orden.slice(n);
     [...izq, ...der].forEach(i => A.push(celdas[i]));
@@ -975,15 +979,17 @@
   const chinitablaPose = k => {
     const id = 'kc' + (++nC), Q = C_ST[k], gold = k === 4, SC = [1, .78, .86, .9, .9][k];
     const S = gold ? 'oro' : 'rojo', SP = PAL[S], hr = Q.hr, hy = -hr * .92 - 1.2, yb = -3.2, top = yb - Q.H - hr * .35, W = Q.W, H = Q.H + hr * .35;
-    const Hv = (hy - hr * .9) - top + 2, L = pintasC(k, Q, top, Hv), N = L.R.length;
-    /* tapa izquierda (la derecha es su espejo): cúpula de la línea del centro hacia el borde; la joven con «corazón» */
-    const tapa = s => { const x = v => n3(s * v), d = Q.dip;
-      return `M0 ${n3(top + d)}C${x(W * .2)} ${n3(top - 1 - d * .3)} ${x(W * .95)} ${n3(top + H * .02)} ${x(W)} ${n3(top + H * .5)}C${x(W * 1.02)} ${n3(yb - 1)} ${x(W * .55)} ${n3(yb + 1.4)} 0 ${n3(yb)}Z`; };
+        /* tapa izquierda (la derecha es su espejo): cúpula de la línea del centro hacia el borde; la joven con «corazón» */
+    const T1 = [[0, top + Q.dip], [W * .2, top - 1 - Q.dip * .3], [W * .95, top + H * .02], [W, top + H * .5]], T2 = [[W, top + H * .5], [W * 1.02, yb - 1], [W * .55, yb + 1.4], [0, yb]];
+    const tapa = s => { const x = v => n3(s * v); return `M0 ${n3(T1[0][1])}C${x(T1[1][0])} ${n3(T1[1][1])} ${x(T1[2][0])} ${n3(T1[2][1])} ${x(W)} ${n3(T1[3][1])}C${x(T2[1][0])} ${n3(T2[1][1])} ${x(T2[2][0])} ${n3(T2[2][1])} 0 ${n3(yb)}Z`; };
+    const contorno = [...Array(61)].map((_, i) => cub3(...T1, i / 60)).concat([...Array(61)].map((_, i) => cub3(...T2, i / 60)));
+    const borde = y => Math.max(0, ...contorno.filter(([, cy]) => Math.abs(cy - y) < 1.2).map(([cx]) => cx)); /* medio ancho de la tapa a la altura y */
+    const Hv = (hy - hr * .9) - top + 2, L = pintasC(k, Q, top, Hv, borde), N = L.R.length;
     const PATAS = [[.5, -1.6], [.68, -2.6], [.84, -3.8]].map(([hx, hh], j) => ({ j, hip: [W * hx, yb + hh], foot: [W * (.62 + j * .19) + 1.2, 0] })); /* cortas: asoman bajo el borde */
     const build = () => {
       let g = `<g id="${id}-sh">${piso(W + 6)}</g>`;
       if (gold) g = aura(-24, 40) + chispas([[-30, -40, 3], [30, -44, 2.6], [-31, -12, 2.2]]) + g;
-      let c = '';
+      let c = `<defs>${CAB.map((K, i) => `<radialGradient id="${id}-g${i}" cx=".35" cy=".28" r=".92"><stop offset="0" stop-color="${K[0]}"/><stop offset=".5" stop-color="${K[1]}"/><stop offset="1" stop-color="${K[2]}"/></radialGradient>`).join('')}</defs>`;
       /* alas (detrás de todo): transparentes con nervaduras, plegadas hasta que alas > 0 */
       const ALA = `<path d="M0 0C${-6} -4 ${-30} -9 ${-40} -3C${-44} 1 ${-36} 7 ${-24} 6C${-14} 5 ${-5} 4 0 0Z" fill="#dcefff" fill-opacity=".78" stroke="#7fb0e0" stroke-width=".8"/>`
         + `<path d="M-2 0Q-18 -3 -36 -2M-4 1Q-18 3 -28 4.6M-10 -1.4Q-20 -6 -30 -6.2" fill="none" stroke="#9cc3e8" stroke-width=".45" opacity=".8"/>`
@@ -1003,12 +1009,11 @@
       /* pronoto y cabeza */
       const ph = hy - hr * .78;
       c += `<g id="${id}-cab">`;
-      c += [-1, 1].map((s, i) => `<g id="${id}-an${i}"><path fill="none" stroke="#2a2238" stroke-width="1.3" stroke-linecap="round"/><circle r="1.9" fill="url(#km-${gold ? 'oro' : 'oscuro'})" stroke="#1a1426" stroke-width=".5"/></g>`).join('');
-      c += `<ellipse cx="0" cy="${n3(ph)}" rx="${n3(hr * 1.32)}" ry="${n3(hr * .55)}" fill="url(#km-oscuro)" stroke="#1a1426" stroke-width="1.1"/>`
-        + [-1, 1].map(s => `<ellipse cx="${n3(s * hr * .62)}" cy="${n3(ph + hr * .12)}" rx="${n3(hr * .26)}" ry="${n3(hr * .15)}" fill="#fff8ee" opacity=".9"/>`).join(''); /* manchas del pronoto: chicas y dentro de la banda */
-      c += gel(C(0, hy, hr), 'oscuro', 1.2) + arc(`M${n3(-hr * .68)} ${n3(hy - hr * .1)}Q${n3(-hr * .6)} ${n3(hy - hr * .62)} ${n3(-hr * .18)} ${n3(hy - hr * .75)}`, 1.4, .5);
-      c += `<g transform="translate(0 ${n3(hy + hr * .08)}) scale(${n3(hr / 9)})">` + [-3.9, 3.9].map((x, i) => `<g transform="translate(${x} -.6)"><g id="${id}-o${i}"><ellipse rx="3.2" ry="3.6" fill="#fff"/><ellipse id="${id}-pu${i}" rx="2.4" ry="2.8" fill="url(#km-ojo)"/><circle cx=".9" cy="-1.3" r="1.05" fill="#fff"/><circle cx="-.7" cy="1.2" r=".45" fill="#fff"/></g></g>`).join('')
-        + `<path id="${id}-bc" d="M-1.4 3Q0 4.5 1.4 3" fill="none" stroke="#ffd6e0" stroke-width="1" stroke-linecap="round"/><g id="${id}-bo" opacity="0"><ellipse cy="4" rx="1.6" ry="2" fill="#ff8fab"/></g>`
+      c += [-1, 1].map((s, i) => `<g id="${id}-an${i}"><path fill="none" stroke-width="1.3" stroke-linecap="round"/><circle r="1.9" fill="url(#km-${gold ? 'rosa' : 'amarillo'})" stroke-width=".5"/></g>`).join('');
+      /* sin banda del pronoto (con sus manchas blancas parecía un teléfono, dueña 27-11); cabeza de color para que no se pierda */
+      c += `<circle id="${id}-cb" cx="0" cy="${n3(hy)}" r="${n3(hr)}" stroke-width="1.2"/>` + arc(`M${n3(-hr * .68)} ${n3(hy - hr * .1)}Q${n3(-hr * .6)} ${n3(hy - hr * .62)} ${n3(-hr * .18)} ${n3(hy - hr * .75)}`, 1.4, .5);
+      c += `<g transform="translate(0 ${n3(hy + hr * .08)}) scale(${n3(hr / 9)})">` + [-3.9, 3.9].map((x, i) => `<g transform="translate(${x} -.6)"><g id="${id}-o${i}"><ellipse id="${id}-pu${i}" rx="2.4" ry="2.8" fill="url(#km-ojo)"/><circle cx=".9" cy="-1.3" r="1.05" fill="#fff"/><circle cx="-.7" cy="1.2" r=".45" fill="#fff"/></g></g>`).join('')
+        + `<path id="${id}-bc" d="M-1.4 3Q0 4.5 1.4 3" fill="none" stroke="#5a2a44" stroke-width=".95" stroke-linecap="round"/><g id="${id}-bo" opacity="0"><ellipse cy="4" rx="1.6" ry="2" fill="#7a2a44"/><ellipse cy="4.8" rx=".9" ry=".7" fill="#ff8fab"/></g>`
         + `<ellipse cx="-6.6" cy="2.8" rx="2" ry="1.3" fill="url(#km-mej)"/><ellipse cx="6.6" cy="2.8" rx="2" ry="1.3" fill="url(#km-mej)"/></g>`;
       if (gold) c += corona(0, n3(ph - hr * .5), .85);
       c += `</g>`;
@@ -1018,8 +1023,9 @@
     };
     const refs = el => { const q = s => el.querySelector('#' + id + '-' + s);
       /* pintas: las primeras N/2 van en la tapa izquierda */
-      [0, 1].forEach(i => { q('pi' + i).innerHTML = [...Array(N / 2)].map(() => gold ? `<path d="${starD(Q.r * 1.25)}" fill="url(#km-rojo)" stroke="${PAL.rojo[3]}" stroke-width=".4"/>` : `<g><circle r="${Q.r}" fill="url(#km-oscuro)" stroke="#1a1426" stroke-width=".5"/><circle cx="${n3(-Q.r * .32)}" cy="${n3(-Q.r * .34)}" r="${n3(Q.r * .3)}" fill="#fff" opacity=".9"/></g>`).join(''); });
-      return { sh: q('sh'), all: q('all'), w: [0, 1].map(i => q('w' + i)), e: [0, 1].map(i => q('e' + i)), cab: q('cab'), ct: q('ct'), ctt: q('ctt'),
+      [0, 1].forEach(i => { q('pi' + i).innerHTML = [...Array(N / 2)].map((_, j) => { const K = PAL[(gold ? C_PINTA_ORO : C_PINTA)[L.A[i * N / 2 + j][2]]];
+        return `<g><circle r="${Q.r}" fill="${K[1]}" stroke="${K[3]}" stroke-width=".55"/><circle cx="${n3(-Q.r * .32)}" cy="${n3(-Q.r * .34)}" r="${n3(Q.r * .32)}" fill="#fff" opacity=".9"/></g>`; }).join(''); });
+      return { cb: q('cb'), sh: q('sh'), all: q('all'), w: [0, 1].map(i => q('w' + i)), e: [0, 1].map(i => q('e' + i)), cab: q('cab'), ct: q('ct'), ctt: q('ctt'),
         an: [0, 1].map(i => ({ p: q('an' + i).children[0], c: q('an' + i).children[1] })), o: [0, 1].map(i => q('o' + i)), pu: [0, 1].map(i => q('pu' + i)), bc: q('bc'), bo: q('bo'),
         pa: [...Array(6)].map((_, i) => ({ g: q('p' + i), p: q('p' + i).children[0], f: q('p' + i).children[1], casa: q('p' + i).parentNode, adelante: false })), pf: q('pf'), pi: [0, 1].flatMap(i => [...q('pi' + i).children]),
         la: [0, 1].map(i => q('la' + i)), lb: [0, 1, 2, 3].map(i => q('lb' + i)) }; };
@@ -1064,6 +1070,9 @@
       const txt = gB > .5 ? `${L.fi} × ${L.co} = ${N}` : `2 × ${N / 2} = ${N}`;
       if (R.ctt.textContent !== txt) R.ctt.textContent = txt;
       sa(R.ct, 'opacity', n3(p.cartel)); sa(R.ct, 'transform', `translate(0 ${n3(top - 9)}) scale(${n3((.7 + .3 * p.cartel) * (k === 1 ? .8 : 1))})`);
+      /* color de la cabeza, las antenas y las patas */
+      const tn = p.tono > .5 ? 1 : 0; if (R.tn !== tn) { R.tn = tn; const K = CAB[tn]; R.cb.setAttribute('fill', `url(#${id}-g${tn})`); R.cb.setAttribute('stroke', K[3]);
+        R.an.forEach(a => { a.p.setAttribute('stroke', K[3]); a.c.setAttribute('stroke', K[3]); }); R.pa.forEach(pa => { pa.p.setAttribute('stroke', K[3]); pa.f.setAttribute('fill', K[2]); }); }
       /* cara */
       const ojo = Math.max(.08, p.ojos * (1 - mu * .9));
       R.o.forEach((o, i) => sa(o, 'transform', `scale(1 ${n3(i === 1 ? Math.max(.08, ojo * p.guino) : ojo)})`));
