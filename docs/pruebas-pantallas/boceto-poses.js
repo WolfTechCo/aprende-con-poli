@@ -945,17 +945,17 @@
      (2 × 5 = 10). Opción B: las pintas se ordenan en filas y columnas sobre todo el caparazón (2 × 5, 4 × 5…). */
   let nC = 0;
   const C_ST = {
-    1: { W: 13.5, H: 22, hr: 8, n: 2, r: 2.6, dip: 0, ala: .95 }, /* cría: bolita, tabla del 2, alitas chicas */
-    2: { W: 17.5, H: 27, hr: 8.6, n: 5, r: 2, dip: 5.5, ala: 1.35 }, /* joven: caparazón de corazón, tabla del 5 */
-    3: { W: 20.5, H: 33, hr: 9.2, n: 10, r: 1.55, dip: 0, ala: 1.55 }, /* grande: cúpula alta, tabla del 10 */
-    4: { W: 20.5, H: 33, hr: 9.2, n: 10, r: 1.85, dip: 0, ala: 1.65 }, /* brillante: dorada, pintas de estrella */
+    1: { W: 14, H: 24, hr: 7.4, n: 2, r: 2.6, dip: 0, ala: .95 }, /* cría: bolita, tabla del 2, alitas chicas */
+    2: { W: 18.5, H: 30, hr: 7.8, n: 5, r: 2, dip: 5.5, ala: 1.35 }, /* joven: caparazón de corazón, tabla del 5 */
+    3: { W: 22, H: 38, hr: 8.2, n: 10, r: 1.55, dip: 0, ala: 1.55 }, /* grande: cúpula alta, tabla del 10 */
+    4: { W: 22, H: 38, hr: 8.2, n: 10, r: 1.85, dip: 0, ala: 1.65 }, /* brillante: dorada, pintas de colores */
   };
   /* pintas de colores, una por fila de la multiplicación (sobre rojo, colores que no se pierden; sobre oro, otros) */
   const C_PINTA = ['amarillo', 'azul', 'verde', 'lila'], C_PINTA_ORO = ['azul', 'verde', 'lila', 'rosa'];
   /* cabeza: 0 durazno, 1 lila (para comparar con la dueña); [claro, base, sombra, contorno] */
-  const CAB = [['#ffeedd', '#ffc999', '#e8935a', '#a3562a'], ['#efe6ff', '#b59cff', '#7f62e0', '#4f36a8']];
+  const CAB = [['#7a6c92', '#463a5e', '#2a2238', '#160f20'], ['#ffeedd', '#ffc999', '#e8935a', '#a3562a'], ['#efe6ff', '#b59cff', '#7f62e0', '#4f36a8']]; /* 0 oscura (elegida: como la chinita real), 1 durazno, 2 lila */
   const C_BASE = { ojos: 1, mira: 0, boca: 0, y: 0, sx: 1, sy: 1, abre: 0, alas: 0, aleteo: 0, paso: 0, muerta: 0, limpia: 0, saluda: 0,
-    grupos: 0, arreglo: 0, luz: -9, cartel: 0, guino: 1, tono: 0 };
+    grupos: 0, arreglo: 0, luz: -9, cartel: 0, guino: 1, tono: 0, agacha: 0 };
   /* las pintas: en reposo, juntas por tapa (opción A) y en filas × columnas (opción B); coordenadas del caparazón */
   const pintasC = (k, Q, top, H, borde) => { /* H: alto del caparazón que se ve sobre la cabeza; borde(y): medio ancho de la tapa a esa altura */
     const { W, n } = Q, Y = f => top + H * f, R = [], G = [], A = [], m = Q.r + 1.3, aden = (x, y) => Math.sign(x) * Math.min(Math.abs(x), Math.max(0, borde(y) - m)); /* que ninguna pinta se salga */
@@ -984,7 +984,7 @@
     const tapa = s => { const x = v => n3(s * v); return `M0 ${n3(T1[0][1])}C${x(T1[1][0])} ${n3(T1[1][1])} ${x(T1[2][0])} ${n3(T1[2][1])} ${x(W)} ${n3(T1[3][1])}C${x(T2[1][0])} ${n3(T2[1][1])} ${x(T2[2][0])} ${n3(T2[2][1])} 0 ${n3(yb)}Z`; };
     const contorno = [...Array(61)].map((_, i) => cub3(...T1, i / 60)).concat([...Array(61)].map((_, i) => cub3(...T2, i / 60)));
     const borde = y => Math.max(0, ...contorno.filter(([, cy]) => Math.abs(cy - y) < 1.2).map(([cx]) => cx)); /* medio ancho de la tapa a la altura y */
-    const Hv = (hy - hr * .9) - top + 2, L = pintasC(k, Q, top, Hv, borde), N = L.R.length;
+    const Hv = (hy - hr * 1.75) - top, L = pintasC(k, Q, top, Hv, borde), N = L.R.length;
     const PATAS = [[.5, -1.6], [.68, -2.6], [.84, -3.8]].map(([hx, hh], j) => ({ j, hip: [W * hx, yb + hh], foot: [W * (.62 + j * .19) + 1.2, 0] })); /* cortas: asoman bajo el borde */
     const build = () => {
       let g = `<g id="${id}-sh">${piso(W + 6)}</g>`;
@@ -1012,10 +1012,10 @@
       c += [-1, 1].map((s, i) => `<g id="${id}-an${i}"><path fill="none" stroke-width="1.3" stroke-linecap="round"/><circle r="1.9" fill="url(#km-${gold ? 'rosa' : 'amarillo'})" stroke-width=".5"/></g>`).join('');
       /* sin banda del pronoto (con sus manchas blancas parecía un teléfono, dueña 27-11); cabeza de color para que no se pierda */
       c += `<circle id="${id}-cb" cx="0" cy="${n3(hy)}" r="${n3(hr)}" stroke-width="1.2"/>` + arc(`M${n3(-hr * .68)} ${n3(hy - hr * .1)}Q${n3(-hr * .6)} ${n3(hy - hr * .62)} ${n3(-hr * .18)} ${n3(hy - hr * .75)}`, 1.4, .5);
-      c += `<g transform="translate(0 ${n3(hy + hr * .08)}) scale(${n3(hr / 9)})">` + [-3.9, 3.9].map((x, i) => `<g transform="translate(${x} -.6)"><g id="${id}-o${i}"><ellipse id="${id}-pu${i}" rx="2.4" ry="2.8" fill="url(#km-ojo)"/><circle cx=".9" cy="-1.3" r="1.05" fill="#fff"/><circle cx="-.7" cy="1.2" r=".45" fill="#fff"/></g></g>`).join('')
-        + `<path id="${id}-bc" d="M-1.4 3Q0 4.5 1.4 3" fill="none" stroke="#5a2a44" stroke-width=".95" stroke-linecap="round"/><g id="${id}-bo" opacity="0"><ellipse cy="4" rx="1.6" ry="2" fill="#7a2a44"/><ellipse cy="4.8" rx=".9" ry=".7" fill="#ff8fab"/></g>`
+      c += `<g transform="translate(0 ${n3(hy + hr * .08)}) scale(${n3(hr / 9)})">` + [-3.9, 3.9].map((x, i) => `<g transform="translate(${x} -.6)"><g id="${id}-o${i}"><ellipse rx="3.2" ry="3.6" fill="#fff"/><ellipse id="${id}-pu${i}" rx="2.4" ry="2.8" fill="url(#km-ojo)"/><circle cx=".9" cy="-1.3" r="1.05" fill="#fff"/><circle cx="-.7" cy="1.2" r=".45" fill="#fff"/></g></g>`).join('')
+        + `<path id="${id}-bc" d="M-1.4 3Q0 4.5 1.4 3" fill="none" stroke="#ffd6e0" stroke-width="1" stroke-linecap="round"/><g id="${id}-bo" opacity="0"><ellipse cy="4" rx="1.6" ry="2" fill="#7a2a44"/><ellipse cy="4.8" rx=".9" ry=".7" fill="#ff8fab"/></g>`
         + `<ellipse cx="-6.6" cy="2.8" rx="2" ry="1.3" fill="url(#km-mej)"/><ellipse cx="6.6" cy="2.8" rx="2" ry="1.3" fill="url(#km-mej)"/></g>`;
-      if (gold) c += corona(0, n3(ph - hr * .5), .85);
+      if (gold) c += corona(n3(hr * .42), n3(hy - hr * .82), .6, 16); /* chica y de lado: no tapa las pintas */
       c += `</g>`;
       c += `<g id="${id}-pf"></g>`; /* aquí pasa la pata que sube (limpiarse, saludar), para que no quede tapada */
       c += `<g id="${id}-ct" opacity="0"><rect x="-21" y="-6" width="42" height="11" rx="5.5" fill="#fff" stroke="${SP[3]}" stroke-width=".9"/><text id="${id}-ctt" y="2.3" text-anchor="middle" font-family="Arial Rounded MT Bold,Nunito,Arial,sans-serif" font-weight="900" font-size="7" fill="#3a2a4a"></text></g>`;
@@ -1055,7 +1055,7 @@
       /* antenas: se mueven solas; al limpiarse, la izquierda se dobla hacia la pata */
       const ph = hy - hr * .78;
       R.an.forEach((a, i) => { const s = i ? 1 : -1, osc = Math.sin(t * 2.6 + i * 1.7) * vivo, dob = i === 0 ? p.limpia : 0;
-        const x0 = s * hr * .38, y0 = ph - hr * .3, x1 = s * (hr * 1.15 + osc * .7) - dob * s * 1.5, y1 = y0 - hr * .55 + dob * 3.5 + mu * 2.5;
+        const x0 = s * hr * .38, y0 = ph - hr * .3, x1 = s * (hr * 1.15 + osc * .7 + p.agacha * 2.5) - dob * s * 1.5, y1 = y0 - hr * .55 + dob * 3.5 + mu * 2.5 + p.agacha * hr * .5;
         sa(a.p, 'd', `M${n3(x0)} ${n3(y0)}Q${n3(s * hr * .5)} ${n3(y0 - hr * .6)} ${n3(x1)} ${n3(y1)}`); sa(a.c, 'cx', n3(x1)); sa(a.c, 'cy', n3(y1)); });
       /* pintas: reposo → grupos (A) o filas × columnas (B); se encienden por grupo o por fila */
       const gA = clamp(p.grupos, 0, 1), gB = clamp(p.arreglo, 0, 1);
@@ -1070,8 +1070,10 @@
       const txt = gB > .5 ? `${L.fi} × ${L.co} = ${N}` : `2 × ${N / 2} = ${N}`;
       if (R.ctt.textContent !== txt) R.ctt.textContent = txt;
       sa(R.ct, 'opacity', n3(p.cartel)); sa(R.ct, 'transform', `translate(0 ${n3(top - 9)}) scale(${n3((.7 + .3 * p.cartel) * (k === 1 ? .8 : 1))})`);
+      /* agacha la cabecita (como esconde la cabeza la chinita real) para que se vean todas las pintas */
+      const ag = clamp(p.agacha, 0, 1); sa(R.cab, 'transform', `translate(0 ${n3(ag * hr * .42)}) scale(${n3(1 - ag * .1)})`);
       /* color de la cabeza, las antenas y las patas */
-      const tn = p.tono > .5 ? 1 : 0; if (R.tn !== tn) { R.tn = tn; const K = CAB[tn]; R.cb.setAttribute('fill', `url(#${id}-g${tn})`); R.cb.setAttribute('stroke', K[3]);
+      const tn = Math.round(clamp(p.tono, 0, 2)); if (R.tn !== tn) { R.tn = tn; const K = CAB[tn]; R.cb.setAttribute('fill', `url(#${id}-g${tn})`); R.cb.setAttribute('stroke', K[3]);
         R.an.forEach(a => { a.p.setAttribute('stroke', K[3]); a.c.setAttribute('stroke', K[3]); }); R.pa.forEach(pa => { pa.p.setAttribute('stroke', K[3]); pa.f.setAttribute('fill', K[2]); }); }
       /* cara */
       const ojo = Math.max(.08, p.ojos * (1 - mu * .9));
