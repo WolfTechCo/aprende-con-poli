@@ -717,7 +717,7 @@
   N_SPEC[4] = N_SPEC[3];
   /* nombres de las acciones, para analizar-gestos.js (no cambian nada del movimiento) */
   [1, 2, 3].forEach(k => { const L = { cuenta: nAcc.cuenta, camina: nAcc.camina, tantea: nAcc.tantea, mira: nAcc.mira, acordeon: nAcc.acordeon, bosteza: nAcc.bosteza, baila: nAcc.baila };
-    if (k === 3) L.saluda = nAcc.saluda; N_SPEC[k].prueba = L; });
+    L.saluda = nAcc.saluda; N_SPEC[k].prueba = L; });
 
   /* ---------- 4 · Pulpatrón con poses: de frente y flotando ----------
      Referencias de la dueña (poli-referencias/referencias/pulpos): UN solo cuerpo; el contorno de la cabeza baja y sigue por
@@ -1150,11 +1150,36 @@
   };
   const C_SPEC = { 1: C_SPEC_BASE(1), 2: C_SPEC_BASE(2), 3: C_SPEC_BASE(3), 4: C_SPEC_BASE(4) };
 
-  const ANIM = { tortugono: k => ({ draw: tortugonoPose(k), base: T_BASE, spec: T_SPEC }), cubuho: k => ({ draw: cubuhoPose(k), base: B_BASE, spec: k === 1 ? B1_SPEC : B_SPEC }),
-    cienpiecito: k => ({ draw: cienpiecitoPose(k), base: { ...N_BASE, alza: N_ST[k].alza }, spec: N_SPEC[k] }),
-    pulpatron: k => ({ draw: pulpatronPose(k), base: P_BASE, spec: P_SPEC[k] }),
-    chinitabla: k => ({ draw: chinitablaPose(k), base: C_BASE, spec: C_SPEC[k] }) };
+  /* ---------- lo que sabe hacer cada mascota en cada etapa (decidido con la dueña, 27-11-2026; sistema-4a.md, sección 4) ----------
+     Todo lo hecho se queda y se reparte por etapa: la cría parte con lo básico y aprende al crecer. Obligatorio: su idea del
+     contenido (desde la cría) y al menos 2 gestos al tocar. La etapa 4 (brillante) sabe lo mismo que la 3. Los trucos especiales
+     (premios) se agregan después, con la parte 3. «acc»: acciones por etapa (nombres de spec.prueba); «idea»: su acción del
+     contenido, intercalada una de cada tres; «nom» y «gestos»: cómo se dice en la página. */
+  const REPARTO = {
+    tortugono: { idea: null, acc: { 1: ['olfatea', 'mira', 'camina'], 2: ['olfatea', 'mira', 'camina', 'bosteza'], 3: ['olfatea', 'mira', 'camina', 'bosteza', 'timida'] },
+      nom: { olfatea: 'olfatea', mira: 'mira a los lados', camina: 'camina', bosteza: 'bosteza', timida: 'se esconde a medias' }, gestos: { 1: ['se esconde en el caparazón'] } },
+    cubuho: { idea: null, acc: { 1: ['miraLado', 'cabecea', 'guina', 'asoma', 'esconde'], 2: ['miraLado', 'miraAtras', 'cabecea', 'guina', 'esponja', 'pasitos'], 3: ['miraLado', 'miraAtras', 'cabecea', 'ladea', 'guina', 'esponja', 'alas', 'pasitos'] },
+      nom: { miraLado: 'mira a un lado', miraAtras: 'mira hacia atrás', cabecea: 'cabecea', guina: 'guiña un ojo', asoma: 'se asoma', esconde: 'se esconde en el cascarón', ladea: 'ladea la cabeza', esponja: 'esponja las plumas', alas: 'estira las alas', pasitos: 'da pasitos' },
+      gestos: { 1: ['se mete al cascarón y se asoma'], 2: ['gira la cabeza completa'] } },
+    cienpiecito: { idea: 'cuenta', ideaNom: 'suma con sus anillos', acc: { 1: ['camina', 'tantea', 'mira'], 2: ['camina', 'tantea', 'mira', 'acordeon', 'bosteza'], 3: ['camina', 'tantea', 'mira', 'acordeon', 'bosteza', 'baila', 'saluda'] },
+      nom: { camina: 'camina', tantea: 'tantea con las antenas', mira: 'mira', acordeon: 'acordeón', bosteza: 'bosteza', baila: 'baila', saluda: 'saluda' }, gestos: { 1: ['se da vuelta y patalea'], 2: ['hace puente'], 3: ['se hace bolita y rueda'] } },
+    pulpatron: { idea: 'quiz', ideaNom: '«¿Qué sigue?»', acc: { 1: ['ola', 'saluda', 'camina'], 2: ['ola', 'saluda', 'camina', 'rasca', 'timido'], 3: ['ola', 'saluda', 'camina', 'rasca', 'timido', 'bosteza', 'aplaude'] },
+      nom: { ola: 'ola de color', saluda: 'saluda', camina: 'camina', rasca: 'se rasca pensando', timido: 'se tapa y espía', bosteza: 'bosteza', aplaude: 'aplaude' }, gestos: { 1: ['nube de tinta'], 2: ['chorro con tinta', 'hélice'] } },
+    chinitabla: { idea: 'multiplica', ideaNom: 'multiplica con sus pintas', acc: { 1: ['camina', 'mira', 'limpia'], 2: ['camina', 'mira', 'limpia', 'saluda', 'estira'], 3: ['camina', 'mira', 'limpia', 'saluda', 'estira', 'bosteza'] },
+      nom: { camina: 'camina', mira: 'mira', limpia: 'se limpia la antena', saluda: 'saluda', estira: 'estira las tapas', bosteza: 'bosteza' }, gestos: { 1: ['se hace la muerta (de lado o estirada)'], 2: ['vuela', 'se hace la muerta (de lado o estirada)'] } },
+  };
+  const deEtapa = (o, k) => o[Math.min(k, 3)] || o[k >= 2 && o[2] ? 2 : 1] || o[1];
+  const conReparto = (id, spec, k) => { const R = REPARTO[id], nombres = deEtapa(R.acc, k), idea = R.idea && spec.prueba[R.idea];
+    const lista = nombres.map(n => spec.prueba[n]);
+    return { ...spec, acciones: lista.map(fn => m => { if (!idea) return fn(m); m.nIdea = (m.nIdea || 0) + 1; return m.nIdea % 3 === 1 ? idea(m) : fn(m); }) }; };
+  const sabe = (id, k) => { const R = REPARTO[id]; if (!R || !k) return null;
+    return { acciones: deEtapa(R.acc, k).map(n => R.nom[n]), idea: R.ideaNom || null, gestos: deEtapa(R.gestos, k) }; };
+
+  const ANIM = { tortugono: k => ({ draw: tortugonoPose(k), base: T_BASE, spec: conReparto('tortugono', T_SPEC, k) }), cubuho: k => ({ draw: cubuhoPose(k), base: B_BASE, spec: conReparto('cubuho', k === 1 ? B1_SPEC : B_SPEC, k) }),
+    cienpiecito: k => ({ draw: cienpiecitoPose(k), base: { ...N_BASE, alza: N_ST[k].alza }, spec: conReparto('cienpiecito', N_SPEC[k], k) }),
+    pulpatron: k => ({ draw: pulpatronPose(k), base: P_BASE, spec: conReparto('pulpatron', P_SPEC[k], k) }),
+    chinitabla: k => ({ draw: chinitablaPose(k), base: C_BASE, spec: conReparto('chinitabla', C_SPEC[k], k) }) };
   /* poner(el, id, k): arranca el motor de esa mascota dentro de el (un <g>); devuelve el motor o null si no tiene poses */
   const poner = (el, id, k, variante) => { if (!ANIM[id] || !k) return null; const a = ANIM[id](k, variante); return new Motor(el, a.draw, a.base, a.spec); };
-  M.POSES = { Motor, poner, tiene: id => !!ANIM[id], EASE };
+  M.POSES = { Motor, poner, tiene: id => !!ANIM[id], EASE, sabe };
 })(typeof window !== 'undefined' ? window : global);

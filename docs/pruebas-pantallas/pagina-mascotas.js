@@ -52,6 +52,8 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
 #modo .btn[aria-pressed="false"]{background:var(--accentbg);color:var(--accent)}
 #modo .btn[aria-pressed="true"]{background:var(--accent);color:#fff}
 .hint{font-size:.85rem;color:var(--muted);text-align:center;min-height:1.3em}
+.sabe{font-size:.85rem;color:var(--muted);text-align:center;min-height:2.6em}
+.sabe b{color:var(--fg)}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .demo{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .hatch{background:linear-gradient(#fff6df,#ffe9f3);border-radius:16px;height:clamp(200px,34vw,300px);max-width:100%;overflow:hidden;cursor:pointer}
@@ -164,7 +166,7 @@ ${SRC}
   };
   const pets = document.getElementById('pets');
   const draw = () => { pets.innerHTML = M.MASC.map(m => \`<article class="pet" data-id="\${m.id}"><div class="top"><h3>\${m.name}</h3><small>Capítulo \${m.ch} · \${m.cap}</small></div>
-    <div class="scene" role="button" tabindex="0" aria-label="Tocar a \${m.name}"><svg viewBox="\${VB}"></svg></div><p class="cap"></p><p class="hint"></p>
+    <div class="scene" role="button" tabindex="0" aria-label="Tocar a \${m.name}"><svg viewBox="\${VB}"></svg></div><p class="cap"></p><p class="sabe"></p><p class="hint"></p>
     <div class="strip">\${M.ETAPAS.map((t, k) => \`<button data-k="\${k}" aria-pressed="false"><svg viewBox="\${VB}">\${T().masc(m.id, k)}</svg>\${t}</button>\`).join('')}</div>
     <p class="how">\${({ A: HOW, B: HOW_B, C: HOW_C })[tanda][m.id]}</p></article>\`).join('');
     pets.querySelectorAll('.pet').forEach(c => show(c, 3)); drawSmall(); if (typeof drawH === 'function') drawH(); };
@@ -178,6 +180,9 @@ ${SRC}
     const h = card.querySelector('.hint'); if (h) h.textContent = '';
     card.dataset.k = k;
     card.querySelector('.cap').textContent = M.nombre(id, k) + ' · ' + M.ETAPAS[k];
+    /* lo que sabe hacer en esta etapa (se aprende al crecer) */
+    const sb = card.querySelector('.sabe'), S = tanda === 'C' && M.POSES.sabe(id, k);
+    sb.innerHTML = S ? '<b>Sabe hacer:</b> ' + S.acciones.join(', ') + (S.idea ? ' · <b>su idea:</b> ' + S.idea : '') + ' · <b>al tocarla:</b> ' + S.gestos.join(' o ') : '';
     card.querySelectorAll('.strip button').forEach(b => b.setAttribute('aria-pressed', +b.dataset.k === k));
   };
   const tocar = card => { const mv = card.querySelector('.scene .mv'), id = card.dataset.id;
