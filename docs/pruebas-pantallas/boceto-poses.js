@@ -168,7 +168,8 @@
       r.as.setAttribute('opacity', n3(clamp(p.asoma, 0, 1))); if (r.ao) r.ao.setAttribute('transform', `scale(1 ${n3(Math.max(.08, p.ojos))})`);
       const meceo = p.andar * Math.sin(ph) * 2.4 + (p.vivo || 0) * Math.sin((p.t || 0) * 2 * Math.PI / 5.3) * .5, bote = -p.andar * Math.abs(Math.sin(ph)) * .6 + p.patas * 3.6;
       r.cap.setAttribute('transform', `translate(0 ${n3(bote)}) rotate(${n3(p.capRot + meceo)} -3 -2)`);
-      r.all.setAttribute('transform', `translate(0 ${n3(p.y)}) scale(${n3(p.sx)} ${n3(p.sy)})`);
+      const JY = [1, 1, 1, .7, .6][k]; /* las etapas grandes saltan más bajo: así no se salen del cuadro */
+      r.all.setAttribute('transform', `translate(0 ${n3(p.y * JY)}) scale(${n3(p.sx)} ${n3(p.sy)})`);
       r.sh.setAttribute('transform', `scale(${n3(1 - Math.min(.4, -p.y / 40))} 1)`);
     };
     return { build, refs, update };
@@ -244,7 +245,7 @@
   const pieBuho = (x, k) => { const e = k >= 3 ? 1.12 : 1; return [-1, 0, 1].map(j => `<g transform="translate(${n3(x + j * 2.3 * e)} ${n3(-.2 + Math.abs(j) * -.3)})">${gel(E(0, 0, n3(1.5 * e), n3(2 * e)), 'naranja', .7)}`
     + `<path d="M${n3(-.6 * e)} ${n3(1.7 * e)}Q0 ${n3(2.9 * e)} ${n3(.6 * e)} ${n3(1.7 * e)}" fill="${PAL.naranja[3]}" opacity=".75"/>${dot(n3(-.5 * e), n3(-.8 * e), .35)}</g>`).join(''); };
   const cubuhoPose = k => {
-    const id = 'kb' + (++nB), SC = M.C.SCALE[k], body = k === 4 ? 'oro' : 'lila', BC = PAL[body], L = PAL.lila, cria = k === 1;
+    const id = 'kb' + (++nB), SC = M.C.SCALE[k] * (k === 4 ? .92 : 1) /* la brillante, con corona y orejas, un poco menor para que quepa */, body = k === 4 ? 'oro' : 'lila', BC = PAL[body], L = PAL.lila, cria = k === 1;
     const W = cria ? 13 : 16, TOP = cria ? -31 : -35, BOT = cria ? -4 : -1, SPLIT = cria ? -7.4 : -14, D = 2 * W;
     const PX = (cria ? 8.5 : 9) / D, PY = -7 / D; /* proyección del fondo: hacia la derecha y hacia arriba, como el cubo de siempre */
     const HH = SPLIT - TOP, ER = cria ? 6.6 : 7.4, FV = cria ? 12 : 10.4; /* alto de la cabeza; radio de los discos; altura de los ojos en la cara */
@@ -422,12 +423,15 @@
       sa(r.cu, 'transform', `translate(0 ${n3(p.sube)})`);
       sa(r.cs, 'transform', `rotate(${n3(p.casRot)} 3 0)`);
       const pu = 1 + p.esponja * .05;
-      r.all.setAttribute('transform', `translate(0 ${n3(p.y)}) scale(${n3(p.sx * pu)} ${n3(p.sy * pu)})`);
+      const JY = [1, 1, 1, .55, .45][k], JS = k >= 3 ? .5 : 1; /* las etapas grandes saltan más bajo y se estiran menos */
+      r.all.setAttribute('transform', `translate(0 ${n3(p.y * JY)}) scale(${n3((1 + (p.sx - 1) * JS) * pu)} ${n3((1 + (p.sy - 1) * JS) * pu)})`);
       r.sh.setAttribute('transform', `scale(${n3(1 - Math.min(.4, -p.y / 40))} 1)`);
     };
     return { build, refs, update };
   };
   const lado = () => (Math.random() < .5 ? -1 : 1);
+  T_SPEC.prueba = { olfatea: T_SPEC.acciones[0], mira: T_SPEC.acciones[1], bosteza: T_SPEC.acciones[2], camina: T_SPEC.acciones[3], timida: T_SPEC.acciones[4] };
+
   const B_SPEC = {
     fondo: (t, modo, p) => {
       const vivo = modo === 'vida' ? 1 : 0, r = Math.sin(t * 2 * Math.PI / 3.6);
@@ -465,6 +469,9 @@
       [d + 1000, { sube: 9 }, 260, 'sale'], [d + 1300, { teta: 40 }, 300], [d + 1700, { teta: -40 }, 380], [d + 2100, { teta: 0, sube: -3 }, 300, 'rebote'], [d + 2400, { sube: 0 }, 260]]), /* asoma, mira a los lados y sale */
     salto: (m, d) => m.hacer([[d, { sube: 3 }, 120], [d + 120, { sube: -12 }, 260, 'sale'], [d + 380, { sube: 0 }, 260, 'entra'], [d + 640, { casRot: 3 }, 100], [d + 740, { casRot: 0 }, 200, 'rebote']]),
   };
+
+  B_SPEC.prueba = Object.fromEntries(['miraLado', 'miraAtras', 'cabecea', 'ladea', 'guina', 'esponja', 'alas', 'pasitos'].map((n, i) => [n, B_SPEC.acciones[i]]));
+  B1_SPEC.prueba = Object.fromEntries(['miraLado', 'miraAtras', 'cabecea', 'guina', 'asoma', 'esconde'].map((n, i) => [n, B1_SPEC.acciones[i]]));
 
   /* ---------- 3 · Cienpiecito con poses: una sola columna de anillos que se dobla ----------
      Como un ciempiés o una cuncuna vistos de lado: un par de patas por anillo, pegadas a su anillo y siguiéndolo.
@@ -507,7 +514,7 @@
     saluda: 0, saludaI: 0, cola: 0, vuelta: 0, puente: 0, paso: 0, cnt: 0, sx: 1, sy: 1, y: 0, x: 0 };
   const suaveS = u => u * u * (3 - 2 * u);
   const cienpiecitoPose = k => {
-    const id = 'kn' + (++nN), Q = N_ST[k], N = Q.s.length, r = Q.r, hs = Q.hs, SC = M.C.SCALE[k], gold = k === 4;
+    const id = 'kn' + (++nN), Q = N_ST[k], N = Q.s.length, r = Q.r, hs = Q.hs, SC = M.C.SCALE[k] * (k >= 3 ? .86 : 1) /* la grande se para alto: un poco menor para que quepa */, gold = k === 4;
     const tile = gold ? 'oro' : 'amarillo', fs = hs / 19.5;
     /* grupos de cifras: cada color es una cifra; la letra va en el primer anillo del grupo, en su parte que no tapa el siguiente */
     const grupo = Q.s.map((_, i) => i); /* cada anillo es su propia cifra */
@@ -644,7 +651,8 @@
       sa(R.bc, 'opacity', n3(1 - clamp(p.boca * 2, 0, 1)));
       const cyR = -r - .6, sY = Math.cos(vu * Math.PI);
       sa(R.bd, 'transform', vu ? `translate(0 ${n3(cyR)}) scale(1 ${n3(Math.abs(sY) < .06 ? .06 * Math.sign(sY || 1) : sY)}) translate(0 ${n3(-cyR)})` : '');
-      sa(R.all, 'transform', `translate(0 ${n3(p.y)}) scale(${n3(p.sx)} ${n3(p.sy)})`);
+      const JY = k >= 3 ? .45 : 1, JS = k >= 3 ? .5 : 1; /* parada alta: salta más bajo y se estira menos */
+      sa(R.all, 'transform', `translate(0 ${n3(p.y * JY)}) scale(${n3(1 + (p.sx - 1) * JS)} ${n3(1 + (p.sy - 1) * JS)})`);
       sa(R.sh, 'transform', `scale(${n3((mxx - mnx) / 60 * (1 - Math.min(.4, -p.y / 40)))} 1)`);
     };
     return { build, refs, update };
@@ -707,6 +715,9 @@
         [d + 2350, { curl: 0, alza: m.base.alza }, 650, 'rebote'], [d + 2900, { ant: 1 }, 150], [d + 3400, { ant: 0 }, 250]]) },
   };
   N_SPEC[4] = N_SPEC[3];
+  /* nombres de las acciones, para analizar-gestos.js (no cambian nada del movimiento) */
+  [1, 2, 3].forEach(k => { const L = { cuenta: nAcc.cuenta, camina: nAcc.camina, tantea: nAcc.tantea, mira: nAcc.mira, acordeon: nAcc.acordeon, bosteza: nAcc.bosteza, baila: nAcc.baila };
+    if (k === 3) L.saluda = nAcc.saluda; N_SPEC[k].prueba = L; });
 
   /* ---------- 4 · Pulpatrón con poses: de frente y flotando ----------
      Referencias de la dueña (poli-referencias/referencias/pulpos): UN solo cuerpo; el contorno de la cabeza baja y sigue por
@@ -721,7 +732,7 @@
     1: { n: 4, L: 11, fl: 4, luces: 2 },
     2: { n: 6, L: 12, fl: 5.5, luces: 3 },
     3: { n: 8, L: 12, fl: 7, luces: 3 },
-    4: { n: 8, L: 12.5, fl: 8, luces: 4 },
+    4: { n: 8, L: 12.5, fl: 5.5, luces: 4 },
   };
   const P_COL = ['#ff4d64', '#ffa23d', '#ffd23c', '#7fd650', '#5fb0ff', '#a98cff', '#ff8cbf'];
   const FIG = {
@@ -746,15 +757,16 @@
   const cub3 = (a, b, c, d, t) => { const u = 1 - t; return [u * u * u * a[0] + 3 * u * u * t * b[0] + 3 * u * t * t * c[0] + t * t * t * d[0], u * u * u * a[1] + 3 * u * u * t * b[1] + 3 * u * t * t * c[1] + t * t * t * d[1]]; };
   /* poses de la mano derecha (la izquierda es su espejo), en coordenadas del cuerpo (abajo al centro = 0 0) */
   const MANO = [
-    { t: [27, -27], c1: [25, -1], c2: [33, -16], w: 1 }, /* 0 saluda (se mueve de lado a lado) */
-    { t: [13, -30], c1: [25, -2], c2: [29, -26] }, /* 1 se rasca la cabeza pensando */
+    { t: [25, -23], c1: [22, -6], c2: [28, -15], w: 1 }, /* 0 saluda (se mueve de lado a lado) */
+    { t: [17, -26], c1: [22, -8], c2: [24, -21] }, /* 1 se rasca la cabeza pensando */
     { t: [33, 5], c1: [23, -3], c2: [30, 2] }, /* 2 señala hacia el lado */
-    { t: [5, 5], c1: [22, 0], c2: [19, 11], w: 2 }, /* 3 aplaude adelante, bajo la boca (curva redonda, sin quiebre) */
+    { t: [6, 5], c1: [21, 0], c2: [17, 10], w: 2 }, /* 3 aplaude adelante, bajo la boca (curva redonda, sin quiebre) */
     { t: [7, -12], c1: [23, -6], c2: [20, -21] }, /* 4 se tapa los ojos: sube por el lado y baja en curva sobre el ojo */
-    { t: [26, -26], c1: [25, -1], c2: [32, -16] }, /* 5 sostiene el «?» en alto */
-    { t: [22, -35], c1: [25, -4], c2: [31, -24] }, /* 6 ¡yupi! (las dos arriba, en el salto) */
+    { t: [24, -23], c1: [22, -6], c2: [28, -15] }, /* 5 sostiene el «?» en alto */
+    { t: [20, -27], c1: [21, -8], c2: [25, -20] }, /* 6 ¡yupi! (las dos arriba, en el salto) */
   ];
   const ANCHO = 3.4; /* medio ancho de un brazo en su raíz */
+  /* regla 15: en cada pose de mano, el brazo mide como mucho ≈ 1,3 veces su largo en reposo (revisar-forma.js lo mide) */
   const pulpatronPose = k => {
     const id = 'kp' + (++nP), Q = P_ST[k], N = Q.n, SC = [1, .66, .76, .82, .84][k] /* crece en cada etapa y deja aire arriba para el salto y la corona */, gold = k === 4, B = PAL.rosa;
     const nb = N - 2, hsp = Math.min(13, 4 + nb * 1.6); /* brazos de abajo y su abertura */
@@ -902,9 +914,9 @@
     const lista = [acc.ola, acc.saluda, acc.rasca, acc.timido, acc.camina, acc.bosteza, acc.aplaude];
     const acciones = lista.map(fn => m => { m.nQuiz = (m.nQuiz || 0) + 1; return m.nQuiz % 3 === 1 ? quiz(m) : fn(m); });
     /* chorro: se aprieta, suelta la tinta (queda abajo y cae), sube disparado con los brazos juntos y baja planeando con todos abiertos y quietos */
-    const chorro = (m, d) => m.hacer([[d, { aprieta: 1 }, 220], [d + 220, { tinta: 1 }, 1200, 'lineal'], [d + 220, { aprieta: -.12, junta: 1, y: k >= 3 ? -5 : -10 }, 450, 'sale'],
+    const chorro = (m, d) => m.hacer([[d, { aprieta: 1 }, 220], [d + 220, { tinta: 1 }, 1200, 'lineal'], [d + 220, { aprieta: -.12, junta: 1, y: k === 4 ? -3 : k === 3 ? -5 : -10 }, 450, 'sale'],
       [d + 700, { junta: 0, abre: 1, aprieta: 0, onda: .15 }, 380], [d + 900, { y: 0 }, 1000, 'suave'], [d + 1430, { tinta: 0 }, 1], [d + 1700, { abre: 0, onda: 1 }, 450]]);
-    const helice = (m, d) => m.hacer([[d, { helice: 1 }, 300], [d, { rot: 720 }, 1600, 'suave'], [d + 200, { y: -7 }, 500, 'sale'], [d + 1100, { y: 0 }, 600, 'suave'], [d + 1500, { helice: 0 }, 400], [d + 1950, { rot: 0 }, 1]]);
+    const helice = (m, d) => m.hacer([[d, { helice: 1 }, 300], [d, { rot: 720 }, 1600, 'suave'], [d + 200, { y: k === 4 ? -3 : -7 }, 500, 'sale'], [d + 1100, { y: 0 }, 600, 'suave'], [d + 1500, { helice: 0 }, 400], [d + 1950, { rot: 0 }, 1]]);
     /* nube (cría): suelta la tinta, que se queda manchando la pantalla; SOLO el pulpo retrocede (se achica y sube), espía y vuelve */
     const nubeTinta = (m, d) => m.hacer([[d, { aprieta: .6 }, 150], [d + 150, { tinta: 1 }, 1200, 'lineal'], [d + 150, { nube: 1, aprieta: 0 }, 220], [d + 250, { esconde: 1 }, 450, 'sale'],
       [d + 950, { mira: -1 }, 250], [d + 1350, { mira: 1 }, 300], [d + 1750, { mira: 0 }, 200], [d + 1150, { nube: 0 }, 1400, 'lineal'], [d + 1360, { tinta: 0 }, 1], [d + 1950, { esconde: 0 }, 600, 'rebote']]);
@@ -915,7 +927,7 @@
       /* salto: con las dos manos arriba (¡yupi!), sin juntar los brazos, para no parecerse al chorro (regla 11);
          si las manos venían arriba, primero bajan (220 ms) y después cambian de pose */
       salto: (m, d) => { const dm = m.v.manoD > .05 || m.v.manoI > .05 ? 240 : 0;
-        return m.hacer([[d, { sy: .86, sx: 1.08 }, 140], [d + dm, { poseD: 6, poseI: 6 }, 1], [d + 140, { y: k >= 3 ? -6 : -10, sy: 1.08, sx: .94 }, 240, 'sale'], [d + Math.max(140, dm + 10), { manoD: 1, manoI: 1, boca: .7 }, 240, 'sale'],
+        return m.hacer([[d, { sy: .86, sx: 1.08 }, 140], [d + dm, { poseD: 6, poseI: 6 }, 1], [d + 140, { y: k === 4 ? -3 : k === 3 ? -6 : -10, sy: k >= 3 ? 1.04 : 1.08, sx: k >= 3 ? .97 : .94 }, 240, 'sale'], [d + Math.max(140, dm + 10), { manoD: 1, manoI: 1, boca: .7 }, 240, 'sale'],
           [d + 380, { y: 0, sy: 1, sx: 1 }, 420, 'suave'], [d + 560, { manoD: 0, manoI: 0, boca: 0 }, 300]]); },
       selector: ['poseD', 'poseI'],
       /* al tocar: lo que no se puede «devolver» suave (patrón del juego, ola de color, vueltas) se acomoda al instante */

@@ -86,6 +86,7 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
   <div class="row" id="modo" role="group" aria-label="Momento"><button class="btn" data-m="vida" aria-pressed="true">Con vida · mapa y premios</button><button class="btn ghost" data-m="quieta" aria-pressed="false">Tranquila · durante una pregunta</button></div>
   <p class="note"><b>Nuevo: vida propia.</b> Con vida, cada mascota se mueve como su animal y suelta partículas de su tema. Al tocarla, mezcla el <b>salto</b> (igual en todas) con su <b>gesto propio</b>: la tortuga se esconde, el búho gira la cabeza, el ciempiés hace la ola, el pulpo suelta tinta de confeti y la chinita vuela. Durante una pregunta solo respira y parpadea.</p>
   <p class="note"><b>27-11 · Pulpatrón ajustado:</b> tócalo a mitad de cualquier cosa o muchas veces seguidas: ya nada queda pegado ni se corta de golpe. La tinta y el confeti se quedan en la pantalla, el salto lleva las manos arriba y cada movimiento se distingue del otro.</p>
+  <p class="note"><b>27-11 · Revisión de forma de las cuatro:</b> en las etapas grandes ya nada se sale del cuadro al saltar o bailar (Tortugono, Cubúho, Cienpiecito y Pulpatrón saltan un poco más bajo y los más altos se achicaron un poco), y las manos de Pulpatrón ya no se alargan de más.</p>
 </header>
 
 <section>
