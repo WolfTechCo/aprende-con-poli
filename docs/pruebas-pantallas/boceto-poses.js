@@ -39,9 +39,12 @@
     }
     /* programa una secuencia: [[ms desde ahora, { perilla: valor }, duración, curva]] */
     hacer(seq) {
-      const ahora = performance.now(); let fin = ahora;
+      const ahora = performance.now(), lote = (this.lote = (this.lote || 0) + 1); let fin = ahora, sel = this.spec.selector || [];
       seq.forEach(([d, obj, dur = 250, ease = 'suave']) => Object.entries(obj).forEach(([k, to]) => {
-        this.cola.push({ k, to, t0: ahora + d, t1: ahora + d + dur, ease: EASE[ease], from: null }); fin = Math.max(fin, ahora + d + dur);
+        if (sel.includes(k)) dur = 1; /* regla 8: las perillas que eligen una pose cambian al instante */
+        /* lo programado antes para esta perilla, desde este momento en adelante, queda reemplazado */
+        const t0 = ahora + d; this.cola = this.cola.filter(c => c.lote === lote || c.k !== k || c.t0 < t0);
+        this.cola.push({ k, to, t0, t1: t0 + dur, ease: EASE[ease], from: null, lote }); fin = Math.max(fin, ahora + d + dur);
       }));
       return fin;
     }
@@ -69,6 +72,8 @@
       Object.entries(extra).forEach(([k, d]) => { pose[k] = (pose[k] ?? 0) + d; });
       /* parpadeo, siempre */
       if (t > this.parpadeo) { this.parpadeo = t + 2600 + Math.random() * 2600; this.hacer([[0, { ojos: 0 }, 70, 'entra'], [110, { ojos: 1 }, 90, 'sale']]); }
+      /* un toque que llegó durante un gesto espera a que termine (se guarda uno solo) */
+      if (this.pendiente && t >= this.gestoHasta) { this.pendiente = false; this.tocar(); }
       /* acciones del rato */
       if (this.modo === 'vida' && t > this.ocupado && t > this.proxima && this.spec.acciones) {
         let i; do { i = Math.floor(Math.random() * this.spec.acciones.length); } while (i === this.ultima && this.spec.acciones.length > 1);
@@ -80,18 +85,27 @@
     /* al tocar: salto, gesto o los dos (para no repetir) */
     tocar() {
       if (this.reducido) return '';
+      const ahora = performance.now();
+      /* regla 10: mientras dura un gesto, los toques no lo cortan; se guarda uno para después */
+      if (ahora < (this.gestoHasta || 0)) { this.pendiente = true; return 'espera a terminar'; }
       /* parte desde donde está (sin saltos): lo que iba a medio camino queda como valor actual */
       if (this.poseBase) Object.assign(this.v, this.poseBase);
       /* si lo tocan justo mientras parpadea, los ojos no deben quedar cerrados */
       if ('ojos' in this.v) this.v.ojos = 1; if ('guino' in this.v) this.v.guino = 1;
       this.cola = [];
+      /* lo que quedó a medio camino de una acción (manos arriba, «?», giros) vuelve suave a reposo en 220 ms;
+         las perillas que eligen pose cambian al final, cuando ya no se ven */
+      if (this.spec.reposo) this.spec.reposo(this);
+      const sel = this.spec.selector || [], vuelve = {}, alFinal = {};
+      Object.keys(this.base).forEach(k => { if (k === 'ojos' || k === 'guino' || Math.abs(this.v[k] - this.base[k]) < .001) return; (sel.includes(k) ? alFinal : vuelve)[k] = this.base[k]; });
+      this.hacer([[0, vuelve, 220, 'suave'], [230, alFinal, 1]]);
       const plan = [['salto'], ['gesto'], ['salto', 'gesto'], ['gesto'], ['salto']][this.turno++ % 5];
-      let fin = performance.now();
+      let fin = ahora;
       plan.forEach((p, i) => { const d = fin - performance.now(); fin = this.spec[p](this, Math.max(0, d) + (i ? 120 : 0)); });
-      this.ocupado = fin; this.proxima = fin + 1200;
+      this.ocupado = fin; this.proxima = fin + 1200; this.gestoHasta = fin;
       return plan.join(' + ');
     }
-    setModo(m) { this.modo = m; if (m !== 'vida') { this.cola = this.cola.filter(c => c.k === 'ojos'); Object.assign(this.v, this.base); } }
+    setModo(m) { this.modo = m; this.pendiente = false; if (m !== 'vida') { this.cola = this.cola.filter(c => c.k === 'ojos'); Object.assign(this.v, this.base); } }
     parar() { this.vivo = false; }
   }
 
@@ -674,18 +688,20 @@
     p.t = t; p.vivo = vivo; p.fase = t * 7;
     return { sy: r * .016, sx: -r * .008, cabRot: vivo * Math.sin(t * 2 * Math.PI / 4.1 + .4) * 3 };
   };
+  /* al tocar a mitad de la suma: los anillos vuelven al instante a sus colores de reposo (las letras y números se desvanecen) */
+  const nReposo = m => { const v = m.v; v.paso = 0; v.cnt = 0; v.cuenta = -9; };
   const N_SPEC = {
     /* cría: no le alcanza el cuerpo para hacerse bolita, así que se da vuelta patas arriba, patalea y se ríe */
-    1: { fondo: nFondo, salto: nSalto, acciones: intercala([nAcc.camina, nAcc.tantea, nAcc.mira, nAcc.acordeon, nAcc.bosteza, nAcc.baila]),
+    1: { fondo: nFondo, salto: nSalto, reposo: nReposo, acciones: intercala([nAcc.camina, nAcc.tantea, nAcc.mira, nAcc.acordeon, nAcc.bosteza, nAcc.baila]),
       gesto: (m, d) => m.hacer([[d, { sy: .85, sx: 1.08 }, 140], [d + 140, { y: -12, vuelta: 1, sy: 1, sx: 1 }, 380, 'sale'], [d + 520, { y: 0 }, 160, 'entra'],
         [d + 560, { patalea: 1, boca: 1 }, 200], [d + 1700, { patalea: 0, boca: 0 }, 200], [d + 1800, { y: -10 }, 200, 'sale'], [d + 1850, { vuelta: 0 }, 380, 'suave'],
         [d + 2000, { y: 0 }, 230, 'entra'], [d + 2230, { sy: .9, sx: 1.06 }, 100], [d + 2330, { sy: 1, sx: 1 }, 260, 'rebote']]) },
     /* joven: hace puente como cuncuna medidora y avanza un pasito */
-    2: { fondo: nFondo, salto: nSalto, acciones: intercala([nAcc.camina, nAcc.tantea, nAcc.mira, nAcc.acordeon, nAcc.bosteza, nAcc.baila]),
+    2: { fondo: nFondo, salto: nSalto, reposo: nReposo, acciones: intercala([nAcc.camina, nAcc.tantea, nAcc.mira, nAcc.acordeon, nAcc.bosteza, nAcc.baila]),
       gesto: (m, d) => m.hacer([[d, { puente: 1, x: -2 }, 450, 'sale'], [d + 650, { puente: 0, x: 3 }, 380, 'rebote'], [d + 1100, { puente: 1, x: 1 }, 400, 'sale'],
         [d + 1700, { puente: 0, x: 0 }, 420, 'rebote'], [d + 2000, { ant: 1, boca: .6 }, 200], [d + 2600, { ant: 0, boca: 0 }, 250]]) },
     /* adulta y brillante: se hace bolita (la cabeza primero), rueda de ida y vuelta y se desenrolla (la cola primero) */
-    3: { fondo: nFondo, salto: nSalto, acciones: intercala([nAcc.camina, nAcc.tantea, nAcc.mira, nAcc.acordeon, nAcc.bosteza, nAcc.baila, nAcc.saluda]),
+    3: { fondo: nFondo, salto: nSalto, reposo: nReposo, acciones: intercala([nAcc.camina, nAcc.tantea, nAcc.mira, nAcc.acordeon, nAcc.bosteza, nAcc.baila, nAcc.saluda]),
       gesto: (m, d) => m.hacer([[d, { sy: .92, sx: 1.04, cabRot: 12 }, 180], [d + 160, { curl: 1, alza: 0, sy: 1, sx: 1, cabRot: 0 }, 750, 'suave'],
         [d + 950, { rot: 200, x: 7 }, 650, 'suave'], [d + 1650, { rot: 0, x: 0 }, 650, 'suave'],
         [d + 2350, { curl: 0, alza: m.base.alza }, 650, 'rebote'], [d + 2900, { ant: 1 }, 150], [d + 3400, { ant: 0 }, 250]]) },
@@ -736,6 +752,7 @@
     { t: [6.5, 5], c1: [24, 3], c2: [16, 10], w: 2 }, /* 3 aplaude adelante, bajo la boca */
     { t: [6, -10], c1: [24, -1], c2: [16, -4] }, /* 4 se tapa los ojos */
     { t: [26, -26], c1: [25, -1], c2: [32, -16] }, /* 5 sostiene el «?» en alto */
+    { t: [21, -39], c1: [25, -4], c2: [31, -26] }, /* 6 ¡yupi! (las dos arriba, en el salto) */
   ];
   const ANCHO = 3.4; /* medio ancho de un brazo en su raíz */
   const pulpatronPose = k => {
@@ -773,9 +790,13 @@
       if (gold) m += corona(0, -34.4, 1.1);
       c += `<g id="${id}-man">${m}</g><g id="${id}-frente">${[...Array(N)].map((_, i) => brazoSVG(i)).join('')}</g>`;
       c += `<g id="${id}-q" opacity="0"><circle r="4.4" fill="#fff" stroke="${B[3]}" stroke-width=".9"/><text y="2.5" text-anchor="middle" font-family="Arial Rounded MT Bold,Nunito,Arial,sans-serif" font-weight="900" font-size="7.2" fill="${B[3]}">?</text></g>`;
-      c += `<g id="${id}-nube" opacity="0">${[[-9, -6, 9], [3, -9, 10], [12, -4, 8], [-2, 0, 9]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#b9a6e8" opacity=".85"/>`).join('')}${[[-6, -9, 2.6], [5, -13, 2]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" opacity=".55"/>`).join('')}</g>`;
-      c += `<g id="${id}-tin">${[...Array(14)].map((_, i) => `<circle r="1.5" fill="${P_COL[i % P_COL.length]}"/>`).join('')}</g>`;
-      return `<g transform="scale(${SC})">${g}<g id="${id}-all"><g id="${id}-cuerpo">${c}</g></g></g>`;
+      /* regla 9: la nube y el confeti van en el escenario, fuera del cuerpo: quedan donde salieron mientras el pulpo se mueve */
+      let fx = `<g id="${id}-nube" opacity="0">${[[-11, -2, 10], [2, -7, 12], [13, 0, 9.5], [-3, 6, 10], [9, 9, 7], [-13, 9, 6.5]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#9d86df"/>`).join('')}`
+        + [[-11, -2, 8], [2, -7, 10], [13, 0, 7.5], [-3, 6, 8]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#b9a6ec"/>`).join('')
+        + [[-7, -7, 3], [5, -12, 2.3], [15, -4, 1.6]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" opacity=".5"/>`).join('')
+        + [[-8, 3], [6, 1], [0, -3], [11, 7], [-3, 10], [-14, 5], [4, -10]].map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="1.5" fill="${P_COL[i]}"/>`).join('') + `</g>`;
+      fx += `<g id="${id}-tin">${[...Array(26)].map((_, i) => i % 3 ? `<circle r="${n3(1.5 + (i % 4) * .25)}" fill="${P_COL[i % P_COL.length]}"/>` : `<rect x="-1.8" y="-1" width="3.6" height="2" rx=".5" fill="${P_COL[i % P_COL.length]}"/>`).join('')}</g>`;
+      return `<g transform="scale(${SC})">${g}<g id="${id}-all"><g id="${id}-cuerpo">${c}</g></g><g id="${id}-fx">${fx}</g></g>`;
     };
     const refs = el => { const q = s => el.querySelector('#' + id + '-' + s);
       return { quiz: patronPulpo(k, false), base: patronPulpo(k, false), sh: q('sh'), cuerpo: q('cuerpo'), man: q('man'), tras: q('tras'), frente: q('frente'), qm: q('q'), nube: q('nube'), tin: [...q('tin').children],
@@ -795,7 +816,8 @@
       const baseY = -(Q.L * (1 - p.posa * .2)) - fl - 2 + p.y;
       const resp = Math.sin(t * 2 * Math.PI / 3.4 + .6), ap = p.aprieta;
       sa(R.man, 'transform', `scale(${n3((1 + resp * .02 * vivo) * (1 + ap * .08))} ${n3((1 - resp * .015 * vivo) * (1 - ap * .12))})`);
-      sa(R.cuerpo, 'transform', `translate(0 ${n3(baseY)}) scale(${n3(p.sx * (1 - p.esconde * .25))} ${n3(p.sy * (1 - p.esconde * .25))}) translate(0 ${n3(p.esconde * 9)})`);
+      const balanceo = p.posa * p.paso * Math.sin(t * 7) * 4; /* al caminar se mece de lado a lado */
+      sa(R.cuerpo, 'transform', `translate(0 ${n3(baseY - p.esconde * 7 - Math.abs(Math.sin(t * 7)) * p.posa * p.paso * 1.2)}) rotate(${n3(balanceo)} 0 -14) scale(${n3(p.sx * (1 - p.esconde * .42))} ${n3(p.sy * (1 - p.esconde * .42))})`);
       const Lb = Q.L;
       for (let i = 0; i < N; i++) {
         const mano = i === 0 || i === N - 1, s = i === 0 ? -1 : 1, j = i - 1, x0 = mano ? s * 15.6 : xb(j), dir = mano ? s : x0 < -.1 ? -1 : x0 > .1 ? 1 : (j % 2 ? 1 : -1);
@@ -806,10 +828,14 @@
         let A0, B1, C1, D;
         if (mano) { A0 = [s * 15.2, -6]; B1 = [s * 23, -2 + wv(0) * .3]; C1 = [s * 30 + wv(.6), -6]; D = [s * 26.5 + wv(1.2) * 1.2, -13 + wv(1.2) * .6]; }
         else { A0 = [xr * .96, -1]; B1 = [xr - dir * .5 + wv(0) * .4, Lb * .9]; C1 = [xr + dir * 7 + wv(.6) * 1.1, Lb * 1.15]; D = [xr + dir * 6.5 + wv(1.2) * 1.5, Lb * .78]; }
-        if (p.junta) { const jx = x0 * .3; B1 = [lerp(B1[0], x0 * .6, p.junta), lerp(B1[1], Lb * .8, p.junta)]; C1 = [lerp(C1[0], jx, p.junta), lerp(C1[1], Lb * 1.3, p.junta)]; D = [lerp(D[0], jx * .9, p.junta), lerp(D[1], Lb * 1.6, p.junta)]; if (mano) A0 = [lerp(A0[0], s * 13, p.junta), lerp(A0[1], -1, p.junta)]; }
+        if (p.junta) { /* se juntan hacia abajo en curva de S, con la ola todavía viva (rectos parecían medusa) */
+          B1 = [lerp(B1[0], x0 * .7, p.junta), lerp(B1[1], Lb * .7, p.junta)]; C1 = [lerp(C1[0], x0 * .42 + wv(.6), p.junta), lerp(C1[1], Lb * 1.28, p.junta)];
+          D = [lerp(D[0], x0 * .5 + dir * 5.5 + wv(1.2) * 1.2, p.junta), lerp(D[1], Lb * 1.18, p.junta)]; /* la punta se enrolla hacia afuera */ if (mano) A0 = [lerp(A0[0], s * 13, p.junta), lerp(A0[1], -1, p.junta)]; }
         if (p.abre) { B1 = [lerp(B1[0], x0 * 1.3 + dir * 4, p.abre), lerp(B1[1], Lb * .5, p.abre)]; C1 = [lerp(C1[0], x0 * 1.4 + dir * 10, p.abre), lerp(C1[1], Lb * .7, p.abre)]; D = [lerp(D[0], x0 * 1.45 + dir * 12, p.abre), lerp(D[1], Lb * 1.05, p.abre)]; }
         if (hel) { A0 = [lerp(A0[0], xr * .9, hel), lerp(A0[1], -1, hel)]; B1 = [lerp(B1[0], xr + sal * 5, hel), lerp(B1[1], Lb * .55, hel)]; C1 = [lerp(C1[0], xr + sal * 11, hel), lerp(C1[1], Lb * .65, hel)]; D = [lerp(D[0], xr + sal * 15, hel), lerp(D[1], Lb * .45, hel)]; }
-        if (p.posa && !mano) { D = [lerp(D[0], x0 * 1.5 + dir * 6 + Math.sin(t * 6 + i) * 1.5 * p.paso, p.posa), lerp(D[1], Lb * .98, p.posa)]; C1 = [lerp(C1[0], x0 * 1.3 + dir * 3, p.posa), lerp(C1[1], Lb * .85 - Math.max(0, Math.sin(t * 6 + i)) * 2.5 * p.paso, p.posa)]; }
+        if (p.posa && !mano) { /* camina con los brazos de a uno: pares e impares se alternan, el que da el paso se levanta */
+          const fase = t * 7 + (j % 2) * Math.PI, alza = Math.max(0, Math.sin(fase)) * p.paso, avance = Math.cos(fase) * p.paso;
+          D = [lerp(D[0], x0 * 1.5 + dir * 6 + avance * 2.2, p.posa), lerp(D[1], Lb * .98 - alza * 4, p.posa)]; C1 = [lerp(C1[0], x0 * 1.3 + dir * 3, p.posa), lerp(C1[1], Lb * .85 - alza * 3.5, p.posa)]; }
         if (mano) { const mv = clamp(i ? p.manoD : p.manoI, 0, 1) * (1 - hel) * (1 - p.junta);
           if (mv > 0) { const ps = Math.round(i ? p.poseD : p.poseI), P0 = MANO[ps] || MANO[0], w2 = P0.w === 1 ? Math.sin(t * 11) * 3.5 : P0.w === 2 ? -Math.abs(Math.sin(t * 7)) * 3.5 : 0;
             B1 = [lerp(B1[0], s * P0.c1[0], mv), lerp(B1[1], P0.c1[1], mv)]; C1 = [lerp(C1[0], s * P0.c2[0], mv), lerp(C1[1], P0.c2[1], mv)]; D = [lerp(D[0], s * (P0.t[0] + w2), mv), lerp(D[1], P0.t[1], mv)]; } }
@@ -829,8 +855,18 @@
       const ojo = Math.max(.08, p.ojos);
       R.o.forEach(o => sa(o, 'transform', `translate(${n3(p.mira * 1.1)} 0) scale(1 ${n3(ojo)})`));
       sa(R.bo, 'opacity', n3(clamp((p.boca - .1) * 1.6, 0, 1))); sa(R.bo, 'transform', `scale(1 ${n3(.4 + .6 * clamp(p.boca, 0, 1))})`); sa(R.bc, 'opacity', n3(1 - clamp(p.boca * 2, 0, 1)));
-      R.tin.forEach((c, i) => { const a = i / R.tin.length * Math.PI * 2 + .3, d = p.tinta * (14 + (i % 3) * 5); sa(c, 'cx', n3(Math.cos(a) * d)); sa(c, 'cy', n3(4 + Math.sin(a) * d * .8 + p.tinta * 6)); sa(c, 'opacity', n3(p.tinta > 0 && p.tinta < 1 ? 1 - p.tinta * .8 : 0)); });
-      sa(R.nube, 'opacity', n3(p.nube)); sa(R.nube, 'transform', `translate(0 ${n3(Q.L * .5)}) scale(${n3(.6 + .4 * p.nube)})`);
+      /* confeti: sale de donde estaba el pulpo al soltarlo y cae girando ≈ 1,2 s (la cría lo esparce alrededor; las demás, hacia abajo) */
+      if (p.tinta > 0 && !(R.tintaAntes > 0)) R.tO = [0, baseY + (k === 1 ? -14 : Q.L * .9)]; /* las demás la sueltan entre los brazos */
+      R.tintaAntes = p.tinta;
+      const tau = p.tinta * 1.2, nT = R.tin.length;
+      R.tin.forEach((c, i) => { if (!(p.tinta > 0 && p.tinta < 1)) { sa(c, 'opacity', '0'); return; }
+        const a = k === 1 ? i / nT * Math.PI * 2 + .2 : Math.PI * (-.05 + 1.1 * ((i * 7) % nT) / nT), sp = (k === 1 ? 20 : 14) + ((i * 5) % 7) * (k === 1 ? 3.2 : 2.4);
+        const x = R.tO[0] + Math.cos(a) * sp * tau, y = R.tO[1] + Math.sin(a) * sp * tau * (k === 1 ? .8 : .7) + (k === 1 ? 26 : 16) * tau * tau, giro = (i % 2 ? 1 : -1) * (200 + i * 23) * tau;
+        sa(c, 'transform', `translate(${n3(x)} ${n3(y)}) rotate(${n3(giro)})`); sa(c, 'opacity', n3(p.tinta < .75 ? 1 : (1 - p.tinta) / .25)); });
+      /* nube de tinta (cría): mancha que se queda donde salió y se esparce mientras se desvanece */
+      if (p.nube > 0 && !(R.nubeAntes > 0)) { R.nO = [0, baseY - 15]; R.nT = t; }
+      R.nubeAntes = p.nube;
+      sa(R.nube, 'opacity', n3(p.nube * .92)); if (p.nube > 0) sa(R.nube, 'transform', `translate(${n3(R.nO[0])} ${n3(R.nO[1])}) scale(${n3(.7 + .5 * (1 - Math.exp(-(t - R.nT) / .5)))})`);
       sa(R.sh, 'transform', `scale(${n3((1 - Math.min(.5, (fl - p.y) / 40)) * (1 + hel * .3))} 1)`);
     };
     return { build, refs, update };
@@ -845,30 +881,38 @@
       camina: m => m.hacer([[0, { posa: 1 }, 650, 'suave'], [650, { paso: 1 }, 200], [2400, { paso: 0 }, 200], [2500, { posa: 0 }, 700, 'suave']]), /* baja, camina y vuelve a flotar */
       bosteza: m => m.hacer([[0, { ojos: 0, boca: 1, aprieta: -.3 }, 600], [1200, { ojos: 1, boca: 0, aprieta: 0 }, 450]]),
       aplaude: m => m.hacer([[0, { manoD: 1, manoI: 1, poseD: 3, poseI: 3, boca: .8 }, 350], [1500, { manoD: 0, manoI: 0, boca: 0 }, 400]]),
-      gira: m => m.hacer([[0, { helice: .7 }, 350], [0, { rot: 360 }, 1300, 'suave'], [1300, { helice: 0 }, 350], [1700, { rot: 0 }, 1]]),
-    };
+    }; /* «gira» se quitó: se confundía con la hélice del toque (regla 11) */
     /* «¿Qué sigue?»: las luces se encienden de brazo en brazo, la mano sostiene el «?» mientras piensa, y al final se enciende y aplaude */
     const quiz = m => { const R = m.refs; R.quiz = patronPulpo(k, true); const ult = R.quiz.ult, enMano = ult === N - 1;
       const seq = [[0, { quiz: 1, enciende: -1, revela: 0 }, 1], [50, { enciende: ult - .5 }, ult * 330, 'lineal']];
       let f = 50 + ult * 330;
       seq.push([f, { pregunta: 1 }, 250], [f, enMano ? { manoD: 1, poseD: 5 } : {}, 400, 'sale'], [f + 200, { manoI: 1, poseI: 1, mira: -1 }, 400, 'sale']);
       f += 2000; /* piensa */
-      seq.push([f, { revela: 1, enciende: 99, manoI: 0, mira: 0 }, 300], [f + 200, enMano ? { manoD: 0 } : {}, 300], [f + 450, { manoD: 1, manoI: 1, poseD: 3, poseI: 3, boca: 1 }, 300]);
+      seq.push([f, { revela: 1, enciende: 99, manoI: 0, mira: 0 }, 300], [f + 200, enMano ? { manoD: 0 } : {}, 300], [f + 520, { poseD: 3, poseI: 3 }, 1], [f + 530, { manoD: 1, manoI: 1, boca: 1 }, 300]);
       f += 1900;
       seq.push([f, { manoD: 0, manoI: 0, boca: 0, pregunta: 0 }, 400], [f + 450, { quiz: 0, revela: 0 }, 1]);
       return m.hacer(seq); };
-    const lista = k === 1 ? [acc.ola, acc.saluda, acc.rasca, acc.timido, acc.camina, acc.bosteza, acc.aplaude] : [acc.ola, acc.saluda, acc.rasca, acc.timido, acc.camina, acc.bosteza, acc.aplaude, acc.gira];
+    const lista = [acc.ola, acc.saluda, acc.rasca, acc.timido, acc.camina, acc.bosteza, acc.aplaude];
     const acciones = lista.map(fn => m => { m.nQuiz = (m.nQuiz || 0) + 1; return m.nQuiz % 3 === 1 ? quiz(m) : fn(m); });
-    const chorro = (m, d) => m.hacer([[d, { aprieta: 1 }, 220], [d + 220, { tinta: 1, aprieta: -.25, junta: 1, y: k >= 3 ? -6 : -10 }, 450, 'sale'], [d + 680, { tinta: 0 }, 1],
-      [d + 700, { junta: 0, abre: 1, aprieta: 0 }, 380], [d + 900, { y: 0 }, 1000, 'suave'], [d + 1700, { abre: 0 }, 450]]);
+    /* chorro: se aprieta, suelta la tinta (queda abajo y cae), sube disparado con los brazos juntos y baja planeando con todos abiertos y quietos */
+    const chorro = (m, d) => m.hacer([[d, { aprieta: 1 }, 220], [d + 220, { tinta: 1 }, 1200, 'lineal'], [d + 220, { aprieta: -.12, junta: 1, y: k >= 3 ? -8 : -11 }, 450, 'sale'],
+      [d + 700, { junta: 0, abre: 1, aprieta: 0, onda: .15 }, 380], [d + 900, { y: 0 }, 1000, 'suave'], [d + 1430, { tinta: 0 }, 1], [d + 1700, { abre: 0, onda: 1 }, 450]]);
     const helice = (m, d) => m.hacer([[d, { helice: 1 }, 300], [d, { rot: 720 }, 1600, 'suave'], [d + 200, { y: -7 }, 500, 'sale'], [d + 1100, { y: 0 }, 600, 'suave'], [d + 1500, { helice: 0 }, 400], [d + 1950, { rot: 0 }, 1]]);
-    const nubeTinta = (m, d) => m.hacer([[d, { aprieta: .6 }, 150], [d + 150, { tinta: 1 }, 650, 'sale'], [d + 150, { nube: 1, aprieta: 0 }, 260], [d + 250, { esconde: 1 }, 320], [d + 800, { tinta: 0 }, 1],
-      [d + 900, { mira: -1 }, 250], [d + 1300, { mira: 1 }, 300], [d + 1700, { mira: 0 }, 200], [d + 1900, { nube: 0 }, 450], [d + 1950, { esconde: 0 }, 420, 'rebote']]);
+    /* nube (cría): suelta la tinta, que se queda manchando la pantalla; SOLO el pulpo retrocede (se achica y sube), espía y vuelve */
+    const nubeTinta = (m, d) => m.hacer([[d, { aprieta: .6 }, 150], [d + 150, { tinta: 1 }, 1200, 'lineal'], [d + 150, { nube: 1, aprieta: 0 }, 220], [d + 250, { esconde: 1 }, 450, 'sale'],
+      [d + 950, { mira: -1 }, 250], [d + 1350, { mira: 1 }, 300], [d + 1750, { mira: 0 }, 200], [d + 1150, { nube: 0 }, 1400, 'lineal'], [d + 1360, { tinta: 0 }, 1], [d + 1950, { esconde: 0 }, 600, 'rebote']]);
     return {
       fondo: (t, modo, p) => { p.t = t; p.vivo = modo === 'vida' ? 1 : 0; return {}; },
-      acciones,
+      acciones, prueba: { ...acc, quiz }, /* prueba: cada acción por nombre, para analizar-gestos.js */
       gesto: k === 1 ? nubeTinta : (m, d) => { m.nGesto = (m.nGesto || 0) + 1; return m.nGesto % 2 ? chorro(m, d) : helice(m, d); },
-      salto: (m, d) => m.hacer([[d, { sy: .86, sx: 1.08 }, 140], [d + 140, { y: -12, sy: 1.08, sx: .94, junta: .4 }, 240, 'sale'], [d + 380, { y: 0, sy: 1, sx: 1, junta: 0 }, 420, 'suave']]),
+      /* salto: con las dos manos arriba (¡yupi!), sin juntar los brazos, para no parecerse al chorro (regla 11);
+         si las manos venían arriba, primero bajan (220 ms) y después cambian de pose */
+      salto: (m, d) => { const dm = m.v.manoD > .05 || m.v.manoI > .05 ? 240 : 0;
+        return m.hacer([[d, { sy: .86, sx: 1.08 }, 140], [d + dm, { poseD: 6, poseI: 6 }, 1], [d + 140, { y: -12, sy: 1.08, sx: .94 }, 240, 'sale'], [d + Math.max(140, dm + 10), { manoD: 1, manoI: 1, boca: .7 }, 240, 'sale'],
+          [d + 380, { y: 0, sy: 1, sx: 1 }, 420, 'suave'], [d + 560, { manoD: 0, manoI: 0, boca: 0 }, 300]]); },
+      selector: ['poseD', 'poseI'],
+      /* al tocar: lo que no se puede «devolver» suave (patrón del juego, ola de color, vueltas) se acomoda al instante */
+      reposo: m => { const v = m.v; if (v.revela > .5) v.pregunta = 0; /* el «?» que ya se encendió no vuelve a aparecer; el que estaba a la vista se desvanece */ v.quiz = 0; v.enciende = 99; v.revela = 0; v.olaColor = -9; v.rot = ((v.rot % 360) + 540) % 360 - 180; },
     };
   };
   const P_SPEC = { 1: P_SPEC_BASE(1), 2: P_SPEC_BASE(2), 3: P_SPEC_BASE(3), 4: P_SPEC_BASE(4) };
