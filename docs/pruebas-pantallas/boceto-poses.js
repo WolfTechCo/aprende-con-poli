@@ -735,10 +735,10 @@
     const Q = P_ST[k], n = Q.n, mezcla = a => a.slice().sort(() => Math.random() - .5), col = azar ? mezcla(P_COL) : ['#ffd23c', '#5fb0ff', '#7fd650', '#ff4d64'];
     const tipo = k === 1 ? 'AB' : k === 2 ? (azar && Math.random() < .35 ? 'AB' : 'ABC') : k === 3 ? 'fig' : (azar ? ['crece', 'crece', 'ABC', 'fig'][Math.floor(Math.random() * 4)] : 'crece');
     const it = [];
-    if (tipo === 'crece') { const c = col[0]; for (let i = 0; i < n; i++) it.push(i < Q.luces ? { c, f: 'o', q: i + 1 } : { c: null }); }
+    if (tipo === 'crece') { for (let i = 0; i < n; i++) it.push({ c: azar ? col[0] : P_COL[i % P_COL.length], f: 'o', q: (i % Q.luces) + 1 }); } /* 1, 2, 3, 4, 1, 2, 3, 4: en todos los brazos (en reposo, arcoíris) */
     else if (tipo === 'fig') { const fs = azar ? mezcla(['o', 't', 'c', 'e']).slice(0, Math.random() < .5 ? 2 : 3) : ['o', 't']; for (let i = 0; i < n; i++) it.push({ c: col[i % fs.length], f: fs[i % fs.length], q: Q.luces }); }
     else { const m = tipo === 'AB' ? 2 : 3; for (let i = 0; i < n; i++) it.push({ c: col[i % m], f: 'o', q: Q.luces }); }
-    const ult = tipo === 'crece' ? Q.luces - 1 : n - 1; /* el brazo del «?» */
+    const ult = tipo === 'crece' && Math.random() < .5 ? Q.luces + Math.floor(Math.random() * (n - Q.luces - 1)) : n - 1; /* el brazo del «?»: al final o, en el que crece, a veces antes */
     return { tipo, it, ult };
   };
   const P_BASE = { ojos: 1, mira: 0, boca: 0, y: 0, sx: 1, sy: 1, aprieta: 0, junta: 0, abre: 0, helice: 0, rot: 0, tinta: 0, nube: 0, esconde: 0,
@@ -749,8 +749,8 @@
     { t: [27, -27], c1: [25, -1], c2: [33, -16], w: 1 }, /* 0 saluda (se mueve de lado a lado) */
     { t: [13, -30], c1: [25, -2], c2: [29, -26] }, /* 1 se rasca la cabeza pensando */
     { t: [33, 5], c1: [23, -3], c2: [30, 2] }, /* 2 señala hacia el lado */
-    { t: [6.5, 5], c1: [24, 3], c2: [16, 10], w: 2 }, /* 3 aplaude adelante, bajo la boca */
-    { t: [6, -10], c1: [24, -1], c2: [16, -4] }, /* 4 se tapa los ojos */
+    { t: [5, 5], c1: [22, 0], c2: [19, 11], w: 2 }, /* 3 aplaude adelante, bajo la boca (curva redonda, sin quiebre) */
+    { t: [7, -12], c1: [23, -6], c2: [20, -21] }, /* 4 se tapa los ojos: sube por el lado y baja en curva sobre el ojo */
     { t: [26, -26], c1: [25, -1], c2: [32, -16] }, /* 5 sostiene el «?» en alto */
     { t: [22, -35], c1: [25, -4], c2: [31, -24] }, /* 6 ¡yupi! (las dos arriba, en el salto) */
   ];
@@ -845,8 +845,15 @@
         sa(b.f, 'd', df); sa(b.s, 'd', dl);
         /* luces de las ventosas: el patrón del rato (o el de la etapa), la ola de color y el «?» */
         const it = (p.quiz > .5 ? qz : ins).it[i], esQ = p.quiz > .5 && i === qz.ult && p.revela < .5;
-        b.l.forEach((L, jj) => { const tt = .3 + jj * (.48 / Math.max(1, Q.luces - 1)), pt = cub3(A0, B1, C1, D, Math.min(.82, tt));
-          const vis = it.c && jj < it.q && !esQ && (p.quiz < .5 || i <= p.enciende) ? 1 : 0, ola = Math.max(0, 1 - Math.abs(p.olaColor - i - jj * .3)), r = (1.7 - jj * .12) * sc * (1 + ola * .35);
+        /* las luces se reparten parejas por el LARGO del brazo (no por la curva), así no se amontonan cuando se enrolla,
+           y su tamaño no pasa del ancho del brazo en ese punto */
+        const K = 16, pts = [], acum = [0]; for (let q = 0; q <= K; q++) pts.push(cub3(A0, B1, C1, D, q / K));
+        for (let q = 1; q <= K; q++) acum.push(acum[q - 1] + Math.hypot(pts[q][0] - pts[q - 1][0], pts[q][1] - pts[q - 1][1]));
+        const enLargo = f => { const meta = f * acum[K]; let q = 1; while (q < K && acum[q] < meta) q++; const u = (meta - acum[q - 1]) / Math.max(.001, acum[q] - acum[q - 1]);
+          return [lerp(pts[q - 1][0], pts[q][0], u), lerp(pts[q - 1][1], pts[q][1], u), (q - 1 + u) / K]; };
+        const w0 = (mano ? ANCHO * .9 : ANCHO) * sc;
+        b.l.forEach((L, jj) => { const [px, py, tt] = enLargo(.24 + (jj + .5) * (.68 / Q.luces)), pt = [px, py];
+          const vis = it.c && jj < it.q && !esQ && (p.quiz < .5 || i <= p.enciende) ? 1 : 0, ola = Math.max(0, 1 - Math.abs(p.olaColor - i - jj * .3)), r = Math.min((1.7 - jj * .12) * sc, w0 * (1 - tt * .45) * .82) * (1 + ola * .35);
           const f = it.f || 'o'; if (L._f !== f + r.toFixed(2)) { L._f = f + r.toFixed(2); L.setAttribute('d', FIG[f](r)); }
           sa(L, 'fill', it.c || '#fff'); sa(L, 'opacity', n3(vis ? (.8 + .2 * Math.sin(t * 3 + i + jj) * vivo + ola * .2) : 0)); sa(L, 'transform', `translate(${n3(pt[0])} ${n3(pt[1])})`); });
         if (p.quiz > .5 && i === qz.ult) { const pt = qz.ult === N - 1 ? D : cub3(A0, B1, C1, D, .6); sa(R.qm, 'transform', `translate(${n3(pt[0] + (qz.ult === N - 1 ? 1.5 : 0))} ${n3(pt[1] - (qz.ult === N - 1 ? 5 : -1) - Math.sin(t * 5) * .8)}) scale(${n3(1 - p.revela * .9)})`); }
