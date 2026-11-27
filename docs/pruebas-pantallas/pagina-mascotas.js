@@ -81,16 +81,12 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" id="defs"></svg>
 <div class="wrap">
 <header>
-  <span class="eyebrow">Entrega 4A · Dibujos · Parte 1 de 5 · 24-11-2026 · elegida: tanda C</span>
+  <span class="eyebrow">Entrega 4A · Dibujos · Parte 1 · cerrada el 27-11-2026</span>
   <h1>Las mascotas de Poli</h1>
-  <p class="lead"><b>Elegiste la tanda C.</b> Quedan las tres para comparar. La <b>tanda C</b> parte de la A, que es la que más te gustó, con los mismos animales redonditos, y les suma una <b>postura que evoluciona</b>: se paran, levantan los brazos, vuelan. Además, ninguna cabeza es un círculo. La <b>tanda A</b> es la primera y la <b>tanda B</b> cambia la forma completa. Toca una mascota para que salte y toca las etapas para verla crecer.</p>
+  <p class="lead">Las cinco mascotas ya tienen <b>vida propia</b>: se mueven como su animal, a ratos hacen <b>su idea del contenido</b> (cuentan lados, dicen qué figura son, suman, juegan a «¿Qué sigue?» o multiplican) y, al tocarlas, hacen <b>sus gestos</b>. Aprenden más al crecer: elige una etapa y mira «Sabe hacer». Tócalas cuantas veces quieras.</p>
   <div class="row" id="tanda" role="group" aria-label="Tanda"><button class="btn" data-t="C" aria-pressed="true">Tanda C · elegida ✓</button><button class="btn ghost" data-t="A" aria-pressed="false">Tanda A · la primera</button><button class="btn ghost" data-t="B" aria-pressed="false">Tanda B · cambian de forma</button></div>
   <div class="row" id="modo" role="group" aria-label="Momento"><button class="btn" data-m="vida" aria-pressed="true">Con vida · mapa y premios</button><button class="btn ghost" data-m="quieta" aria-pressed="false">Tranquila · durante una pregunta</button></div>
-  <p class="note"><b>Nuevo: vida propia.</b> Con vida, cada mascota se mueve como su animal y suelta partículas de su tema. Al tocarla, mezcla el <b>salto</b> (igual en todas) con su <b>gesto propio</b>: la tortuga se esconde, el búho gira la cabeza, el ciempiés hace la ola, el pulpo suelta tinta de confeti y la chinita vuela. Durante una pregunta solo respira y parpadea.</p>
-  <p class="note"><b>27-11 · Pulpatrón ajustado:</b> tócalo a mitad de cualquier cosa o muchas veces seguidas: ya nada queda pegado ni se corta de golpe. La tinta y el confeti se quedan en la pantalla, el salto lleva las manos arriba y cada movimiento se distingue del otro.</p>
-  <p class="note"><b>27-11 · Revisión de forma de las cuatro:</b> en las etapas grandes ya nada se sale del cuadro al saltar o bailar (Tortugono, Cubúho, Cienpiecito y Pulpatrón saltan un poco más bajo y los más altos se achicaron un poco), y las manos de Pulpatrón ya no se alargan de más.</p>
-  <p class="note"><b>27-11 · Nueva: Chinitabla con vida.</b> Tócala o espera a que multiplique con sus pintas.</p>
-  <p class="note"><b>27-11 · Las cinco al día:</b> cada una tiene su idea del contenido y al menos 2 gestos al tocarla, y aprende más al crecer (mira «Sabe hacer» bajo cada etapa). Tortugono cuenta lados, rema y toma sol; Cubúho dice qué figura es cada parte, cuenta vértices de brillante y se infla.</p>
+  <p class="note">Las tandas A y B quedan solo como referencia (la elegida fue la C, con los cambios de la fase de poses). Durante una pregunta solo respiran y parpadean.</p>
 </header>
 
 <section>
@@ -121,18 +117,18 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
 </section>
 
 <section>
-  <h2>Para que decidas</h2>
+  <h2>Lo decidido y lo que viene</h2>
   <ol class="qs">
-    <li><b>Elegida: tanda C.</b> Cubúho cría ahora está dentro de la mitad de abajo de su huevo, con la pared de atrás y la cáscara de adelante.<small>Se construye así en la fase 4A-4.</small></li>
-    <li><b>Tortugono con cresta.</b> En la C, de grande le crecen placas sobre el caparazón con la figura de su etapa (pentágonos y, de brillante, octágonos dorados).<small>Recomiendo dejarla: cambia su silueta sin perder la tortuga.</small></li>
-    <li><b>Eclosión en 4 toques</b>: grieta, hoyito con un ojo que mira y una parte que asoma, la tapa que salta con la carita, y nace.<small>Funciona igual con cualquier tanda.</small></li>
-    <li><b>Huevos con el color y el dibujo de su mascota</b>, iguales en las tres tandas.<small>Antes de empezar el capítulo se ven sombreados.</small></li>
+    <li><b>Formato común de las cinco.</b> Su idea del contenido desde la cría, al menos 2 gestos al tocarla y lo que sabe repartido por etapa (la cría parte con lo básico y aprende al crecer).<small>Las cantidades pueden variar según el animal real.</small></li>
+    <li><b>Globito común.</b> El mismo en todas; cada una dice lo suyo en pocas palabras y lo matemático se muestra una sola vez (Cienpiecito lo muestra con su cuerpo; el «?» de Pulpatrón es su globito).<small>Es el globito de los mensajes de ayuda en la app.</small></li>
+    <li><b>Gestos como premio (para la parte 3).</b> Trucos especiales que se ganan sin que salgan a montones, la corona de las brillantes como uno de ellos, y la tarjeta de la mascota al estilo de los juegos de rol: la mascota moviéndose a un lado y, al otro, todo lo que sabe y lo que vendrá (se puede probar aunque tenga candado).</li>
+    <li><b>Elegir la forma.</b> Idea de la dueña: que el niño elija con qué etapa lo acompaña su mascota, con lo aprendido y los gestos propios de esa forma.<small>Por decidir con la parte 3.</small></li>
   </ol>
   <div class="box w"><h3>Lo que viene</h3><ul>
-    <li><b>Parte 2:</b> la Llamita de fuego en sus 6 estados.</li>
-    <li><b>Parte 3:</b> sobres de cada isla, cajas, cofre y su apertura en 3 toques.</li>
+    <li><b>Parte 3:</b> sobres de cada isla, cajas, cofres y su apertura en 3 toques, con la escena del premio y los trucos.</li>
     <li><b>Parte 4:</b> logros con 4 niveles, mochila y aviso de Poli.</li>
     <li><b>Parte 5:</b> lo que traen los sobres: celebraciones, fondos del mapa y stickers.</li>
+    <li><b>Pendiente de las mascotas:</b> huevos y eclosión al día con los diseños finales, reacciones en el juego y probarlas a tamaño real dentro de la app.</li>
   </ul></div>
 </section>
 </div>
@@ -145,11 +141,11 @@ ${SRC}
   const VB = '-48 -64 96 72';
   let modo = 'vida'; let tanda = 'C'; const T = () => tanda === 'A' ? M : M[tanda];
   const HOW_C = {
-    tortugono: 'Su caparazón <b>suma lados</b> (triángulos, cuadrados, pentágonos y hexágono, octágonos dorados). Tiene cabeza con hocico; de grande estira el cuello y le crece una <b>cresta de placas</b> con la figura de su etapa.',
-    cubuho: 'El búho <b>cubo</b> de la tanda A: sale con su cascarón, le crecen plumas de <b>prisma</b>, orejas de <b>cono</b> y botones de <b>esfera</b>, y de brillante abre las alas.',
-    cienpiecito: 'Anillos con los colores de las lecciones (<b>unidades</b>, <b>decenas</b>, <b>centenas</b>) y cabeza de baldosa. De grande <b>se levanta y saluda</b>; de brillante, Milpiés suma el anillo de los miles.',
-    pulpatron: 'El pulpo de la tanda A, con su <b>patrón</b> AB, ABC y uno que crece. De grande <b>levanta dos tentáculos</b> con el patrón y de brillante <b>flota</b>.',
-    chinitabla: 'La chinita de la tanda A, con pintas en <b>grupos iguales</b> de 2, 5 y 10 y cabeza de casco. De joven saluda, de grande <b>se para</b> y de brillante <b>vuela</b>.',
+    tortugono: 'Su caparazón <b>suma lados</b>: triángulos, cuadrados, pentágonos con un hexágono y, de brillante, octágonos dorados. A ratos <b>cuenta los lados</b>: una pieza brilla, sus lados se marcan uno por uno y dice su figura (¡Hexágono: 6 lados!). De grande también toma sol. Tócala: se esconde en el caparazón o, de grande, rema como si nadara.',
+    cubuho: 'Su cuerpo es un <b>cubo</b>. Al crecer le salen plumas de <b>prisma</b>, orejitas de <b>cono</b>, patas de <b>cilindro</b> y botones de <b>esfera</b>. A ratos juega a <b>«¿Qué figura soy?»</b>: un marco señala una parte y dice su figura; la brillante también cuenta los <b>8 vértices</b> de su cubo. Tócalo: gira la cabeza completa o, de grande, se infla.',
+    cienpiecito: 'Un anillo por cifra con los colores de las lecciones: <b>unidades</b> verdes, <b>decenas</b> naranjas, <b>centenas</b> azules. De brillante se llama <b>Milpiés</b> y suma los miles. A ratos <b>cuenta y suma</b>: sus anillos toman el color de cada cifra, muestran a + b con sus letras y su número, y el resultado «= c» sale de la cabeza y recorre el cuerpo hasta la cola (los anillos que sobran quedan grises). La suma se intercala con sus otros movimientos (cría del 1 al 9, joven hasta 99, grande hasta 999 y brillante hasta 1000). Tócalo: la cría se da vuelta patas arriba, la joven hace puente y la grande se hace bolita.',
+    pulpatron: 'Flota como el pulpo dumbo y sus brazos son manos. A ratos juega a <b>«¿Qué sigue?»</b>: las luces de sus ventosas forman un patrón (cría colores AB, joven ABC, grande figuras, brillante uno que crece), sostiene el «?» pensando y lo enciende. Tócalo: la cría suelta una nube de tinta con confeti que se queda en la pantalla mientras ella retrocede y espía; las demás se impulsan a chorro y bajan planeando, o giran como hélice. Si lo tocas a mitad de algo, lo termina suave; si lo tocas muchas veces seguidas, hace un gesto a la vez.',
+    chinitabla: 'Chinita de verdad, en sus 6 patitas: camina en trípode (3 patas a la vez), se limpia la antena, saluda y abre un poquito las tapas. A ratos <b>multiplica</b>: agacha la cabecita y sus pintas de colores forman <b>filas iguales</b>; cuenta fila por fila de a saltos (4, 8, 12) y muestra la multiplicación (3 × 4 = 12). La cría usa la tabla del 2, la joven la del 5 y la grande y la brillante, la que salga. Tócala: se hace la muerta (a veces cae de lado y patalea tratando de pararse; otras se tiende con las 6 patas estiradas, como dormida, y se levanta despacio) y espía con un ojo, o vuela: primero abre las tapas, después despliega las alas transparentes, revolotea y aterriza.',
   };
   const HOW_B = {
     tortugono: 'Se para y cambia de figura: cabeza, panza y caparazón son <b>triángulo</b>, luego <b>cuadrado</b>, luego <b>pentágono y hexágono</b> y, de brillante, <b>octágono</b>.',
@@ -159,18 +155,18 @@ ${SRC}
     chinitabla: 'Bolita con pintas de <b>2</b>, caparazón de corazón con <b>5 y 5</b>, se para y abre el caparazón como capa con <b>10 y 10</b> y, de brillante, vuela.',
   };
   const HOW = {
-    tortugono: 'Su caparazón <b>suma lados</b>: triángulos, cuadrados, pentágonos con un hexágono y, de brillante, octágonos dorados. A ratos <b>cuenta los lados</b>: una pieza brilla, sus lados se marcan uno por uno y dice su figura (¡Hexágono: 6 lados!). De grande también toma sol. Tócala: se esconde en el caparazón o, de grande, rema como si nadara.',
-    cubuho: 'Su cuerpo es un <b>cubo</b>. Al crecer le salen plumas de <b>prisma</b>, orejitas de <b>cono</b>, patas de <b>cilindro</b> y botones de <b>esfera</b>. A ratos juega a <b>«¿Qué figura soy?»</b>: un marco señala una parte y dice su figura; la brillante también cuenta los <b>8 vértices</b> de su cubo. Tócalo: gira la cabeza completa o, de grande, se infla.',
+    tortugono: 'Su caparazón <b>suma lados</b>: triángulos, cuadrados, pentágonos con un hexágono y, de brillante, octágonos dorados.',
+    cubuho: 'Su cuerpo es un <b>cubo</b>. Al crecer le salen plumas de <b>prisma</b>, orejitas de <b>cono</b> y botones de <b>esfera</b>.',
     cienpiecito: 'Un anillo por cifra con los colores de las lecciones: <b>unidades</b> verdes, <b>decenas</b> naranjas, <b>centenas</b> azules. De brillante se llama <b>Milpiés</b> y suma los miles. A ratos <b>cuenta y suma</b>: sus anillos toman el color de cada cifra, muestran a + b con sus letras y su número, y el resultado «= c» sale de la cabeza y recorre el cuerpo hasta la cola (los anillos que sobran quedan grises). La suma se intercala con sus otros movimientos (cría del 1 al 9, joven hasta 99, grande hasta 999 y brillante hasta 1000). Tócalo: la cría se da vuelta patas arriba, la joven hace puente y la grande se hace bolita.',
-    pulpatron: 'Flota como el pulpo dumbo y sus brazos son manos. A ratos juega a <b>«¿Qué sigue?»</b>: las luces de sus ventosas forman un patrón (cría colores AB, joven ABC, grande figuras, brillante uno que crece), sostiene el «?» pensando y lo enciende. Tócalo: la cría suelta una nube de tinta con confeti que se queda en la pantalla mientras ella retrocede y espía; las demás se impulsan a chorro y bajan planeando, o giran como hélice. Si lo tocas a mitad de algo, lo termina suave; si lo tocas muchas veces seguidas, hace un gesto a la vez.',
-    chinitabla: 'Chinita de verdad, en sus 6 patitas: camina en trípode (3 patas a la vez), se limpia la antena, saluda y abre un poquito las tapas. A ratos <b>multiplica</b>: agacha la cabecita y sus pintas de colores forman <b>filas iguales</b>; cuenta fila por fila de a saltos (4, 8, 12) y muestra la multiplicación (3 × 4 = 12). La cría usa la tabla del 2, la joven la del 5 y la grande y la brillante, la que salga. Tócala: se hace la muerta (a veces cae de lado y patalea tratando de pararse; otras se tiende con las 6 patas estiradas, como dormida, y se levanta despacio) y espía con un ojo, o vuela: primero abre las tapas, después despliega las alas transparentes, revolotea y aterriza.',
+    pulpatron: 'Flota como el pulpo dumbo y sus brazos son manos. A ratos juega a <b>«¿Qué sigue?»</b>: las luces de sus ventosas forman un patrón (cría colores AB, joven ABC, grande figuras, brillante uno que crece), sostiene el «?» pensando y lo enciende. Tócalo: la cría suelta tinta de confeti y se esconde; las demás se impulsan a chorro o giran como hélice.',
+    chinitabla: 'Sus pintas van en <b>grupos iguales</b> en cada ala: de 2, de 5 y de 10.',
   };
   const pets = document.getElementById('pets');
   const draw = () => { pets.innerHTML = M.MASC.map(m => \`<article class="pet" data-id="\${m.id}"><div class="top"><h3>\${m.name}</h3><small>Capítulo \${m.ch} · \${m.cap}</small></div>
     <div class="scene" role="button" tabindex="0" aria-label="Tocar a \${m.name}"><svg viewBox="\${VB}"></svg></div><p class="cap"></p><p class="sabe"></p><p class="hint"></p>
-    <div class="strip">\${M.ETAPAS.map((t, k) => \`<button data-k="\${k}" aria-pressed="false"><svg viewBox="\${VB}">\${T().masc(m.id, k)}</svg>\${t}</button>\`).join('')}</div>
+    <div class="strip">\${M.ETAPAS.map((t, k) => \`<button data-k="\${k}" aria-pressed="false"><svg viewBox="\${VB}">\${k && tanda === 'C' && M.POSES.tiene(m.id) ? '<g class="fija" data-id="' + m.id + '" data-k="' + k + '"></g>' : T().masc(m.id, k)}</svg>\${t}</button>\`).join('')}</div>
     <p class="how">\${({ A: HOW, B: HOW_B, C: HOW_C })[tanda][m.id]}</p></article>\`).join('');
-    pets.querySelectorAll('.pet').forEach(c => show(c, 3)); drawSmall(); if (typeof drawH === 'function') drawH(); };
+    fija(pets); pets.querySelectorAll('.pet').forEach(c => show(c, 3)); drawSmall(); if (typeof drawH === 'function') drawH(); };
   const show = (card, k) => {
     const id = card.dataset.id, svg = card.querySelector('.scene svg');
     if (card.motor) { card.motor.parar(); card.motor = null; }
@@ -197,6 +193,9 @@ ${SRC}
   });
   pets.addEventListener('keydown', e => { const s = e.target.closest('.scene'); if (s && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); tocar(s.closest('.pet')); } });
 
+  /* dibujo quieto con el diseño final (el de poses) donde no hace falta movimiento */
+  const fija = root => root.querySelectorAll('g.fija').forEach(g => { const id = g.dataset.id, k = +g.dataset.k;
+    const m = tanda === 'C' && M.POSES.tiene(id) ? M.POSES.poner(g, id, k) : null; if (m) { m.setModo('quieta'); m.parar(); } else g.innerHTML = T().masc(id, k); });
   /* nacer */
   let hid = 'pulpatron', hk = 0;
   const hpick = document.getElementById('hpick'), hsvg = document.getElementById('hsvg');
@@ -204,7 +203,8 @@ ${SRC}
   var drawH = () => {
     hpick.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.id === hid));
     hsvg.innerHTML = hk < 4 ? \`<g transform="scale(1.15)" class="\${hk ? 'shake' : 'wob'}" style="transform-box:fill-box;transform-origin:50% 100%">\${M.huevo(hid, hk)}</g>\`
-      : \`<g class="pop">\${T().masc(hid, 1)}</g><text y="10.5" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="5" fill="#6a49f0">¡Nació \${M.nombre(hid, 1)}!</text>\`;
+      : \`<g class="pop"><g class="fija" data-id="\${hid}" data-k="1"></g></g><text y="10.5" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="5" fill="#6a49f0">¡Nació \${M.nombre(hid, 1)}!</text>\`;
+    fija(hsvg);
   };
   const tap = () => { hk = hk >= 4 ? 4 : hk + 1; drawH(); };
   hpick.addEventListener('click', e => { const b = e.target.closest('button'); if (b) { hid = b.dataset.id; hk = 0; drawH(); } });
@@ -216,10 +216,11 @@ ${SRC}
 
   /* tamaño real */
   function drawSmall() {
-  const small = (id, k, sombra) => \`<svg viewBox="-40 -60 80 66">\${T().masc(id, k, { sombra })}</svg>\`;
+  const small = (id, k, sombra) => \`<svg viewBox="-40 -60 80 66">\${k ? '<g class="fija" data-id="' + id + '" data-k="' + k + '"></g>' : T().masc(id, k, { sombra })}</svg>\`;
   document.getElementById('tabs').innerHTML = M.MASC.map((m, i) => \`<span class="tab">\${small(m.id, i === 4 ? 0 : [1, 2, 3, 4][i], i === 4)}\${m.ch} · \${i === 4 ? 'aún no empieza' : M.nombre(m.id, [1, 2, 3, 4][i])}</span>\`).join('');
   var poli = ${JSON.stringify(POLI)}.replace('<svg ', '<svg class="poli" ');
-  document.getElementById('franja').innerHTML = M.MASC.map((m, i) => \`<span style="display:flex;align-items:flex-end">\${poli}<svg viewBox="-40 -58 80 64">\${T().masc(m.id, [1, 2, 3, 3, 1][i])}</svg></span>\`).join('');
+  document.getElementById('franja').innerHTML = M.MASC.map((m, i) => \`<span style="display:flex;align-items:flex-end">\${poli}<svg viewBox="-40 -58 80 64"><g class="fija" data-id="\${m.id}" data-k="\${[1, 2, 3, 3, 1][i]}"></g></svg></span>\`).join('');
+  fija(document.getElementById('tabs')); fija(document.getElementById('franja'));
   }
   draw();
   document.getElementById('modo').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; modo = b.dataset.m; pets.querySelectorAll('.pet').forEach(c => c.motor && c.motor.setModo(modo)); document.querySelectorAll('#modo button').forEach(x => x.setAttribute('aria-pressed', x === b)); pets.querySelectorAll('.scene svg').forEach(v => v.classList.toggle('vida', modo === 'vida' && tanda === 'C')); });
