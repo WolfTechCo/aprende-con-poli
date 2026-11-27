@@ -114,7 +114,8 @@
      delantero del caparazón, que la tapa (no se achica ni hay hoyo fijo). La abertura oscura aparece solo cuando la
      cabeza ya está adentro, y ahí pueden brillar los ojitos. Se arma una vez y en cada cuadro solo se mueven las partes. */
   let nT = 0;
-  const T_BASE = { cuello: 1, cabRot: 0, cabY: 0, boca: 0, ojos: 1, patas: 0, andar: 0, capRot: 0, sx: 1, sy: 1, y: 0, mira: 0, asoma: 0 };
+  const T_BASE = { cuello: 1, cabRot: 0, cabY: 0, boca: 0, ojos: 1, patas: 0, andar: 0, capRot: 0, sx: 1, sy: 1, y: 0, mira: 0, asoma: 0, cuenta: 0, lado: 0, cartel: 0, rema: 0, sol: 0 };
+  const T_FIG = { 3: 'Triángulo', 4: 'Cuadrado', 5: 'Pentágono', 6: 'Hexágono', 8: 'Octágono' };
   const n3 = v => (Math.round(v * 1000) / 1000).toString();
   /* pone un atributo solo si cambió (reescribir sin necesidad hace que la animación se ponga lenta) */
   const sa = (el, k, v) => { if (!el) return; const c = el._c || (el._c = {}); if (c[k] === v) return; c[k] = v; el.setAttribute(k, v); };
@@ -142,13 +143,39 @@
       c += gel(P('M-26 -10Q-28.5 -37 -3 -38Q22.5 -37 20 -10Q-3 -7 -26 -10Z'), 'verde', 1.4);
       c += T.p.map(([x, y, r]) => gel(poly(x, y, r, T.n), tile, 1)).join('') + (T.c ? gel(poly(T.c[0], T.c[1], T.c[2], T.c[3]), tile, 1.1) : '');
       c += arc('M-21 -17Q-20 -29 -9 -33', 2.2, .75) + dot(-22, -12.5, 1);
+      /* «Cuenta los lados» (idea del contenido, 27-11): una pieza del caparazón se ilumina, crece y sus lados se marcan uno por uno */
+      c += `<g id="${id}-lz" opacity="0"><g id="${id}-lzs"><path id="${id}-lzp" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/>`
+        + [...Array(8)].map((_, i) => `<line id="${id}-lzl${i}" stroke="#ff4d64" stroke-width="1.6" stroke-linecap="round"/>`).join('')
+        + [...Array(8)].map((_, i) => `<circle id="${id}-lzv${i}" r=".9" fill="#fff" stroke="#ff4d64" stroke-width=".5"/>`).join('') + `</g>`
+        + `<g id="${id}-lzn"><circle r="3.6" fill="#fff" stroke="#ff4d64" stroke-width=".8"/><text id="${id}-lznt" y="2.3" text-anchor="middle" font-family="Arial Rounded MT Bold,Nunito,Arial,sans-serif" font-weight="900" font-size="6" fill="#d42645"></text></g></g>`;
+      c += `<g id="${id}-ct" opacity="0"><rect x="-30" y="-6" width="60" height="11" rx="5.5" fill="#fff" stroke="${PAL.verde[3]}" stroke-width=".9"/><text id="${id}-ctt" y="2.1" text-anchor="middle" font-family="Arial Rounded MT Bold,Nunito,Arial,sans-serif" font-weight="900" font-size="5.6" fill="#1f5e2c"></text></g>`;
       /* abertura: sombra que sigue el borde delantero, solo visible con la cabeza adentro */
       c += `<path id="${id}-ab" d="M20.8 -9.6Q24 -18.4 19.6 -27.4Q8.4 -18.6 20.8 -9.6Z" fill="#123a2e" stroke="${PAL.verde[3]}" stroke-width=".8" opacity="0"/>`;
       c += `<g id="${id}-as" opacity="0">${`<g transform="translate(17.2 -18.6) scale(${n3(fs)})"><g id="${id}-ao"><ellipse rx="2.3" ry="2.7" fill="url(#km-ojo)"/><circle cx=".8" cy="-1.1" r="1" fill="#fff"/><circle cx="-.7" cy="1.2" r=".45" fill="#fff"/></g></g>`}</g>`;
-      return `<g transform="scale(${SC})">${g}<g id="${id}-all"><g id="${id}-cap">${c}</g></g></g>`;
+      /* «Toma sol»: un solcito que aparece arriba */
+      const sol = `<g id="${id}-sol" opacity="0" transform="translate(41 -53) scale(.82)"><g id="${id}-solr">${[...Array(8)].map((_, i) => `<path d="M0 -7.4L0 -10" stroke="#ffb020" stroke-width="1.6" stroke-linecap="round" transform="rotate(${i * 45})"/>`).join('')}</g>${gel(C(0, 0, 5.4), 'amarillo', 1)}${arc('M-3 -1.4Q-2.6 -3.4 -.6 -3.8', 1, .8)}</g>`;
+      return `<g transform="scale(${SC})">${g}${sol}<g id="${id}-all"><g id="${id}-cap">${c}</g></g></g>`;
     };
-    const refs = el => { const q = s => el.querySelector('#' + id + '-' + s); return { sh: q('sh'), all: q('all'), cap: q('cap'), co: q('co'), p: [0, 1, 2].map(i => q('p' + i)), c1: q('c1'), c2: q('c2'), cab: q('cab'), cr: [0, 1, 2].map(i => q('cr' + i)), ab: q('ab'), as: q('as'), ao: q('ao'), o: [0, 1].map(i => q('o' + i)), bc: q('bc'), bo: q('bo') }; };
+    /* las piezas que puede contar: la de su etapa (cría triángulo, joven cuadrado, grande pentágono o hexágono, brillante octágono) */
+    const piezas = () => { const L = []; if (k === 1) L.push([...T.p[1], T.n]); else if (k === 2) L.push([...T.p[4] || T.p[0], T.n]); else { L.push([...T.p[0], T.n]); if (T.c) L.push([T.c[0], T.c[1], T.c[2], T.c[3]]); } return L; };
+    const vertices = ([cx, cy, r, n]) => { const a0 = Math.PI / 2 + Math.PI / n; return [...Array(n)].map((_, i) => [cx + r * Math.cos(a0 + i * 2 * Math.PI / n), cy + r * Math.sin(a0 + i * 2 * Math.PI / n)]); };
+    const refs = el => { const q = s => el.querySelector('#' + id + '-' + s); return { elige(i) { this.pz = piezas()[i % piezas().length]; this.vs = vertices(this.pz); }, piezas,
+      lz: q('lz'), lzs: q('lzs'), lzp: q('lzp'), lzl: [...Array(8)].map((_, i) => q('lzl' + i)), lzv: [...Array(8)].map((_, i) => q('lzv' + i)), lzn: q('lzn'), lznt: q('lznt'), ct: q('ct'), ctt: q('ctt'), sol: q('sol'), solr: q('solr'), sh: q('sh'), all: q('all'), cap: q('cap'), co: q('co'), p: [0, 1, 2].map(i => q('p' + i)), c1: q('c1'), c2: q('c2'), cab: q('cab'), cr: [0, 1, 2].map(i => q('cr' + i)), ab: q('ab'), as: q('as'), ao: q('ao'), o: [0, 1].map(i => q('o' + i)), bc: q('bc'), bo: q('bo') }; };
     const update = (r, p) => {
+      if (!r.pz) { r.pz = piezas()[piezas().length - 1]; r.vs = vertices(r.pz); }
+      /* cuenta los lados: la pieza crece desde su centro; cada lado se dibuja de a uno (lado 0 → n) */
+      const cu = clamp(p.cuenta, 0, 1), [pcx, pcy, , pn] = r.pz;
+      sa(r.lz, 'opacity', n3(cu)); sa(r.lzs, 'transform', `translate(${n3(pcx)} ${n3(pcy)}) scale(${n3(1 + cu * .35)}) translate(${n3(-pcx)} ${n3(-pcy)})`);
+      if (r._pz !== r.pz) { r._pz = r.pz; sa(r.lzp, 'd', 'M' + r.vs.map(v => v.map(n3).join(' ')).join('L') + 'Z'); sa(r.lzp, 'fill', k === 4 ? '#fff3b0' : '#fff6c8'); }
+      r.lzl.forEach((l, i) => { if (i >= pn) { sa(l, 'opacity', '0'); return; } const a = r.vs[i], b = r.vs[(i + 1) % pn], f = clamp(p.lado - i, 0, 1);
+        sa(l, 'x1', n3(a[0])); sa(l, 'y1', n3(a[1])); sa(l, 'x2', n3(a[0] + (b[0] - a[0]) * f)); sa(l, 'y2', n3(a[1] + (b[1] - a[1]) * f)); sa(l, 'opacity', f > 0 ? '1' : '0'); });
+      r.lzv.forEach((v, i) => { if (i >= pn) { sa(v, 'opacity', '0'); return; } sa(v, 'cx', n3(r.vs[i][0])); sa(v, 'cy', n3(r.vs[i][1])); sa(v, 'opacity', p.lado >= i ? '1' : '0'); });
+      const nro = Math.min(pn, Math.floor(p.lado + .001)); if (r.lznt.textContent !== String(nro)) r.lznt.textContent = nro ? String(nro) : '';
+      sa(r.lzn, 'transform', `translate(${n3(pcx)} ${n3(pcy - r.pz[2] * 1.35 - 4.5)})`); sa(r.lzn, 'opacity', nro ? '1' : '0');
+      const txt = `¡${T_FIG[pn]}: ${pn} lados!`; if (r.ctt.textContent !== txt) r.ctt.textContent = txt;
+      sa(r.ct, 'opacity', n3(p.cartel)); sa(r.ct, 'transform', `translate(-3 ${up ? -51 : -46}) scale(${n3(.8 + .2 * p.cartel)})`);
+      /* toma sol: el solcito aparece y gira despacio */
+      sa(r.sol, 'opacity', n3(p.sol)); sa(r.solr, 'transform', `rotate(${n3((p.t || 0) * 20)})`);
       const u = clamp(p.cuello, 0, 1.25);
       /* la cabeza se desliza en línea (con un leve arco) entre adentro y afuera */
       const hx = IN[0] + (O[0] - IN[0]) * u, hy = IN[1] + (O[1] - IN[1]) * u - Math.sin(Math.min(1, u) * Math.PI) * 1.5 + p.cabY;
@@ -160,7 +187,9 @@
       r.bo.setAttribute('opacity', n3(clamp((p.boca - .1) * 1.6, 0, 1))); r.bo.setAttribute('transform', `scale(1 ${n3(.4 + .6 * clamp(p.boca, 0, 1))})`);
       r.bc.setAttribute('opacity', n3(1 - clamp(p.boca * 2, 0, 1)));
       const ph = p.fase || 0;
-      r.p.forEach((g, i) => { const o = i === 1 ? Math.PI : 0, lift = p.andar * Math.max(0, Math.sin(ph + o)) * 2.6, sw = p.andar * Math.cos(ph + o) * 1.6;
+      const rf = (p.t || 0) * 11;
+      r.p.forEach((g, i) => { const o = i === 1 ? Math.PI : 0, lift = p.andar * Math.max(0, Math.sin(ph + o)) * 2.6 + p.rema * (3 + Math.sin(rf) * 2.4), sw = p.andar * Math.cos(ph + o) * 1.6 + p.rema * Math.cos(rf) * 5 + p.sol * (i - 1) * 3.2;
+        /* rema: las 3 patas a la vez, como nadando; toma sol: estiradas hacia los lados */
         g.setAttribute('transform', `translate(${n3(sw)} ${n3(-lift - p.patas * 7.5)})`); });
       if (r.co) r.co.setAttribute('transform', `translate(${n3(p.patas * 6)} 0)`);
       r.cr.forEach((g, i) => g && g.setAttribute('transform', `rotate(${n3(Math.sin((p.t || 0) * 2 + i) * 2 * (p.vivo || 0))} ${[-16, -4, 8][i]} ${[-30, -35, -30][i]})`));
@@ -169,7 +198,7 @@
       const meceo = p.andar * Math.sin(ph) * 2.4 + (p.vivo || 0) * Math.sin((p.t || 0) * 2 * Math.PI / 5.3) * .5, bote = -p.andar * Math.abs(Math.sin(ph)) * .6 + p.patas * 3.6;
       r.cap.setAttribute('transform', `translate(0 ${n3(bote)}) rotate(${n3(p.capRot + meceo)} -3 -2)`);
       const JY = [1, 1, 1, .7, .6][k]; /* las etapas grandes saltan más bajo: así no se salen del cuadro */
-      r.all.setAttribute('transform', `translate(0 ${n3(p.y * JY)}) scale(${n3(p.sx)} ${n3(p.sy)})`);
+      r.all.setAttribute('transform', `translate(0 ${n3(p.y * JY - p.rema * 3.5)}) scale(${n3(p.sx)} ${n3(p.sy)})`);
       r.sh.setAttribute('transform', `scale(${n3(1 - Math.min(.4, -p.y / 40))} 1)`);
     };
     return { build, refs, update };
@@ -206,7 +235,9 @@
      3D (5 caras con su contenido pegado, orejas y corona encima) proyectada igual que el dibujo del cubo de siempre.
      La cría vive dentro de su cascarón: el cascarón la tapa por abajo cuando se agacha (no se sale por el hoyo). */
   let nB = 0;
-  const B_BASE = { giroOjos: 0, miraX: 0, teta: 0, cabX: 0, cabY: 0, ladeo: 0, ojos: 1, guino: 1, alaI: 0, alaD: 0, aleteo: 0, orejas: 0, pasito: 0, sube: 0, casRot: 0, esponja: 0, sx: 1, sy: 1, y: 0 };
+  const B_BASE = { giroOjos: 0, miraX: 0, teta: 0, cabX: 0, cabY: 0, ladeo: 0, ojos: 1, guino: 1, alaI: 0, alaD: 0, aleteo: 0, orejas: 0, pasito: 0, sube: 0, casRot: 0, esponja: 0, sx: 1, sy: 1, y: 0, figura: 0, cartel: 0, vert: -1, parte: 0 };
+  /* «¿Qué figura soy?» (idea del contenido, 27-11): cada parte del cuerpo es una figura 3D */
+  const B_PARTES = { cubo: '¡Soy un cubo!', prisma: '¡Mis alas son prismas!', cono: '¡Mis orejas son conos!', cilindro: '¡Mis patas son cilindros!', esfera: '¡Mis botones son esferas!', vertices: '¡Un cubo tiene 8 vértices!' };
   /* pluma: hoja redondeada con nervio, mitad clara y mitad en sombra */
   const pluma = (x, y, r, l, col, an = 2.6) => { const c = PAL[col];
     return `<g transform="translate(${x} ${y}) rotate(${r})"><path d="M0 -.4C${an} .2 ${n3(an * .9)} ${n3(l * .7)} 0 ${l}C${n3(-an * .9)} ${n3(l * .7)} ${-an} .2 0 -.4Z" fill="${c[1]}" stroke="${c[3]}" stroke-width=".55" stroke-linejoin="round"/>`
@@ -333,7 +364,7 @@
       s += `<path d="M${p(W, SPLIT, 0)}L${p(W, SPLIT, D)}L${p(W, BOT, D)}L${p(W, BOT, 0)}Z" fill="${BC[2]}" stroke="${BC[3]}" stroke-width=".7" stroke-opacity=".45"/>`;
       s += `<rect x="${-W}" y="${SPLIT}" width="${2 * W}" height="${BOT - SPLIT + 1}" fill="url(#km-${body})"/></g><path d="${sil}" fill="none" stroke="${BC[3]}" stroke-width="1.4" stroke-linejoin="round"/>`;
       if (!cria) s += flat(E(0, n3((SPLIT + BOT) / 2 + .6), 9, n3((BOT - SPLIT) / 2 - .6)), BC[0], BC[2], .9) + [-3.4, 3.4].map(x => `<path d="M${x - 1.4} ${SPLIT + 2.6}L${x} ${SPLIT + 3.8}L${x + 1.4} ${SPLIT + 2.6}" fill="none" stroke="${BC[2]}" stroke-width=".8" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
-      if (k >= 3) s += [-4.5, 0, 4.5].map(x => gel(C(x, -3.2, 1.4), k === 4 ? 'rosa' : 'amarillo', .5) + dot(x - .5, -3.7, .4)).join('');
+      if (k >= 3) s += `<g id="${id}-bt">` + [-4.5, 0, 4.5].map(x => gel(C(x, -3.2, 1.4), k === 4 ? 'rosa' : 'amarillo', .5) + dot(x - .5, -3.7, .4)).join('') + '</g>';
       return s;
     };
     /* patas delante del cuerpo, asomando por debajo (no se pierden al crecer) */
@@ -341,8 +372,12 @@
     const cabeza = () => `<g id="${id}-cab"><clipPath id="${id}-hc"><path id="${id}-hcp"/></clipPath><path id="${id}-hs" fill="url(#km-${body})"/>`
       + `<g clip-path="url(#${id}-hc)">${CARAS.map(cuerpoCara).join('')}</g><path id="${id}-hs2" fill="none" stroke="${BC[3]}" stroke-width="1.4" stroke-linejoin="round"/>`
       + (k === 4 ? `<g id="${id}-co">${corona(0, 0, .86)}</g>` : '') + [0, 1].map(oreja).join('')
+      + `<g id="${id}-vx" opacity="0">${[...Array(8)].map((_, i) => `<g id="${id}-v${i}"><circle r="1.6" fill="#fff" stroke="#ff4d64" stroke-width=".7"/></g>`).join('')}<g id="${id}-vn"><circle r="3.8" fill="#fff" stroke="#ff4d64" stroke-width=".8"/><text id="${id}-vnt" y="2.3" text-anchor="middle" font-family="Arial Rounded MT Bold,Nunito,Arial,sans-serif" font-weight="900" font-size="6.2" fill="#d42645"></text></g></g>`
       + (cria ? `<g id="${id}-ri"><path d="M-2 -0.4Q-4 -6 .6 -6.4Q3.6 -6.4 2.6 -3.4" fill="none" stroke="${L[2]}" stroke-width="2" stroke-linecap="round"/></g>` : '')
       + '</g>';
+    /* marco que señala la parte y cartel con su figura */
+    const MARCO = () => `<rect id="${id}-mk" rx="3" fill="#fff" fill-opacity=".22" stroke="#fff" stroke-width="1.2" stroke-dasharray="2.4 1.4" opacity="0"/>`
+      + `<g id="${id}-ct" opacity="0"><rect x="-36" y="-6" width="72" height="11" rx="5.5" fill="#fff" stroke="${BC[3]}" stroke-width=".9"/><text id="${id}-ctt" y="2" text-anchor="middle" font-family="Arial Rounded MT Bold,Nunito,Arial,sans-serif" font-weight="900" font-size="5.2" fill="${BC[3]}"></text></g>`;
     const build = () => {
       const pre = k === 4 ? aura(-22, 38) + chispas([[-26, -36, 3], [31, -28, 2.6], [-22, -8, 2.2]]) : '';
       let g = '';
@@ -357,7 +392,7 @@
         g += `<path d="${fd}" fill="url(#${id}-cas)" stroke="${L[3]}" stroke-width="1.2" stroke-linejoin="round"/>`;
         g += [[-9, -4], [12, -5.2]].map(([x, y]) => `<g transform="translate(${x} ${y})"><path d="M-2.4 -.6L0 -2L2.4 -.6V2L0 3.2L-2.4 2Z" fill="${L[0]}" stroke="${L[3]}" stroke-width=".5"/><path d="M-2.4 -.6L0 .8L2.4 -.6M0 .8V3.2" fill="none" stroke="${L[3]}" stroke-width=".5"/></g>`).join('');
         g += arc(`M${cx - hw + 3} -6Q${cx - hw + 5} -1.6 ${cx - hw + 10} -.8`, 1.6, .8) + dot(cx + 3, -3, .8) + '</g>';
-        return `<g transform="scale(${SC})">${pre}<g id="${id}-sh">${piso(24, 3)}</g><g id="${id}-all">${g}</g></g>`;
+        return `<g transform="scale(${SC})">${pre}<g id="${id}-sh">${piso(24, 3)}</g><g id="${id}-all">${g}${MARCO()}</g></g>`;
       }
       const [gl, gb, gd] = BC;
       g += `<defs><radialGradient id="${id}-g" gradientUnits="userSpaceOnUse" cx="-7" cy="-27" r="40"><stop offset="0" stop-color="${gl}"/><stop offset=".5" stop-color="${gb}"/><stop offset="1" stop-color="${gd}"/></radialGradient>`
@@ -365,16 +400,20 @@
         + `<clipPath id="${id}-ru"><path d="M-80 -120H90V${n3(SPLIT - 1 - 7.6 - 60 * 7 / 9)}L${n3(W + 9.6)} ${n3(SPLIT - 1 - 7.6)}L${W - .4} ${n3(SPLIT - 1)}H-80Z"/></clipPath></defs>`;
       /* ala lejana: en el costado izquierdo (de espaldas a nosotros), detrás del cuerpo; asoma solo la punta de atrás */
       g += '';
-      g += cuerpo();
+      g += `<g id="${id}-cpo">${cuerpo()}</g>`;
       /* ala cercana: en el plano del costado derecho, pegada y hacia atrás */
       /* las dos alas delante de los costados: la izquierda enmarca el cuerpo; la derecha (de tres cuartos) va sobre el costado */
       g += `<g id="${id}-a0"><g transform="translate(${-W + .6} ${SPLIT + .6}) scale(-.95 1)"><g id="${id}-ai0">${alaPlegada()}</g></g></g>`;
       g += `<g id="${id}-a1"><g transform="translate(${W + 2.4} ${SPLIT - 1}) skewY(-22) scale(.92 1)"><g id="${id}-ai1">${alaPlegada()}</g></g></g>`;
       g += patas() + cabeza();
-      return `<g transform="scale(${SC})">${pre}<g id="${id}-sh">${piso(26, 2)}</g><g id="${id}-all">${g}</g></g>`;
+      return `<g transform="scale(${SC})">${pre}<g id="${id}-sh">${piso(26, 2)}</g><g id="${id}-all">${g}${MARCO()}</g></g>`;
     };
     const refs = el => { const q = s => el.querySelector('#' + id + '-' + s);
       return { sh: q('sh'), all: q('all'), cab: q('cab'), hcp: q('hcp'), hs: q('hs'), hs2: q('hs2'), ai: [q('ai0'), q('ai1')], filas: [q('ai0'), q('ai1')].map(a => a ? [...a.querySelectorAll('.fila')] : []), aristas: [...el.querySelectorAll('#' + id + '-cab .arista')], caras: CARAS.map(f => ({ f, g: q('c' + f.n), s: q('s' + f.n) })), o: [q('o0'), q('o1')], e: [q('e0'), q('e1')], ei: [q('ei0'), q('ei1')], ri: q('ri'), co: q('co'),
+        mk: q('mk'), ct: q('ct'), ctt: q('ctt'), vx: q('vx'), v: [...Array(8)].map((_, i) => q('v' + i)), vn: q('vn'), vnt: q('vnt'),
+        /* qué parte señala: según la etapa (la cría solo es cubo; la joven suma alas de prisma; la grande, orejas, patas y botones) */
+        partes: ['cubo', ...(k >= 2 ? ['prisma'] : []), ...(k >= 3 ? ['cono', 'cilindro', 'esfera'] : [])],
+        marca(parte) { this.parte = parte; this.mkEls = { cubo: cria ? [q('cu')] : [q('cab'), q('cpo')], prisma: [q('a1')], cono: [q('e1')], cilindro: [q('pi1')], esfera: [q('bt')], vertices: [q('cab')] }[parte].filter(Boolean); },
         a: [q('a0'), q('a1')], pi: [q('pi0'), q('pi1')], f: [q('f0'), q('f1')], cu: q('cu'), cs: q('cs') }; };
     const update = (r, p) => {
       const th = p.teta * Math.PI / 180, c = Math.cos(th), s = Math.sin(th), clave = n3(p.teta);
@@ -421,6 +460,19 @@
       r.f.forEach((f, i) => f && f.setAttribute('transform', `translate(${i ? 21 : -13} ${i ? -16 : -14}) rotate(${n3((i ? -1 : 1) * (Math.sin((p.t || 0) * 1.6) * 3 * (p.vivo || 0) + fl * .6))})`));
       r.pi.forEach((f, i) => f && f.setAttribute('transform', `translate(0 ${n3(-Math.max(0, Math.sin((p.t || 0) * 9 + i * Math.PI)) * 1.6 * p.pasito)})`));
       sa(r.cu, 'transform', `translate(0 ${n3(p.sube)})`);
+      /* ¿qué figura soy?: el marco rodea la parte (medida en pantalla y pasada al dibujo) y el cartel dice su figura */
+      const pi = p.vert >= 0 ? 'vertices' : r.partes[Math.round(clamp(p.parte, 0, r.partes.length - 1))]; if (r.parte !== pi) r.marca(pi); /* parte: qué figura señala (índice en partes) */
+      if (p.figura > .01 && r.mkEls.length && r.all.getScreenCTM) { const Mi = r.all.getScreenCTM().inverse(); let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+        r.mkEls.forEach(e => { const b = e.getBoundingClientRect(); [[b.left, b.top], [b.right, b.bottom]].forEach(([x, y]) => { const q = new DOMPoint(x, y).matrixTransform(Mi); x0 = Math.min(x0, q.x); y0 = Math.min(y0, q.y); x1 = Math.max(x1, q.x); y1 = Math.max(y1, q.y); }); });
+        const pd = 1.6; sa(r.mk, 'x', n3(x0 - pd)); sa(r.mk, 'y', n3(y0 - pd)); sa(r.mk, 'width', n3(x1 - x0 + 2 * pd)); sa(r.mk, 'height', n3(y1 - y0 + 2 * pd)); }
+      sa(r.mk, 'opacity', n3(clamp(p.figura, 0, 1) * (r.parte === 'vertices' ? 0 : 1)));
+      const txt = B_PARTES[r.parte]; if (r.ctt.textContent !== txt) r.ctt.textContent = txt;
+      sa(r.ct, 'opacity', n3(p.cartel)); sa(r.ct, 'transform', `translate(0 ${n3((cria ? -38 : TOP - (k === 4 ? 17 : 13)) + p.sube)}) scale(${n3((.8 + .2 * p.cartel) * (cria ? .85 : 1))})`);
+      /* vértices (brillante): un puntito por esquina de la cabeza-cubo, de a uno; el de atrás se ve tenue */
+      sa(r.vx, 'opacity', n3(p.vert >= 0 ? 1 : 0));
+      if (p.vert >= 0) { const V = []; [-W, W].forEach(x => [0, D].forEach(z => [TOP, BOT].forEach(y => V.push({ q: proj(x, y, z), atras: x < 0 && z > 0 && y === BOT })))); /* esquinas del cubo completo (cabeza y cuerpo) */ V.sort((a, b) => a.atras - b.atras);
+        r.v.forEach((g, i) => { const v = V[i], on = clamp(p.vert - i, 0, 1); sa(g, 'transform', `translate(${n3(v.q[0])} ${n3(v.q[1])}) scale(${n3(on * (1 + .4 * Math.max(0, 1 - Math.abs(p.vert - i - .5) * 2)))})`); sa(g, 'opacity', n3(v.atras ? .55 : 1)); });
+        const nro = Math.min(8, Math.floor(p.vert + .001)); if (r.vnt.textContent !== String(nro)) r.vnt.textContent = String(nro); sa(r.vn, 'transform', `translate(${n3(-W - 6)} ${n3(TOP + 2)})`); sa(r.vn, 'opacity', nro ? '1' : '0'); }
       sa(r.cs, 'transform', `rotate(${n3(p.casRot)} 3 0)`);
       const pu = 1 + p.esponja * .05;
       const JY = [1, 1, 1, .55, .45][k], JS = k >= 3 ? .5 : 1; /* las etapas grandes saltan más bajo y se estiran menos */
