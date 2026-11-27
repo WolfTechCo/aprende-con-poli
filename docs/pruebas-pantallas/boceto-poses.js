@@ -955,7 +955,7 @@
   /* cabeza: 0 durazno, 1 lila (para comparar con la dueña); [claro, base, sombra, contorno] */
   const CAB = [['#7a6c92', '#463a5e', '#2a2238', '#160f20'], ['#ffeedd', '#ffc999', '#e8935a', '#a3562a'], ['#efe6ff', '#b59cff', '#7f62e0', '#4f36a8']]; /* 0 oscura (elegida: como la chinita real), 1 durazno, 2 lila */
   const C_BASE = { ojos: 1, mira: 0, boca: 0, y: 0, sx: 1, sy: 1, abre: 0, alas: 0, aleteo: 0, paso: 0, muerta: 0, limpia: 0, saluda: 0,
-    grupos: 0, arreglo: 0, luz: -9, cartel: 0, igual: 1, guino: 1, tono: 0, agacha: 0, espia: 0, cae: 0, tendida: 0 };
+    grupos: 0, arreglo: 0, luz: -9, cartel: 0, igual: 1, guino: 1, tono: 0, agacha: 0, espia: 0, cae: 0, tendida: 0, patalea: 0 };
   /* las pintas: en reposo, juntas por tapa (opción A) y en filas × columnas (opción B); coordenadas del caparazón */
   const pintasC = (k, Q, top, H, borde) => { /* H: alto del caparazón que se ve sobre la cabeza; borde(y): medio ancho de la tapa a esa altura */
     const { W, n } = Q, Y = f => top + H * f, R = [], G = [], A = [], m = Q.r + 1.3, aden = (x, y) => Math.sign(x) * Math.min(Math.abs(x), Math.max(0, borde(y) - m)); /* que ninguna pinta se salga */
@@ -1060,7 +1060,9 @@
         /* limpia: la delantera izquierda sube a la antena; saluda: la delantera derecha se agita en alto */
         if (i === 0 && p.limpia) { fx = lerp(fx, -hr * 1.1, p.limpia); fy = lerp(fy, hy - hr * .8 - baja + Math.sin(t * 14) * .7 * p.limpia, p.limpia); } /* la antena baja hasta la pata (la pata no se alarga) */
         if (i === 3 && p.saluda) { fx = lerp(fx, W * .5 + 5 + Math.sin(t * 11) * 1.6, p.saluda); fy = lerp(fy, yb - 7.6 - baja, p.saluda); } /* se levanta sin alargarse (≤ 1,3 veces) */
-        if (mu) { fx = lerp(fx, lado * (W * .45 + P0.j * 2), mu); fy = lerp(fy, yb - 1 - baja, mu); }
+        /* patalea: tirada de lado, estira y encoge las patitas tratando de pararse */
+        const muP = mu * (1 - clamp(p.patalea, 0, 1) * (.5 + .5 * Math.sin(t * 15 + i * 1.7)));
+        if (muP) { fx = lerp(fx, lado * (W * .45 + P0.j * 2), muP); fy = lerp(fy, yb - 1 - baja, muP); }
         if (td) { fx = lerp(fx, lado * (W * (1.02 + P0.j * .2) + 2), td); fy = lerp(fy, -baja + .4, td); } /* tendida: las 6 patas estiradas hacia los lados, en el suelo */
         const kx = (hx + fx) / 2 + lado * (1.6 + (1 - mu) * .6) * (1 - td * .7), ky = Math.min(hyy, fy) - 1.6 * (1 - td * .8) - alza * 1.2;
         const sube = (i === 0 && p.limpia > .05) || (i === 3 && p.saluda > .05);
@@ -1124,10 +1126,15 @@
     /* se hace la muerta: recoge las patas, cierra los ojos, espía con uno y se levanta */
     /* se hace la muerta (dueña, 27-11: que se note): alterna caer de lado con las patitas recogidas y tenderse con las patas estiradas */
     const muerta = (m, d = 0, lado) => { m.nMuerta = (m.nMuerta || 0) + 1;
+      /* de lado: cae, se queda quieta, espía y patalea tratando de pararse (se mece), hasta que se endereza */
       if (lado === undefined ? m.nMuerta % 2 : lado) return m.hacer([[d, { sy: .9, sx: 1.05, mira: .8 }, 140], [d + 140, { sy: 1, sx: 1 }, 120], [d + 160, { cae: 1 }, 380, 'entra'], [d + 200, { muerta: 1 }, 300, 'sale'], [d + 540, { sy: .94 }, 90], [d + 630, { sy: 1 }, 160, 'rebote'],
-        [d + 1500, { espia: 1, mira: -.8 }, 160], [d + 2000, { espia: 0, mira: 0 }, 150], [d + 2300, { cae: 0 }, 420, 'suave'], [d + 2350, { muerta: 0 }, 380, 'rebote']]); /* de lado */
-      return m.hacer([[d, { sy: 1.05 }, 120], [d + 120, { tendida: 1, sy: .88, sx: 1.06 }, 300, 'entra'], [d + 420, { sy: .95, sx: 1.03 }, 200, 'rebote'], [d + 900, { sy: .9 }, 500], [d + 1400, { sy: .95 }, 400], /* suspira */
-        [d + 1550, { espia: 1 }, 160], [d + 2050, { espia: 0 }, 150], [d + 2350, { tendida: 0, sy: 1, sx: 1 }, 420, 'rebote']]); }; /* con las patas estiradas */
+        [d + 1300, { espia: 1, mira: -.8 }, 160], [d + 1750, { espia: 0, mira: 0 }, 150], [d + 1900, { patalea: 1, boca: .5 }, 200],
+        [d + 2050, { cae: .9 }, 180], [d + 2250, { cae: 1 }, 180], [d + 2450, { cae: .86 }, 200], [d + 2670, { cae: 1 }, 180], [d + 2850, { patalea: 0 }, 200],
+        [d + 2950, { cae: 0, boca: 0 }, 450, 'suave'], [d + 3000, { muerta: 0 }, 380, 'rebote']]);
+      /* tendida, como dormida: se queda más rato en el suelo, suspira, espía y se levanta despacio */
+      return m.hacer([[d, { sy: 1.05 }, 120], [d + 120, { tendida: 1, sy: .88, sx: 1.06 }, 300, 'entra'], [d + 420, { sy: .95, sx: 1.03 }, 200, 'rebote'],
+        [d + 900, { sy: .9 }, 550], [d + 1450, { sy: .95 }, 500], [d + 1950, { sy: .9 }, 550], [d + 2500, { sy: .95 }, 500], /* suspira */
+        [d + 2700, { espia: 1 }, 200], [d + 3250, { espia: 0 }, 200], [d + 3500, { tendida: 0, sy: 1, sx: 1 }, 1000, 'suave']]); };
     /* vuela: primero abre las tapas, después despliega las alas (rápido), despega, revolotea y aterriza: cierra alas y luego tapas */
     const vuela = (m, d) => { const alto = k >= 3 ? -6 : -9;
       return m.hacer([[d, { abre: 1 }, 200, 'sale'], [d + 170, { alas: 1 }, 110, 'sale'], [d + 170, { aleteo: 1 }, 1], [d + 260, { y: alto, paso: .4 }, 420, 'sale'],
