@@ -1084,7 +1084,7 @@
       /* patas: tres por lado, salen de debajo del cuerpo */
       c += [0, 1, 2, 3, 4, 5].map(i => `<g id="${id}-p${i}"><path fill="none" stroke="#2a2238" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><circle r="1.35" fill="#4a4060"/></g>`).join('');
       /* tapas con sus pintas */
-      c += [-1, 1].map((s, i) => `<g id="${id}-e${i}">${gel(P(tapa(s)), S, 1.4)}<g id="${id}-pi${i}"></g>`
+      c += [-1, 1].map((s, i) => `<g id="${id}-e${i}">${gel(P(tapa(s)), S, 1.4)}<g id="${id}-pi${i}" data-imp="contenido"></g>`
         + (s < 0 ? arc(`M${n3(-W * .78)} ${n3(top + H * .62)}Q${n3(-W * .86)} ${n3(top + H * .2)} ${n3(-W * .36)} ${n3(top + H * .06)}`, 2, .75) : arc(`M${n3(W * .3)} ${n3(top + H * .07)}Q${n3(W * .45)} ${n3(top + H * .05)} ${n3(W * .55)} ${n3(top + H * .1)}`, 1.3, .6))
         + `</g>`).join('');
       /* lazos de la multiplicación (A: uno por tapa; B: uno por fila) y el cartel */
