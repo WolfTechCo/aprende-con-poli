@@ -955,7 +955,7 @@
   /* cabeza: 0 durazno, 1 lila (para comparar con la dueña); [claro, base, sombra, contorno] */
   const CAB = [['#7a6c92', '#463a5e', '#2a2238', '#160f20'], ['#ffeedd', '#ffc999', '#e8935a', '#a3562a'], ['#efe6ff', '#b59cff', '#7f62e0', '#4f36a8']]; /* 0 oscura (elegida: como la chinita real), 1 durazno, 2 lila */
   const C_BASE = { ojos: 1, mira: 0, boca: 0, y: 0, sx: 1, sy: 1, abre: 0, alas: 0, aleteo: 0, paso: 0, muerta: 0, limpia: 0, saluda: 0,
-    grupos: 0, arreglo: 0, luz: -9, cartel: 0, igual: 1, guino: 1, tono: 0, agacha: 0, espia: 0 };
+    grupos: 0, arreglo: 0, luz: -9, cartel: 0, igual: 1, guino: 1, tono: 0, agacha: 0, espia: 0, cae: 0, tendida: 0 };
   /* las pintas: en reposo, juntas por tapa (opción A) y en filas × columnas (opción B); coordenadas del caparazón */
   const pintasC = (k, Q, top, H, borde) => { /* H: alto del caparazón que se ve sobre la cabeza; borde(y): medio ancho de la tapa a esa altura */
     const { W, n } = Q, Y = f => top + H * f, R = [], G = [], A = [], m = Q.r + 1.3, aden = (x, y) => Math.sign(x) * Math.min(Math.abs(x), Math.max(0, borde(y) - m)); /* que ninguna pinta se salga */
@@ -1043,8 +1043,9 @@
     const update = (R, p) => {
       if (!R.B) { const [fi, co] = { 2: [2, 2], 5: [2, 5], 10: [4, 5] }[Q.n]; malla(R, fi, co); }
       const t = p.t || 0, vivo = p.vivo || 0, ab = clamp(p.abre, 0, 1), al = clamp(p.alas, 0, 1), mu = clamp(p.muerta, 0, 1);
-      const resp = Math.sin(t * 2 * Math.PI / 3.2), baja = mu * 3.2;
-      sa(R.all, 'transform', `translate(0 ${n3(p.y + baja)}) scale(${n3(p.sx * (1 + resp * .012 * vivo))} ${n3(p.sy * (1 - resp * .01 * vivo))})`);
+      const td = clamp(p.tendida, 0, 1), ce = clamp(p.cae, 0, 1), resp = Math.sin(t * 2 * Math.PI / 3.2), baja = mu * 3.2 + td * 2.6;
+      /* cae de lado: se vuelca sobre el borde derecho del caparazón (apoyado en el suelo, sin hundirse) y se corre para quedar al centro */
+      sa(R.all, 'transform', `translate(${n3(-ce * (W - top * .5))} ${n3(p.y + baja)}) rotate(${n3(ce * 80)} ${n3(W)} 0) scale(${n3(p.sx * (1 + resp * .012 * vivo))} ${n3(p.sy * (1 - resp * .01 * vivo))})`);
       sa(R.sh, 'transform', `scale(${n3(1 - Math.min(.4, -p.y / 40))} 1)`);
       /* tapas: giran desde arriba hacia afuera (forma de «A») */
       R.e.forEach((e, i) => { const s = i ? 1 : -1; sa(e, 'transform', `translate(${n3(s * ab * 2)} ${n3(-ab * 3)}) rotate(${n3(s * ab * 30)} ${n3(s * W * .3)} ${n3(yb)})`); }); /* se abren en «V» */
@@ -1060,7 +1061,8 @@
         if (i === 0 && p.limpia) { fx = lerp(fx, -hr * 1.1, p.limpia); fy = lerp(fy, hy - hr * .8 - baja + Math.sin(t * 14) * .7 * p.limpia, p.limpia); } /* la antena baja hasta la pata (la pata no se alarga) */
         if (i === 3 && p.saluda) { fx = lerp(fx, W * .5 + 5 + Math.sin(t * 11) * 1.6, p.saluda); fy = lerp(fy, yb - 7.6 - baja, p.saluda); } /* se levanta sin alargarse (≤ 1,3 veces) */
         if (mu) { fx = lerp(fx, lado * (W * .45 + P0.j * 2), mu); fy = lerp(fy, yb - 1 - baja, mu); }
-        const kx = (hx + fx) / 2 + lado * (1.6 + (1 - mu) * .6), ky = Math.min(hyy, fy) - 1.6 - alza * 1.2;
+        if (td) { fx = lerp(fx, lado * (W * (1.02 + P0.j * .2) + 2), td); fy = lerp(fy, -baja + .4, td); } /* tendida: las 6 patas estiradas hacia los lados, en el suelo */
+        const kx = (hx + fx) / 2 + lado * (1.6 + (1 - mu) * .6) * (1 - td * .7), ky = Math.min(hyy, fy) - 1.6 * (1 - td * .8) - alza * 1.2;
         const sube = (i === 0 && p.limpia > .05) || (i === 3 && p.saluda > .05);
         if (sube !== pa.adelante) { if (sube) R.pf.appendChild(pa.g); else pa.casa.insertBefore(pa.g, pa.casa.querySelector('#' + id + '-e0')); pa.adelante = sube; }
         sa(pa.p, 'd', `M${n3(hx)} ${n3(hyy)}Q${n3(kx)} ${n3(ky)} ${n3(fx)} ${n3(fy)}`); sa(pa.f, 'cx', n3(fx)); sa(pa.f, 'cy', n3(fy)); });
@@ -1085,12 +1087,12 @@
       if (R.ctt.textContent !== txt) R.ctt.textContent = txt;
       sa(R.ct, 'opacity', n3(p.cartel)); sa(R.ct, 'transform', `translate(0 ${n3(top - 9)}) scale(${n3((.7 + .3 * p.cartel) * (k === 1 ? .8 : 1))})`);
       /* agacha la cabecita (como esconde la cabeza la chinita real) para que se vean todas las pintas */
-      const ag = clamp(p.agacha, 0, 1); sa(R.cab, 'transform', `translate(0 ${n3(ag * hr * .42)}) scale(${n3(1 - ag * .1)})`);
+      const ag = clamp(Math.max(p.agacha, td * .9), 0, 1); sa(R.cab, 'transform', `translate(0 ${n3(ag * hr * .42)}) scale(${n3(1 - ag * .1)})`);
       /* color de la cabeza, las antenas y las patas */
       const tn = Math.round(clamp(p.tono, 0, 2)); if (R.tn !== tn) { R.tn = tn; const K = CAB[tn]; R.cb.setAttribute('fill', `url(#${id}-g${tn})`); R.cb.setAttribute('stroke', K[3]);
         R.an.forEach(a => { a.p.setAttribute('stroke', K[3]); a.c.setAttribute('stroke', K[3]); }); R.pa.forEach(pa => { pa.p.setAttribute('stroke', K[3]); pa.f.setAttribute('fill', K[2]); }); }
       /* cara */
-      const ojo = Math.max(.08, p.ojos * (1 - mu * .9));
+      const ojo = Math.max(.08, p.ojos * (1 - Math.max(mu, td) * .9));
       R.o.forEach((o, i) => sa(o, 'transform', `scale(1 ${n3(i === 1 ? Math.max(.08, ojo * p.guino) : Math.max(ojo, p.espia))})`)); /* espia: abre un ojo mientras se hace la muerta */
       R.pu.forEach(u => sa(u, 'transform', `translate(${n3(p.mira * .9)} 0)`));
       sa(R.bo, 'opacity', n3(clamp(p.boca * 1.5, 0, 1))); sa(R.bc, 'opacity', n3(1 - clamp(p.boca * 2, 0, 1)));
@@ -1120,14 +1122,19 @@
     const lista = [acc.camina, acc.limpia, acc.mira, acc.saluda, acc.estira, acc.bosteza];
     const acciones = lista.map(fn => m => { m.nQuiz = (m.nQuiz || 0) + 1; return m.nQuiz % 3 === 1 ? quiz(m) : fn(m); });
     /* se hace la muerta: recoge las patas, cierra los ojos, espía con uno y se levanta */
-    const muerta = (m, d) => m.hacer([[d, { muerta: 1 }, 280, 'sale'], [d + 1150, { espia: 1 }, 150], [d + 1650, { espia: 0 }, 150], [d + 1950, { muerta: 0 }, 380, 'rebote']]);
+    /* se hace la muerta (dueña, 27-11: que se note): alterna caer de lado con las patitas recogidas y tenderse con las patas estiradas */
+    const muerta = (m, d = 0, lado) => { m.nMuerta = (m.nMuerta || 0) + 1;
+      if (lado === undefined ? m.nMuerta % 2 : lado) return m.hacer([[d, { sy: .9, sx: 1.05, mira: .8 }, 140], [d + 140, { sy: 1, sx: 1 }, 120], [d + 160, { cae: 1 }, 380, 'entra'], [d + 200, { muerta: 1 }, 300, 'sale'], [d + 540, { sy: .94 }, 90], [d + 630, { sy: 1 }, 160, 'rebote'],
+        [d + 1500, { espia: 1, mira: -.8 }, 160], [d + 2000, { espia: 0, mira: 0 }, 150], [d + 2300, { cae: 0 }, 420, 'suave'], [d + 2350, { muerta: 0 }, 380, 'rebote']]); /* de lado */
+      return m.hacer([[d, { sy: 1.05 }, 120], [d + 120, { tendida: 1, sy: .88, sx: 1.06 }, 300, 'entra'], [d + 420, { sy: .95, sx: 1.03 }, 200, 'rebote'], [d + 900, { sy: .9 }, 500], [d + 1400, { sy: .95 }, 400], /* suspira */
+        [d + 1550, { espia: 1 }, 160], [d + 2050, { espia: 0 }, 150], [d + 2350, { tendida: 0, sy: 1, sx: 1 }, 420, 'rebote']]); }; /* con las patas estiradas */
     /* vuela: primero abre las tapas, después despliega las alas (rápido), despega, revolotea y aterriza: cierra alas y luego tapas */
     const vuela = (m, d) => { const alto = k >= 3 ? -6 : -9;
       return m.hacer([[d, { abre: 1 }, 200, 'sale'], [d + 170, { alas: 1 }, 110, 'sale'], [d + 170, { aleteo: 1 }, 1], [d + 260, { y: alto, paso: .4 }, 420, 'sale'],
         [d + 700, { y: alto + 3 }, 300], [d + 1000, { y: alto }, 300], [d + 1300, { y: 0, paso: 0 }, 420, 'suave'], [d + 1720, { aleteo: 0 }, 1], [d + 1720, { alas: 0 }, 200], [d + 1900, { abre: 0 }, 240, 'rebote']]); };
     return {
       fondo: (t, modo, p) => { p.t = t; p.vivo = modo === 'vida' ? 1 : 0; return {}; },
-      acciones, prueba: { ...acc, multiplica: quiz },
+      acciones, prueba: { ...acc, multiplica: quiz, deLado: m => muerta(m, 0, true), estirada: m => muerta(m, 0, false) },
       gesto: k === 1 ? muerta : (m, d) => { m.nGesto = (m.nGesto || 0) + 1; return m.nGesto % 2 ? vuela(m, d) : muerta(m, d); },
       salto: (m, d) => m.hacer([[d, { sy: .86, sx: 1.08 }, 140], [d + 140, { y: k >= 3 ? -6 : -10, sy: k >= 3 ? 1.04 : 1.08, sx: k >= 3 ? .97 : .94 }, 240, 'sale'], [d + 380, { y: 0, sy: 1, sx: 1 }, 420, 'suave']]),
       /* al tocar: lo que no se devuelve suave (qué fila brilla, el texto del cartel) se acomoda al instante */
