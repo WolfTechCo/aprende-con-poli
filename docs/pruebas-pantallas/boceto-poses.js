@@ -120,6 +120,13 @@
   /* pone un atributo solo si cambió (reescribir sin necesidad hace que la animación se ponga lenta) */
   const sa = (el, k, v) => { if (!el) return; const c = el._c || (el._c = {}); if (c[k] === v) return; c[k] = v; el.setAttribute(k, v); };
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  /* globito de la mascota (dueña, 27-11): el mismo en todas, con colita hacia la mascota; dice lo suyo en pocas palabras.
+     Regla: lo matemático se muestra una sola vez (si el cuerpo ya lo muestra, como Cienpiecito, no lleva globito).
+     Es el mismo globito que en la 4A-4 tendrá los mensajes de ayuda. */
+  const GLOBO = (id, col, tam = 5.6) => `<g id="${id}-ct" opacity="0"><path fill="#fff" stroke="${col}" stroke-width=".9" stroke-linejoin="round"/><text id="${id}-ctt" y="${n3(tam * .36)}" text-anchor="middle" font-family="Arial Rounded MT Bold,Nunito,Arial,sans-serif" font-weight="900" font-size="${tam}" fill="${col}"></text></g>`;
+  const globoTexto = (ct, ctt, txt) => { if (ctt.textContent === txt) return; ctt.textContent = txt; let w = 0; try { w = ctt.getComputedTextLength(); } catch (e) { /* sin medir */ }
+    if (!w) w = txt.length * 3; const h = Math.max(0, w / 2 + 4.6 - 5.5);
+    ct.firstChild.setAttribute('d', `M${n3(-h)} -6H${n3(h)}A5.5 5.5 0 0 1 ${n3(h)} 5H2.2L0 8.6L-2.2 5H${n3(-h)}A5.5 5.5 0 0 1 ${n3(-h)} -6Z`); };
   const tortugonoPose = k => {
     const id = 'kt' + (++nT), T = TT[k], tile = k === 4 ? 'oro' : 'amarillo', up = k >= 3, hs = [0, 1.22, 1.08, 1, 1][k], SC = M.C.SCALE[k];
     const O = up ? [27, -27] : [23, -15], IN = up ? [5, -20] : [4, -18], NB = [8, -12];
@@ -148,7 +155,7 @@
         + [...Array(8)].map((_, i) => `<line id="${id}-lzl${i}" stroke="#ff4d64" stroke-width="1.6" stroke-linecap="round"/>`).join('')
         + [...Array(8)].map((_, i) => `<circle id="${id}-lzv${i}" r=".9" fill="#fff" stroke="#ff4d64" stroke-width=".5"/>`).join('') + `</g>`
         + `<g id="${id}-lzn"><circle r="3.6" fill="#fff" stroke="#ff4d64" stroke-width=".8"/><text id="${id}-lznt" y="2.3" text-anchor="middle" font-family="Arial Rounded MT Bold,Nunito,Arial,sans-serif" font-weight="900" font-size="6" fill="#d42645"></text></g></g>`;
-      c += `<g id="${id}-ct" opacity="0"><rect x="-30" y="-6" width="60" height="11" rx="5.5" fill="#fff" stroke="${PAL.verde[3]}" stroke-width=".9"/><text id="${id}-ctt" y="2.1" text-anchor="middle" font-family="Arial Rounded MT Bold,Nunito,Arial,sans-serif" font-weight="900" font-size="5.6" fill="#1f5e2c"></text></g>`;
+      c += GLOBO(id, '#1f5e2c');
       /* abertura: sombra que sigue el borde delantero, solo visible con la cabeza adentro */
       c += `<path id="${id}-ab" d="M20.8 -9.6Q24 -18.4 19.6 -27.4Q8.4 -18.6 20.8 -9.6Z" fill="#123a2e" stroke="${PAL.verde[3]}" stroke-width=".8" opacity="0"/>`;
       c += `<g id="${id}-as" opacity="0">${`<g transform="translate(17.2 -18.6) scale(${n3(fs)})"><g id="${id}-ao"><ellipse rx="2.3" ry="2.7" fill="url(#km-ojo)"/><circle cx=".8" cy="-1.1" r="1" fill="#fff"/><circle cx="-.7" cy="1.2" r=".45" fill="#fff"/></g></g>`}</g>`;
@@ -172,7 +179,7 @@
       r.lzv.forEach((v, i) => { if (i >= pn) { sa(v, 'opacity', '0'); return; } sa(v, 'cx', n3(r.vs[i][0])); sa(v, 'cy', n3(r.vs[i][1])); sa(v, 'opacity', p.lado >= i ? '1' : '0'); });
       const nro = Math.min(pn, Math.floor(p.lado + .001)); if (r.lznt.textContent !== String(nro)) r.lznt.textContent = nro ? String(nro) : '';
       sa(r.lzn, 'transform', `translate(${n3(pcx)} ${n3(pcy - r.pz[2] * 1.35 - 4.5)})`); sa(r.lzn, 'opacity', nro ? '1' : '0');
-      const txt = `¡${T_FIG[pn]}: ${pn} lados!`; if (r.ctt.textContent !== txt) r.ctt.textContent = txt;
+      globoTexto(r.ct, r.ctt, `¡${T_FIG[pn]}: ${pn} lados!`);
       sa(r.ct, 'opacity', n3(p.cartel)); sa(r.ct, 'transform', `translate(-3 ${up ? -51 : -46}) scale(${n3(.8 + .2 * p.cartel)})`);
       /* toma sol: el solcito aparece y gira despacio */
       sa(r.sol, 'opacity', n3(p.sol)); sa(r.solr, 'transform', `rotate(${n3((p.t || 0) * 20)})`);
@@ -377,7 +384,7 @@
       + '</g>';
     /* marco que señala la parte y cartel con su figura */
     const MARCO = () => `<rect id="${id}-mk" rx="3" fill="#fff" fill-opacity=".22" stroke="#fff" stroke-width="1.2" stroke-dasharray="2.4 1.4" opacity="0"/>`
-      + `<g id="${id}-ct" opacity="0"><rect x="-36" y="-6" width="72" height="11" rx="5.5" fill="#fff" stroke="${BC[3]}" stroke-width=".9"/><text id="${id}-ctt" y="2" text-anchor="middle" font-family="Arial Rounded MT Bold,Nunito,Arial,sans-serif" font-weight="900" font-size="5.2" fill="${BC[3]}"></text></g>`;
+      + GLOBO(id, BC[3]);
     const build = () => {
       const pre = k === 4 ? aura(-22, 38) + chispas([[-26, -36, 3], [31, -28, 2.6], [-22, -8, 2.2]]) : '';
       let g = '';
@@ -466,7 +473,7 @@
         r.mkEls.forEach(e => { const b = e.getBoundingClientRect(); [[b.left, b.top], [b.right, b.bottom]].forEach(([x, y]) => { const q = new DOMPoint(x, y).matrixTransform(Mi); x0 = Math.min(x0, q.x); y0 = Math.min(y0, q.y); x1 = Math.max(x1, q.x); y1 = Math.max(y1, q.y); }); });
         const pd = 1.6; sa(r.mk, 'x', n3(x0 - pd)); sa(r.mk, 'y', n3(y0 - pd)); sa(r.mk, 'width', n3(x1 - x0 + 2 * pd)); sa(r.mk, 'height', n3(y1 - y0 + 2 * pd)); }
       sa(r.mk, 'opacity', n3(clamp(p.figura, 0, 1) * (r.parte === 'vertices' ? 0 : 1)));
-      const txt = B_PARTES[r.parte]; if (r.ctt.textContent !== txt) r.ctt.textContent = txt;
+      globoTexto(r.ct, r.ctt, B_PARTES[r.parte]);
       sa(r.ct, 'opacity', n3(p.cartel)); sa(r.ct, 'transform', `translate(0 ${n3((cria ? -38 : TOP - (k === 4 ? 17 : 13)) + p.sube)}) scale(${n3((.8 + .2 * p.cartel) * (cria ? .85 : 1))})`);
       /* vértices (brillante): un puntito por esquina de la cabeza-cubo, de a uno; el de atrás se ve tenue */
       sa(r.vx, 'opacity', n3(p.vert >= 0 ? 1 : 0));
@@ -876,7 +883,7 @@
       if (k >= 2) m += `<path d="M-12.6 -18.6Q-10.2 -20.4 -7.8 -18.8M7.8 -18.8Q10.2 -20.4 12.6 -18.6" fill="none" stroke="${B[2]}" stroke-width=".9" stroke-linecap="round" opacity=".5"/>`;
       if (gold) m += corona(0, -34.4, 1.1);
       c += `<g id="${id}-man">${m}</g><g id="${id}-frente">${[...Array(N)].map((_, i) => brazoSVG(i)).join('')}</g>`;
-      c += `<g id="${id}-q" opacity="0"><circle r="4.4" fill="#fff" stroke="${B[3]}" stroke-width=".9"/><text y="2.5" text-anchor="middle" font-family="Arial Rounded MT Bold,Nunito,Arial,sans-serif" font-weight="900" font-size="7.2" fill="${B[3]}">?</text></g>`;
+      c += `<g id="${id}-q" opacity="0"><circle r="4.4" fill="#fff" stroke="${B[3]}" stroke-width=".9"/><text id="${id}-qt" y="2.5" text-anchor="middle" font-family="Arial Rounded MT Bold,Nunito,Arial,sans-serif" font-weight="900" font-size="7.2" fill="${B[3]}">?</text><path id="${id}-qa" stroke="#fff" stroke-width=".5" opacity="0"/></g>`; /* su globito: «?» y, al revelar, la respuesta */
       /* regla 9: la nube y el confeti van en el escenario, fuera del cuerpo: quedan donde salieron mientras el pulpo se mueve */
       let fx = `<g id="${id}-nube" opacity="0">${[[-11, -2, 10], [2, -7, 12], [13, 0, 9.5], [-3, 6, 10], [9, 9, 7], [-13, 9, 6.5]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#9d86df"/>`).join('')}`
         + [[-11, -2, 8], [2, -7, 10], [13, 0, 7.5], [-3, 6, 8]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#b9a6ec"/>`).join('')
@@ -886,7 +893,7 @@
       return `<g transform="scale(${SC})">${g}<g id="${id}-all"><g id="${id}-cuerpo">${c}</g></g><g id="${id}-fx">${fx}</g></g>`;
     };
     const refs = el => { const q = s => el.querySelector('#' + id + '-' + s);
-      return { quiz: patronPulpo(k, false), base: patronPulpo(k, false), sh: q('sh'), cuerpo: q('cuerpo'), man: q('man'), tras: q('tras'), frente: q('frente'), qm: q('q'), nube: q('nube'), tin: [...q('tin').children],
+      return { quiz: patronPulpo(k, false), base: patronPulpo(k, false), qt: q('qt'), qa: q('qa'), sh: q('sh'), cuerpo: q('cuerpo'), man: q('man'), tras: q('tras'), frente: q('frente'), qm: q('q'), nube: q('nube'), tin: [...q('tin').children],
         o: [0, 1].map(i => q('o' + i)), bc: q('bc'), bo: q('bo'),
         b: [...Array(N)].map((_, i) => ({ g: q('b' + i), f: q('b' + i).children[0], s: q('b' + i).children[1], l: [...Array(Q.luces)].map((_, j) => q(`l${i}-${j}`)), atras: false })) }; };
     /* forma de un brazo: relleno cerrado y contorno abierto en la raíz (así se une al cuerpo sin corte) */
@@ -943,9 +950,10 @@
           const vis = it.c && jj < it.q && !esQ && (p.quiz < .5 || i <= p.enciende) ? 1 : 0, ola = Math.max(0, 1 - Math.abs(p.olaColor - i - jj * .3)), r = Math.min((1.7 - jj * .12) * sc, w0 * (1 - tt * .45) * .82) * (1 + ola * .35);
           const f = it.f || 'o'; if (L._f !== f + r.toFixed(2)) { L._f = f + r.toFixed(2); L.setAttribute('d', FIG[f](r)); }
           sa(L, 'fill', it.c || '#fff'); sa(L, 'opacity', n3(vis ? (.8 + .2 * Math.sin(t * 3 + i + jj) * vivo + ola * .2) : 0)); sa(L, 'transform', `translate(${n3(pt[0])} ${n3(pt[1])})`); });
-        if (p.quiz > .5 && i === qz.ult) { const pt = qz.ult === N - 1 ? D : cub3(A0, B1, C1, D, .6); sa(R.qm, 'transform', `translate(${n3(pt[0] + (qz.ult === N - 1 ? 1.5 : 0))} ${n3(pt[1] - (qz.ult === N - 1 ? 5 : -1) - Math.sin(t * 5) * .8)}) scale(${n3(1 - p.revela * .9)})`); }
+        if (p.quiz > .5 && i === qz.ult && p.revela < .5) { const pt = qz.ult === N - 1 ? D : cub3(A0, B1, C1, D, .6); sa(R.qm, 'transform', `translate(${n3(pt[0] + (qz.ult === N - 1 ? 1.5 : 0))} ${n3(pt[1] - (qz.ult === N - 1 ? 5 : -1) - Math.sin(t * 5) * .8)})`); } /* al revelar se queda donde estaba */
       }
-      sa(R.qm, 'opacity', n3(p.pregunta * (1 - p.revela)));
+      if (R._qz !== qz) { R._qz = qz; const it = qz.it[qz.ult] || {}; R.qa.setAttribute('d', FIG[it.f || 'o'](2.6)); R.qa.setAttribute('fill', it.c || '#ffd23c'); }
+      sa(R.qm, 'opacity', n3(p.pregunta)); sa(R.qt, 'opacity', n3(1 - p.revela)); sa(R.qa, 'opacity', n3(p.revela)); sa(R.qa, 'transform', `scale(${n3(.6 + .4 * p.revela)})`);
       const ojo = Math.max(.08, p.ojos);
       R.o.forEach(o => sa(o, 'transform', `translate(${n3(p.mira * 1.1)} 0) scale(1 ${n3(ojo)})`));
       sa(R.bo, 'opacity', n3(clamp((p.boca - .1) * 1.6, 0, 1))); sa(R.bo, 'transform', `scale(1 ${n3(.4 + .6 * clamp(p.boca, 0, 1))})`); sa(R.bc, 'opacity', n3(1 - clamp(p.boca * 2, 0, 1)));
@@ -1093,7 +1101,7 @@
       if (gold) c += corona(n3(hr * .42), n3(hy - hr * .82), .6, 16); /* chica y de lado: no tapa las pintas */
       c += `</g>`;
       c += `<g id="${id}-pf"></g>`; /* aquí pasa la pata que sube (limpiarse, saludar), para que no quede tapada */
-      c += `<g id="${id}-ct" opacity="0"><rect x="-21" y="-6" width="42" height="11" rx="5.5" fill="#fff" stroke="${SP[3]}" stroke-width=".9"/><text id="${id}-ctt" y="2.3" text-anchor="middle" font-family="Arial Rounded MT Bold,Nunito,Arial,sans-serif" font-weight="900" font-size="7" fill="#3a2a4a"></text></g>`;
+      c += GLOBO(id, SP[3] === PAL.oro[3] ? '#8a5a00' : '#9c1532', 6.6);
       return `<g transform="scale(${SC})">${g}<g id="${id}-all">${c}</g></g>`;
     };
     const refs = el => { const q = s => el.querySelector('#' + id + '-' + s);
@@ -1161,8 +1169,8 @@
       /* cartel: mientras cuenta, el número que va (de a saltos: 5, 10, 15…); al final, la multiplicación */
       const filas = Math.min(MB.fi, Math.max(1, Math.round(p.luz) + 1));
       const txt = p.igual > .5 ? `${MB.fi} × ${MB.co} = ${MB.fi * MB.co}` : `${filas * MB.co}`;
-      if (R.ctt.textContent !== txt) R.ctt.textContent = txt;
-      sa(R.ct, 'opacity', n3(p.cartel)); sa(R.ct, 'transform', `translate(0 ${n3(top - 9)}) scale(${n3((.7 + .3 * p.cartel) * (k === 1 ? .8 : 1))})`);
+      globoTexto(R.ct, R.ctt, txt);
+      sa(R.ct, 'opacity', n3(p.cartel)); sa(R.ct, 'transform', `translate(0 ${n3(top - 11)}) scale(${n3((.7 + .3 * p.cartel) * (k === 1 ? .8 : 1))})`);
       /* agacha la cabecita (como esconde la cabeza la chinita real) para que se vean todas las pintas */
       const ag = clamp(Math.max(p.agacha, td * .9), 0, 1); sa(R.cab, 'transform', `translate(0 ${n3(ag * hr * .42)}) scale(${n3(1 - ag * .1)})`);
       /* color de la cabeza, las antenas y las patas */
